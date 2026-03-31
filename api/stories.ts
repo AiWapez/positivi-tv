@@ -3,64 +3,59 @@ import type { VercelRequest, VercelResponse } from "@vercel/node";
 const API_KEY = process.env.GNEWS_API_KEY;
 const BASE_URL = "https://gnews.io/api/v4/search";
 
-// Broader keywords that actually return results on GNews
-const CATEGORY_KEYWORDS: Record<string, string[][]> = {
+// Simple keywords that GNews reliably returns results for.
+// Each category has multiple options; we pick one per request to vary results.
+const CATEGORY_QUERIES: Record<string, string[]> = {
   world: [
-    ["peace", "agreement"],
-    ["humanitarian", "aid"],
-    ["united nations", "milestone"],
-    ["cooperation", "countries"],
-    ["diplomacy", "success"],
-    ["refugees", "welcomed"],
+    "peace treaty",
+    "humanitarian aid success",
+    "refugees welcomed",
+    "countries cooperate",
+    "diplomatic agreement",
   ],
   science: [
-    ["scientists", "discovery"],
-    ["breakthrough", "research"],
-    ["NASA", "success"],
-    ["renewable energy", "record"],
-    ["species", "discovered"],
-    ["climate", "solution"],
-    ["space", "launch success"],
+    "breakthrough discovery",
+    "scientists created",
+    "NASA success",
+    "renewable energy record",
+    "new species discovered",
+    "medical breakthrough",
   ],
   community: [
-    ["rescue", "saved"],
-    ["volunteers", "helped"],
-    ["kindness", "community"],
-    ["donated", "charity"],
-    ["rebuilt", "neighborhood"],
-    ["food bank", "families"],
+    "volunteers rescued",
+    "community rebuilt",
+    "charity donated millions",
+    "kindness strangers",
+    "neighborhood saved",
   ],
   health: [
-    ["medical", "breakthrough"],
-    ["vaccine", "approved"],
-    ["cancer", "treatment breakthrough"],
-    ["cure", "discovered"],
-    ["hospital", "milestone"],
-    ["disease", "eliminated"],
+    "cure discovered",
+    "vaccine breakthrough",
+    "cancer treatment success",
+    "disease eliminated",
+    "surgery breakthrough",
   ],
   business: [
-    ["jobs", "created"],
-    ["startup", "launched"],
-    ["economic", "growth"],
-    ["renewable", "investment"],
-    ["small business", "success"],
-    ["poverty", "reduced"],
+    "jobs created thousands",
+    "startup launched",
+    "economic growth record",
+    "renewable energy investment",
+    "poverty reduction milestone",
   ],
   sports: [
-    ["championship", "wins"],
-    ["record", "breaking athlete"],
-    ["olympic", "gold"],
-    ["underdog", "victory"],
-    ["athlete", "charity"],
-    ["comeback", "win"],
+    "championship underdog wins",
+    "world record broken",
+    "athlete donates charity",
+    "comeback victory",
+    "Olympic gold medal",
   ],
 };
 
-const NEGATIVE_SIGNALS = [
+const NEGATIVE_WORDS = [
   "killed", "dead", "dies", "murder", "attack", "crisis",
   "war ", "bomb", "shooting", "massacre", "collapse", "scandal",
-  "arrest", "sentenced", "guilty", "fatal", "terror", "charged",
-  "fraud", "abuse", "crash", "explosion",
+  "arrest", "sentenced", "guilty", "fatal", "terror", "fraud",
+  "abuse", "crash killed", "explosion killed",
 ];
 
 interface GNewsArticle {
@@ -75,12 +70,10 @@ interface GNewsArticle {
 
 async function fetchCategory(
   categoryKey: string,
-  keywordPairs: string[][]
+  queries: string[]
 ): Promise<{ category: string; articles: GNewsArticle[] }> {
-  // Pick 2 random keyword pairs and build query
-  const shuffled = [...keywordPairs].sort(() => Math.random() - 0.5);
-  const picked = shuffled.slice(0, 3);
-  const query = picked.map((pair) => pair.join(" ")).join(" OR ");
+  // Pick one random query for this category
+  const query = queries[Math.floor(Math.random() * queries.length)];
 
   const params = new URLSearchParams({
     q: query,
@@ -90,18 +83,29 @@ async function fetchCategory(
     apikey: API_KEY || "",
   });
 
+  const url = `${BASE_URL}?${params}`;
+
   try {
-    const res = await fetch(`${BASE_URL}?${params}`);
+    const res = await fetch(url);
+
     if (!res.ok) {
-      console.error(`GNews ${categoryKey}: HTTP ${res.status}`);
+      const text = await res.text();
+      console.error(`GNews ${categoryKey} HTTP ${res.status}: ${text}`);
       return { category: categoryKey, articles: [] };
     }
 
     const data = await res.json();
-    const filtered = (data.articles || []).filter(
+
+    if (!data.articles || !Array.isArray(data.articles)) {
+      console.error(`GNews ${categoryKey}: no articles array in response`);
+      return { category: categoryKey, articles: [] };
+    }
+
+    // Filter out negative stories
+    const filtered = data.articles.filter(
       (a: GNewsArticle) =>
-        !NEGATIVE_SIGNALS.some((s) =>
-          a.title.toLowerCase().includes(s)
+        !NEGATIVE_WORDS.some((word) =>
+          a.title.toLowerCase().includes(word)
         )
     );
 
@@ -121,22 +125,25 @@ export default async function handler(
   }
 
   if (!API_KEY) {
-    console.error("GNEWS_API_KEY environment variable is not set");
-    return res.status(500).json({ error: "API key not configured" });
+    return res.status(500).json({
+      error: "GNEWS_API_KEY not set",
+      hint: "Add GNEWS_API_KEY to Vercel Environment Variables and redeploy",
+    });
   }
 
   try {
+    // Fetch all 6 categories in parallel
     const results = await Promise.all(
-      Object.entries(CATEGORY_KEYWORDS).map(([key, pairs]) =>
-        fetchCategory(key, pairs)
+      Object.entries(CATEGORY_QUERIES).map(([key, queries]) =>
+        fetchCategory(key, queries)
       )
     );
 
+    // Deduplicate by URL and flatten
     const seen = new Set<string>();
     const stories = results.flatMap(({ category, articles }) =>
       articles
         .filter((a) => {
-          // Deduplicate by URL
           if (seen.has(a.url)) return false;
           seen.add(a.url);
           return true;
@@ -152,12 +159,14 @@ export default async function handler(
         }))
     );
 
+    // Sort newest first
     stories.sort(
       (a, b) =>
         new Date(b.publishedAt).getTime() -
         new Date(a.publishedAt).getTime()
     );
 
+    // Cache 15 min
     res.setHeader(
       "Cache-Control",
       "s-maxage=900, stale-while-revalidate=1800"
