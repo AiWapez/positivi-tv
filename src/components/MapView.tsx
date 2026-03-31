@@ -80,7 +80,7 @@ export default function MapView({
       zoomControl={true}
       attributionControl={false}
       className="h-full w-full"
-      style={{ background: "#080c16" }}
+      style={{ background: "#000000" }}
     >
       {/* CartoDB Dark Matter tiles - free, no API key */}
       <TileLayer
