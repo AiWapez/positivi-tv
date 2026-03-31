@@ -154,7 +154,7 @@ const COORDS: Record<string, Coordinates> = {
   beijing: { lat: 39.9, lng: 116.4, name: "Beijing" },
   shanghai: { lat: 31.23, lng: 121.47, name: "Shanghai" },
   shenzhen: { lat: 22.54, lng: 114.06, name: "Shenzhen" },
-  hong kong: { lat: 22.32, lng: 114.17, name: "Hong Kong" },
+  hongkong: { lat: 22.32, lng: 114.17, name: "Hong Kong" },
   japan: { lat: 35.68, lng: 139.69, name: "Japan" },
   japanese: { lat: 35.68, lng: 139.69, name: "Japan" },
   tokyo: { lat: 35.68, lng: 139.69, name: "Tokyo" },
