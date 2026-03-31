@@ -2,11 +2,11 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Force dark background on html/body */
+/* Jet black background everywhere */
 html,
 body,
 #root {
-  background: #080c16;
+  background: #000000;
   color: #e0e6f0;
   margin: 0;
   padding: 0;
@@ -16,23 +16,23 @@ body,
     "Segoe UI", sans-serif;
 }
 
-/* Leaflet container must have explicit height */
+/* Leaflet container */
 .leaflet-container {
   height: 100%;
   width: 100%;
-  background: #080c16 !important;
+  background: #000000 !important;
 }
 
-/* Override Leaflet controls for dark theme */
+/* Dark zoom controls */
 .leaflet-control-zoom a {
-  background: rgba(8, 12, 22, 0.9) !important;
+  background: rgba(0, 0, 0, 0.85) !important;
   color: rgba(255, 255, 255, 0.7) !important;
   border-color: rgba(255, 255, 255, 0.1) !important;
   backdrop-filter: blur(8px);
 }
 
 .leaflet-control-zoom a:hover {
-  background: rgba(20, 30, 55, 0.95) !important;
+  background: rgba(20, 20, 20, 0.95) !important;
   color: #fff !important;
 }
 
@@ -40,12 +40,40 @@ body,
   border: none !important;
   border-radius: 10px !important;
   overflow: hidden !important;
-  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.4) !important;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.6) !important;
 }
 
-/* Hide default Leaflet attribution for cleaner look */
+/* Hide Leaflet attribution */
 .leaflet-control-attribution {
   display: none !important;
+}
+
+/* ── Tooltip fix: background fully covers text ── */
+.positivity-tooltip {
+  background: rgba(0, 0, 0, 0.92) !important;
+  border: 1px solid rgba(255, 255, 255, 0.15) !important;
+  border-radius: 10px !important;
+  padding: 10px 14px !important;
+  color: #e0e6f0 !important;
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.7) !important;
+  font-family: -apple-system, BlinkMacSystemFont, sans-serif !important;
+  font-size: 12px !important;
+  line-height: 1.4 !important;
+  max-width: 260px !important;
+  white-space: normal !important;
+  word-wrap: break-word !important;
+  overflow-wrap: break-word !important;
+}
+
+/* Remove the default Leaflet tooltip arrow/tip */
+.positivity-tooltip .leaflet-tooltip-tip {
+  display: none !important;
+}
+
+/* Override any Leaflet default tooltip sizing */
+.leaflet-tooltip.positivity-tooltip {
+  padding: 10px 14px !important;
+  white-space: normal !important;
 }
 
 /* Marker pulse animation */
@@ -89,24 +117,7 @@ body,
   transform: scale(1.4);
 }
 
-/* Custom tooltip styling for Leaflet */
-.positivity-tooltip {
-  background: rgba(8, 12, 22, 0.95) !important;
-  border: 1px solid rgba(255, 255, 255, 0.15) !important;
-  border-radius: 8px !important;
-  padding: 8px 12px !important;
-  color: #e0e6f0 !important;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5) !important;
-  font-family: -apple-system, BlinkMacSystemFont, sans-serif !important;
-  font-size: 12px !important;
-  max-width: 220px !important;
-}
-
-.positivity-tooltip .leaflet-tooltip-tip {
-  display: none !important;
-}
-
-/* Bottom sheet slide animation */
+/* Bottom sheet slide */
 @keyframes slide-up {
   from {
     transform: translateY(100%);
@@ -120,7 +131,7 @@ body,
   animation: slide-up 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-/* Hide scrollbar but keep scrolling */
+/* Hide scrollbar */
 .no-scrollbar::-webkit-scrollbar {
   display: none;
 }
