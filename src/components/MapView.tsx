@@ -77,6 +77,7 @@ export default function MapView({
       zoom={2}
       minZoom={2}
       maxZoom={10}
+      worldCopyJump={true}
       zoomControl={true}
       attributionControl={false}
       className="h-full w-full"
