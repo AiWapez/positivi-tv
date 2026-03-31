@@ -182,7 +182,7 @@ export default async function handler(
     // Cache 5 minutes
     res.setHeader(
       "Cache-Control",
-      "s-maxage=300, stale-while-revalidate=600"
+      "s-maxage=14400, stale-while-revalidate=28800"
     );
 
     return res.status(200).json({
