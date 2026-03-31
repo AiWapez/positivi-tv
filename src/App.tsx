@@ -63,7 +63,7 @@ export default function App() {
     .filter((g) => g.items.length > 0);
 
   return (
-    <div className="h-screen flex flex-col overflow-hidden bg-dark-900">
+    <div className="h-screen flex flex-col overflow-hidden bg-black">
       <Header
         storyCount={visible.length}
         loading={loading}
