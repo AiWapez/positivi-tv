@@ -3,65 +3,64 @@ import type { VercelRequest, VercelResponse } from "@vercel/node";
 const API_KEY = process.env.GNEWS_API_KEY;
 const BASE_URL = "https://gnews.io/api/v4/search";
 
-// One simple query per category per request. Keep these plain and direct.
-const CATEGORY_QUERIES: Record<string, string[]> = {
-  world: [
-    "peace agreement",
-    "humanitarian aid",
-    "diplomatic success",
-    "international cooperation",
-    "refugees resettled",
-  ],
-  science: [
-    "breakthrough discovery",
-    "scientists discover",
-    "space mission success",
-    "renewable energy record",
-    "new species found",
-  ],
-  community: [
-    "volunteers rescue",
-    "community rebuilds",
-    "charity donates",
-    "strangers kindness",
-    "neighborhood saved",
-  ],
-  health: [
-    "medical breakthrough",
-    "vaccine success",
-    "cancer treatment breakthrough",
-    "disease eliminated",
-    "surgery saves",
-  ],
-  business: [
-    "jobs created",
-    "startup success",
-    "economic growth",
-    "clean energy investment",
-    "poverty reduction",
-  ],
-  sports: [
-    "championship victory",
-    "world record broken",
-    "athlete donates",
-    "underdog wins",
-    "comeback victory sports",
-  ],
-};
+// 3 broad queries instead of 6 narrow ones. Saves API quota and avoids rate limits.
+const QUERIES = [
+  "breakthrough discovery scientists research",
+  "rescue charity volunteers community rebuilt",
+  "victory championship record economic growth",
+];
 
 const NEGATIVE_WORDS = [
   "killed", "dead", "dies", "murder", "attack", "crisis",
   "war ", "bomb", "shooting", "massacre", "collapse", "scandal",
   "arrest", "sentenced", "guilty", "fatal", "terror", "fraud",
-  "abuse",
+  "abuse", "crash", "assaulted",
 ];
 
-async function fetchCategory(
-  categoryKey: string,
-  queries: string[]
-): Promise<any[]> {
-  const query = queries[Math.floor(Math.random() * queries.length)];
+// Auto-categorize a story based on its title and description
+function categorize(title: string, desc: string): string {
+  const text = `${title} ${desc}`.toLowerCase();
 
+  // Science & Tech
+  if (
+    /scientist|research|discovery|breakthrough|nasa|space|asteroid|dna|study|lab|universit|genome|quantum|ai |robot|solar|energy|climate|species|fossil/.test(text)
+  ) return "science";
+
+  // Health
+  if (
+    /medical|health|hospital|cancer|disease|treatment|vaccine|surgery|drug|patient|doctor|cure|therap|mental health|transplant/.test(text)
+  ) return "health";
+
+  // Sports
+  if (
+    /championship|tournament|medal|olympic|athlete|coach|football|basketball|soccer|tennis|record.*(broken|set)|victory.*game|sports|nba|nfl|fifa|underdog|playoff|season/.test(text)
+  ) return "sports";
+
+  // Business
+  if (
+    /jobs? created|economic|startup|business|invest|growth|poverty|entrepreneur|company launch|renewable.*invest|market.*record|billion.*fund/.test(text)
+  ) return "business";
+
+  // Community
+  if (
+    /communit|volunteer|charit|donat|rescue|kindness|rebuild|shelter|food bank|neighbor|homeless|saved.*life|hero|fundrais/.test(text)
+  ) return "community";
+
+  // World (default for international / political positive stories)
+  if (
+    /peace|diplomat|treaty|humanitarian|united nations|refugee|international|cooperation|agreement|summit|foreign/.test(text)
+  ) return "world";
+
+  // Fallback: use rough mapping based on which query probably found it
+  return "world";
+}
+
+// Small delay helper to avoid rate limiting
+function delay(ms: number) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+async function fetchQuery(query: string): Promise<any[]> {
   const params = new URLSearchParams({
     q: query,
     lang: "en",
@@ -73,26 +72,8 @@ async function fetchCategory(
   try {
     const res = await fetch(`${BASE_URL}?${params}`);
     if (!res.ok) return [];
-
     const data = await res.json();
-    if (!data.articles) return [];
-
-    return data.articles
-      .filter(
-        (a: any) =>
-          !NEGATIVE_WORDS.some((w) =>
-            a.title.toLowerCase().includes(w)
-          )
-      )
-      .map((a: any) => ({
-        title: a.title,
-        description: a.description || "",
-        url: a.url,
-        image: a.image,
-        publishedAt: a.publishedAt,
-        source: a.source?.name || "Unknown",
-        category: categoryKey,
-      }));
+    return data.articles || [];
   } catch {
     return [];
   }
@@ -103,36 +84,52 @@ export default async function handler(
   res: VercelResponse
 ) {
   if (!API_KEY) {
-    return res.status(500).json({
-      error: "GNEWS_API_KEY not set in Vercel environment variables",
-    });
+    return res.status(500).json({ error: "GNEWS_API_KEY not set" });
   }
 
   try {
-    // Fetch all 6 categories in parallel
-    const results = await Promise.all(
-      Object.entries(CATEGORY_QUERIES).map(([key, queries]) =>
-        fetchCategory(key, queries)
-      )
-    );
+    // Run queries sequentially with a small delay to avoid rate limits
+    const allArticles: any[] = [];
 
-    // Flatten and deduplicate by URL
+    for (const query of QUERIES) {
+      const articles = await fetchQuery(query);
+      allArticles.push(...articles);
+      // Small delay between requests
+      if (query !== QUERIES[QUERIES.length - 1]) {
+        await delay(300);
+      }
+    }
+
+    // Deduplicate by URL, filter negative, categorize
     const seen = new Set<string>();
-    const stories = results
-      .flat()
-      .filter((s) => {
-        if (seen.has(s.url)) return false;
-        seen.add(s.url);
-        return true;
+    const stories = allArticles
+      .filter((a) => {
+        if (!a.title || seen.has(a.url)) return false;
+        seen.add(a.url);
+        return !NEGATIVE_WORDS.some((w) =>
+          a.title.toLowerCase().includes(w)
+        );
       })
+      .map((a) => ({
+        title: a.title,
+        description: a.description || "",
+        url: a.url,
+        image: a.image,
+        publishedAt: a.publishedAt,
+        source: a.source?.name || "Unknown",
+        category: categorize(a.title, a.description || ""),
+      }))
       .sort(
         (a, b) =>
           new Date(b.publishedAt).getTime() -
           new Date(a.publishedAt).getTime()
       );
 
-    // Short cache while we're tuning (2 minutes)
-    res.setHeader("Cache-Control", "s-maxage=120, stale-while-revalidate=300");
+    // Cache for 5 minutes
+    res.setHeader(
+      "Cache-Control",
+      "s-maxage=300, stale-while-revalidate=600"
+    );
 
     return res.status(200).json({ stories, count: stories.length });
   } catch (err: any) {
