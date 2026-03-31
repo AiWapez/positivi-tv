@@ -1,143 +1,57 @@
-import { CATEGORIES } from "../data/categories";
 import { extractLocation } from "../data/countryCoords";
 import type { Story, CategoryKey } from "../types";
 
-const API_KEY = import.meta.env.VITE_GNEWS_API_KEY;
-const BASE_URL = "https://gnews.io/api/v4/search";
-
-interface GNewsArticle {
+interface APIStory {
   title: string;
   description: string;
-  content: string;
   url: string;
   image: string | null;
   publishedAt: string;
-  source: {
-    name: string;
-    url: string;
-  };
-}
-
-interface GNewsResponse {
-  totalArticles: number;
-  articles: GNewsArticle[];
+  source: string;
+  category: string;
 }
 
 /**
- * Fetches positive news stories from GNews for a single category.
- * Combines the category's keywords into one search query.
- * Returns stories with coordinates resolved from article text.
+ * Fetches positive stories from our /api/stories serverless function.
+ * The server handles GNews API calls, keyword filtering, and negative story filtering.
+ * Client handles coordinate resolution and final story assembly.
  */
-async function fetchCategoryStories(
-  category: (typeof CATEGORIES)[number],
-  maxArticles: number = 5
-): Promise<Story[]> {
-  // Pick 2 random keywords from the category to vary results each load
-  const shuffled = [...category.keywords].sort(() => Math.random() - 0.5);
-  const queryKeywords = shuffled.slice(0, 2).join(" OR ");
-
-  const params = new URLSearchParams({
-    q: queryKeywords,
-    lang: "en",
-    max: String(maxArticles),
-    sortby: "publishedAt",
-    apikey: API_KEY,
-  });
-
+export async function fetchAllStories(): Promise<Story[]> {
   try {
-    const res = await fetch(`${BASE_URL}?${params}`);
+    const res = await fetch("/api/stories");
 
     if (!res.ok) {
-      console.error(
-        `GNews fetch failed for ${category.key}: ${res.status}`
-      );
+      console.error(`API fetch failed: ${res.status}`);
       return [];
     }
 
-    const data: GNewsResponse = await res.json();
+    const data: { stories: APIStory[] } = await res.json();
 
-    const stories: Story[] = [];
-
-    for (const article of data.articles) {
-      // Skip articles that seem primarily negative
-      const lowerTitle = article.title.toLowerCase();
-      const negativeSignals = [
-        "killed",
-        "dead",
-        "dies",
-        "murder",
-        "attack",
-        "crisis",
-        "war ",
-        "bomb",
-        "shooting",
-        "massacre",
-        "collapse",
-        "scandal",
-        "arrest",
-      ];
-      if (negativeSignals.some((s) => lowerTitle.includes(s))) continue;
-
-      // Try to resolve coordinates from article text
+    const stories: Story[] = data.stories.map((article, index) => {
+      // Resolve coordinates from article text
       const coords = extractLocation({
         title: article.title,
-        description: article.description || "",
-        source: article.source,
+        description: article.description,
       });
 
-      stories.push({
-        id: `${category.key}-${stories.length}-${Date.now()}`,
+      return {
+        id: `${article.category}-${index}-${Date.now()}`,
         title: article.title,
-        description: article.description || "",
+        description: article.description,
         url: article.url,
-        source: article.source.name,
+        source: article.source,
         publishedAt: article.publishedAt,
         image: article.image,
-        category: category.key as CategoryKey,
+        category: article.category as CategoryKey,
         lat: coords?.lat ?? 0,
         lng: coords?.lng ?? 0,
         locationName: coords?.name ?? "Unknown",
-      });
-    }
+      };
+    });
 
     return stories;
   } catch (err) {
-    console.error(`GNews fetch error for ${category.key}:`, err);
+    console.error("Failed to fetch stories:", err);
     return [];
   }
-}
-
-/**
- * Fetches positive stories across all categories.
- * Runs all category fetches in parallel for speed.
- * Returns combined array sorted by publication date.
- */
-export async function fetchAllStories(): Promise<Story[]> {
-  if (!API_KEY) {
-    console.error(
-      "VITE_GNEWS_API_KEY is not set. Add it to your .env.local or Vercel environment variables."
-    );
-    return [];
-  }
-
-  const results = await Promise.allSettled(
-    CATEGORIES.map((cat) => fetchCategoryStories(cat, 5))
-  );
-
-  const allStories: Story[] = [];
-
-  for (const result of results) {
-    if (result.status === "fulfilled") {
-      allStories.push(...result.value);
-    }
-  }
-
-  // Sort by most recent first
-  allStories.sort(
-    (a, b) =>
-      new Date(b.publishedAt).getTime() -
-      new Date(a.publishedAt).getTime()
-  );
-
-  return allStories;
 }
