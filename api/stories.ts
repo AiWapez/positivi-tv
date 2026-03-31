@@ -3,67 +3,64 @@ import type { VercelRequest, VercelResponse } from "@vercel/node";
 const API_KEY = process.env.GNEWS_API_KEY;
 const BASE_URL = "https://gnews.io/api/v4/search";
 
-const CATEGORY_KEYWORDS: Record<string, string[]> = {
+// Broader keywords that actually return results on GNews
+const CATEGORY_KEYWORDS: Record<string, string[][]> = {
   world: [
-    "peace agreement",
-    "diplomatic breakthrough",
-    "humanitarian milestone",
-    "international cooperation",
-    "treaty signed",
+    ["peace", "agreement"],
+    ["humanitarian", "aid"],
+    ["united nations", "milestone"],
+    ["cooperation", "countries"],
+    ["diplomacy", "success"],
+    ["refugees", "welcomed"],
   ],
   science: [
-    "scientific discovery",
-    "breakthrough research",
-    "space exploration success",
-    "climate solution",
-    "innovation milestone",
+    ["scientists", "discovery"],
+    ["breakthrough", "research"],
+    ["NASA", "success"],
+    ["renewable energy", "record"],
+    ["species", "discovered"],
+    ["climate", "solution"],
+    ["space", "launch success"],
   ],
   community: [
-    "community rescue",
-    "acts of kindness",
-    "volunteers rebuild",
-    "neighborhood restored",
-    "charity milestone",
+    ["rescue", "saved"],
+    ["volunteers", "helped"],
+    ["kindness", "community"],
+    ["donated", "charity"],
+    ["rebuilt", "neighborhood"],
+    ["food bank", "families"],
   ],
   health: [
-    "medical breakthrough",
-    "disease eradicated",
-    "health milestone",
-    "treatment discovery",
-    "mental health progress",
+    ["medical", "breakthrough"],
+    ["vaccine", "approved"],
+    ["cancer", "treatment breakthrough"],
+    ["cure", "discovered"],
+    ["hospital", "milestone"],
+    ["disease", "eliminated"],
   ],
   business: [
-    "job creation",
-    "economic recovery",
-    "social enterprise",
-    "poverty reduction",
-    "renewable energy jobs",
+    ["jobs", "created"],
+    ["startup", "launched"],
+    ["economic", "growth"],
+    ["renewable", "investment"],
+    ["small business", "success"],
+    ["poverty", "reduced"],
   ],
   sports: [
-    "record breaking athlete",
-    "underdog victory",
-    "athlete charity",
-    "sports achievement",
-    "team community impact",
+    ["championship", "wins"],
+    ["record", "breaking athlete"],
+    ["olympic", "gold"],
+    ["underdog", "victory"],
+    ["athlete", "charity"],
+    ["comeback", "win"],
   ],
 };
 
 const NEGATIVE_SIGNALS = [
-  "killed",
-  "dead",
-  "dies",
-  "murder",
-  "attack",
-  "crisis",
-  "war ",
-  "bomb",
-  "shooting",
-  "massacre",
-  "collapse",
-  "scandal",
-  "arrest",
-  "sentenced",
-  "guilty",
+  "killed", "dead", "dies", "murder", "attack", "crisis",
+  "war ", "bomb", "shooting", "massacre", "collapse", "scandal",
+  "arrest", "sentenced", "guilty", "fatal", "terror", "charged",
+  "fraud", "abuse", "crash", "explosion",
 ];
 
 interface GNewsArticle {
@@ -73,25 +70,23 @@ interface GNewsArticle {
   url: string;
   image: string | null;
   publishedAt: string;
-  source: {
-    name: string;
-    url: string;
-  };
+  source: { name: string; url: string };
 }
 
 async function fetchCategory(
   categoryKey: string,
-  keywords: string[]
+  keywordPairs: string[][]
 ): Promise<{ category: string; articles: GNewsArticle[] }> {
-  // Pick 2 random keywords to vary results each refresh
-  const shuffled = [...keywords].sort(() => Math.random() - 0.5);
-  const query = shuffled.slice(0, 2).join(" OR ");
+  // Pick 2 random keyword pairs and build query
+  const shuffled = [...keywordPairs].sort(() => Math.random() - 0.5);
+  const picked = shuffled.slice(0, 3);
+  const query = picked.map((pair) => pair.join(" ")).join(" OR ");
 
   const params = new URLSearchParams({
     q: query,
     lang: "en",
-    max: "5",
-    sortby: "publishedAt",
+    max: "10",
+    sortby: "relevance",
     apikey: API_KEY || "",
   });
 
@@ -103,14 +98,14 @@ async function fetchCategory(
     }
 
     const data = await res.json();
-    const articles = (data.articles || []).filter(
+    const filtered = (data.articles || []).filter(
       (a: GNewsArticle) =>
         !NEGATIVE_SIGNALS.some((s) =>
           a.title.toLowerCase().includes(s)
         )
     );
 
-    return { category: categoryKey, articles };
+    return { category: categoryKey, articles: filtered };
   } catch (err) {
     console.error(`GNews ${categoryKey} error:`, err);
     return { category: categoryKey, articles: [] };
@@ -121,53 +116,54 @@ export default async function handler(
   req: VercelRequest,
   res: VercelResponse
 ) {
-  // Only allow GET
   if (req.method !== "GET") {
     return res.status(405).json({ error: "Method not allowed" });
   }
 
   if (!API_KEY) {
     console.error("GNEWS_API_KEY environment variable is not set");
-    return res
-      .status(500)
-      .json({ error: "API key not configured" });
+    return res.status(500).json({ error: "API key not configured" });
   }
 
   try {
-    // Fetch all categories in parallel
     const results = await Promise.all(
-      Object.entries(CATEGORY_KEYWORDS).map(([key, keywords]) =>
-        fetchCategory(key, keywords)
+      Object.entries(CATEGORY_KEYWORDS).map(([key, pairs]) =>
+        fetchCategory(key, pairs)
       )
     );
 
-    // Flatten into a single array with category tags
+    const seen = new Set<string>();
     const stories = results.flatMap(({ category, articles }) =>
-      articles.map((a) => ({
-        title: a.title,
-        description: a.description || "",
-        url: a.url,
-        image: a.image,
-        publishedAt: a.publishedAt,
-        source: a.source.name,
-        category,
-      }))
+      articles
+        .filter((a) => {
+          // Deduplicate by URL
+          if (seen.has(a.url)) return false;
+          seen.add(a.url);
+          return true;
+        })
+        .map((a) => ({
+          title: a.title,
+          description: a.description || "",
+          url: a.url,
+          image: a.image,
+          publishedAt: a.publishedAt,
+          source: a.source.name,
+          category,
+        }))
     );
 
-    // Sort by most recent
     stories.sort(
       (a, b) =>
         new Date(b.publishedAt).getTime() -
         new Date(a.publishedAt).getTime()
     );
 
-    // Cache for 15 minutes to stay under GNews rate limits
     res.setHeader(
       "Cache-Control",
       "s-maxage=900, stale-while-revalidate=1800"
     );
 
-    return res.status(200).json({ stories });
+    return res.status(200).json({ stories, count: stories.length });
   } catch (err) {
     console.error("Handler error:", err);
     return res.status(500).json({ error: "Failed to fetch stories" });
