@@ -83,16 +83,16 @@ export default function MapView({
       className="h-full w-full"
       style={{ background: "#000000" }}
     >
-      {/* Dark base map WITHOUT labels */}
+      {/* CartoDB Dark Matter - no labels base layer (free, no key) */}
       <TileLayer
         url="https://{s}.basemaps.cartocdn.com/dark_nolabels/{z}/{x}/{y}{r}.png"
         subdomains="abcd"
       />
-      {/* English-only labels on top */}
+      {/* CartoDB Dark Matter - labels only overlay at low opacity (free, no key) */}
       <TileLayer
-        url="https://tiles.stadiamaps.com/tiles/stamen_toner_labels/{z}/{x}/{y}{r}.png"
-        subdomains=""
-        opacity={0.35}
+        url="https://{s}.basemaps.cartocdn.com/dark_only_labels/{z}/{x}/{y}{r}.png"
+        subdomains="abcd"
+        opacity={0.4}
       />
 
       <FlyToSelected story={selectedStory} />
