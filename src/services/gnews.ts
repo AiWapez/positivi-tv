@@ -35,7 +35,7 @@ export async function fetchAllStories(): Promise<Story[]> {
       });
 
       return {
-        id: `${article.category}-${index}-${Date.now()}`,
+        id: `${article.category}-${index}-${article.url.slice(-20)}`,
         title: article.title,
         description: article.description,
         url: article.url,
