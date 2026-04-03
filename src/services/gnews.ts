@@ -13,12 +13,19 @@ interface APIStory {
 
 /**
  * Fetches positive stories from our /api/stories serverless function.
- * The server handles GNews API calls, keyword filtering, and negative story filtering.
- * Client handles coordinate resolution and final story assembly.
+ * When forceRefresh is true, adds a cache-busting param so Vercel
+ * skips the edge cache and makes fresh GNews API calls.
+ * On normal page load, uses the cached version to save API quota.
  */
-export async function fetchAllStories(): Promise<Story[]> {
+export async function fetchAllStories(
+  forceRefresh: boolean = false
+): Promise<Story[]> {
   try {
-    const res = await fetch("/api/stories");
+    const url = forceRefresh
+      ? `/api/stories?t=${Date.now()}`
+      : "/api/stories";
+
+    const res = await fetch(url);
 
     if (!res.ok) {
       console.error(`API fetch failed: ${res.status}`);
@@ -28,7 +35,6 @@ export async function fetchAllStories(): Promise<Story[]> {
     const data: { stories: APIStory[] } = await res.json();
 
     const stories: Story[] = data.stories.map((article, index) => {
-      // Resolve coordinates from article text
       const coords = extractLocation({
         title: article.title,
         description: article.description,
