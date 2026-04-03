@@ -20,17 +20,23 @@ export default function App() {
   const [gamifyOn, setGamifyOn] = useState(false);
   const [readSet, setReadSet] = useState<Set<string>>(new Set());
 
-  // Auto-load stories on mount
-  const loadStories = useCallback(async () => {
+  // Auto-load uses Vercel cache (saves API quota)
+  const loadStories = useCallback(async (forceRefresh: boolean = false) => {
     setLoading(true);
     setSelected(null);
-    const data = await fetchAllStories();
+    const data = await fetchAllStories(forceRefresh);
     setStories(data);
     setLoading(false);
   }, []);
 
+  // On mount: use cached version
   useEffect(() => {
-    loadStories();
+    loadStories(false);
+  }, [loadStories]);
+
+  // Refresh button: bust cache and get fresh stories
+  const handleRefresh = useCallback(() => {
+    loadStories(true);
   }, [loadStories]);
 
   const toggleFilter = (key: CategoryKey) => {
@@ -67,7 +73,7 @@ export default function App() {
       <Header
         storyCount={visible.length}
         loading={loading}
-        onRefresh={loadStories}
+        onRefresh={handleRefresh}
       />
 
       <CategoryFilters
