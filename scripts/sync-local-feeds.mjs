@@ -2,7 +2,7 @@ import { readFile, writeFile, open, rename, unlink } from 'node:fs/promises';
 import { randomUUID } from 'node:crypto';
 import config from '../config/feeds.json' with { type: 'json' };
 import control from '../config/publisher-feed.json' with { type: 'json' };
-import { fetchPermittedFeed, parseFeed } from '../server/collect.mjs';
+import { collectPublisherFeed } from '../server/publisher-collect.mjs';
 import { buildSnapshot, serializeSnapshot } from '../server/publisher-snapshot.ts';
 import { validSnapshot } from '../src/lib/publisher-feed.ts';
 const output = new URL('../content/publisher-feed.local.json', import.meta.url);
@@ -18,7 +18,7 @@ try {
   catch (e) { if (e.code !== 'ENOENT') throw e; }
   const now = new Date().toISOString(), results = [];
   for (const feed of config.feeds.filter(f => f.lanes.includes('publisher_feed') && config.sources[f.id]?.enabled && config.sources[f.id]?.publisherFeed?.enabled)) {
-    try { const response = await fetchPermittedFeed(feed); results.push({ sourceId: feed.id, ok: true, candidates: parseFeed(response.text, feed, now, 100) }); }
+    try { const result = await collectPublisherFeed(feed, now); results.push({ sourceId: feed.id, ok: true, candidates: result.candidates, ...(result.warning ? {code:result.warning} : {}) }); }
     catch (e) { results.push({ sourceId: feed.id, ok: false, code: String(e.code ?? e.message).slice(0, 120) }); }
   }
   if (!results.length || results.every(r => !r.ok)) throw new Error('Every source failed; the previous local snapshot was kept.');

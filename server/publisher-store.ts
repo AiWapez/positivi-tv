@@ -1,6 +1,6 @@
 import { randomUUID } from 'node:crypto';
 import { get, put, del, head, BlobPreconditionFailedError } from '@vercel/blob';
-import { validSnapshot } from '../src/lib/publisher-feed.ts';
+import { validSnapshot, PUBLISHER_FEED_POLICY } from '../src/lib/publisher-feed.ts';
 import type { PublisherSnapshot, SnapshotRead } from '../src/lib/publisher-feed.ts';
 import { SNAPSHOT_MAX_BYTES, serializeSnapshot } from './publisher-snapshot.ts';
 
@@ -11,8 +11,8 @@ import { SNAPSHOT_MAX_BYTES, serializeSnapshot } from './publisher-snapshot.ts';
  * - publisher-feed/lock.json     a short-lived run lock created with allowOverwrite: false
  * Visitors never write. Reads from /api/stories go through a per-instance memory cache and the Blob CDN cache.
  */
-export const SNAPSHOT_PATH = 'publisher-feed/current.json';
-export const LOCK_PATH = 'publisher-feed/lock.json';
+export const SNAPSHOT_PATH = `publisher-feed/${PUBLISHER_FEED_POLICY}/current.json`;
+export const LOCK_PATH = `publisher-feed/${PUBLISHER_FEED_POLICY}/lock.json`;
 export const LOCK_STALE_MS = 5 * 60 * 1000;
 
 type GetResult = { statusCode: number; stream: ReadableStream<Uint8Array> | null; etag?: string; blob?: { etag?: string } } | null;

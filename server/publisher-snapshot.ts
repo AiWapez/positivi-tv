@@ -9,7 +9,7 @@ import type { DuplicateProposal, PublisherFeedControl, PublisherItem, PublisherS
 /** The subset of a collector candidate (server/collect.mjs parseFeed) this lane uses. */
 export interface FeedCandidate { id: string; sourceId: string; url: string; title: string; body: string; publishedAt: string; firstRetrievedAt: string;
   dateSource?: 'published' | 'updated'; titleTruncated?: boolean; author?: string | null; rights?: string }
-export type SourceResult = { sourceId: string; ok: true; candidates: FeedCandidate[] } | { sourceId: string; ok: false; code: string };
+export type SourceResult = { sourceId: string; ok: true; candidates: FeedCandidate[]; code?: string } | { sourceId: string; ok: false; code: string };
 
 const DAY = 86400000;
 const STOP = new Set(['the', 'and', 'for', 'with', 'from', 'into', 'after', 'over', 'that', 'this', 'its', 'are', 'was', 'were', 'has',
@@ -69,7 +69,7 @@ export function buildSnapshot(previous: PublisherSnapshot | null, results: Sourc
     }
     if (!result) continue;
     const run: SourceRun = { status: result.ok ? 'ok' : 'failed', checkedAt: now, lastSuccessAt: result.ok ? now : lastSuccess,
-      parsed: 0, listed: 0, carried: 0, excluded: {}, ...(result.ok ? {} : { code: String(result.code).slice(0, 120) }) };
+      parsed: 0, listed: 0, carried: 0, excluded: {}, ...(result.code ? { code: String(result.code).slice(0, 120) } : {}) };
     const seen = new Set<string>();
     if (result.ok) {
       for (const c of result.candidates) {

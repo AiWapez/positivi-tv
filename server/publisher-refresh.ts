@@ -1,16 +1,18 @@
-import { fetchPermittedFeed, parseFeed } from './collect.mjs';
+import { collectPublisherFeed } from './publisher-collect.mjs';
+import { fetchPermittedFeed } from './collect.mjs';
 import { buildSnapshot } from './publisher-snapshot.ts';
 import type { FeedCandidate, SourceResult } from './publisher-snapshot.ts';
 import { conflictError } from './publisher-store.ts';
 import type { PublisherStore } from './publisher-store.ts';
 import type { PublisherFeedControl, PublisherSources } from '../src/lib/publisher-feed.ts';
 
-export interface FeedConfig { id: string; url: string; allowedDomains: string[]; topic: string; fetchPolicyRef: string; lanes: string[]; maxBytes?: number }
+export interface FeedConfig { id: string; url: string; allowedDomains: string[]; topic: string; fetchPolicyRef: string; lanes: string[]; maxBytes?: number; format?: 'wordpress'; supplementalUrl?: string; supplementalBylineUrl?: string }
 export interface RefreshDeps {
   feeds: FeedConfig[]; sources: PublisherSources; control: PublisherFeedControl; store: PublisherStore;
   /** Defaults to the hardened safeFetch inside fetchPermittedFeed. Injected only by tests. */
   fetcher?: Parameters<typeof fetchPermittedFeed>[1];
   now?: () => string;
+  pause?: (ms: number) => Promise<void>;
 }
 export type RefreshOutcome =
   | { code: 200; body: { revision: string; listed: number; sources: Record<string, { status: string; listed: number; carried: number }> } }
@@ -50,9 +52,8 @@ export async function runPublisherRefresh(deps: RefreshDeps): Promise<RefreshOut
     const previous = await store.readCurrent(true);
     const results: SourceResult[] = await mapLimit(feeds, 3, async feed => {
       try {
-        const response = await fetchPermittedFeed(feed, deps.fetcher);
-        const candidates = parseFeed(response.text, feed, now, 100) as FeedCandidate[];
-        return { sourceId: feed.id, ok: true as const, candidates };
+        const result = await collectPublisherFeed(feed, now, deps.fetcher, deps.pause);
+        return { sourceId: feed.id, ok: true as const, candidates: result.candidates as FeedCandidate[], ...(result.warning ? { code: result.warning } : {}) };
       } catch (error) {
         const e = error as { code?: unknown; message?: unknown };
         return { sourceId: feed.id, ok: false as const, code: String(e?.code ?? e?.message ?? 'FAILED').slice(0, 120) };

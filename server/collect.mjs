@@ -15,8 +15,17 @@ export const feedByteLimit = config => Number.isInteger(config?.maxBytes) && con
 /** RSS content is untrusted data. No model, tool call, approval or guessed event date is generated. */
 export function parseFeed(xml, config, now, limit = 10) {
   if (Buffer.byteLength(xml) > feedByteLimit(config) || /<!DOCTYPE|<!ENTITY/i.test(xml)) throw new Error('Unsupported or oversized XML');
-  const parsed = new XMLParser({ ignoreAttributes: false, processEntities: false }).parse(xml);
-  const raw = parsed.rss?.channel?.item ?? parsed.feed?.entry ?? [];
+  let raw;
+  if (config.format === 'wordpress') {
+    const posts = JSON.parse(xml);
+    if (!Array.isArray(posts) || posts.length > 500) throw new Error('Invalid publisher metadata');
+    raw = posts.map(p => ({ title: p?.title?.rendered, link: p?.link,
+      pubDate: typeof p?.date_gmt === 'string' && /^\d{4}-\d\d-\d\dT\d\d:\d\d:\d\d$/.test(p.date_gmt) ? p.date_gmt + 'Z' : '',
+      description: p?.excerpt?.rendered, 'dc:creator': Array.isArray(p?.byline) && p.byline.length && p.byline.every(id => typeof config.bylineNames?.[id] === 'string') ? p.byline.map(id => config.bylineNames[id]).join(', ') : '', rights: p?.rights ?? '' }));
+  } else {
+    const parsed = new XMLParser({ ignoreAttributes: false, processEntities: false }).parse(xml);
+    raw = parsed.rss?.channel?.item ?? parsed.feed?.entry ?? [];
+  }
   const items = Array.isArray(raw) ? raw : [raw], seen = new Set(), candidates = [];
   for (const item of items.slice(0, 500)) {
     const link = typeof item.link === 'string' ? item.link : (Array.isArray(item.link) ? item.link.find(x => !x['@_rel'] || x['@_rel'] === 'alternate') : item.link)?.['@_href'];
