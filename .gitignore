@@ -3,3 +3,4 @@ dist/
 .editor/
 .env*
 !.env.example
+.runtime-check/

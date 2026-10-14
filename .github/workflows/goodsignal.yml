@@ -28,4 +28,4 @@ jobs:
       - run: npm run test:goodsignal
       - run: npm run demo:goodsignal
       - name: Check engine types without installing frontend dependencies
-        run: npm exec --yes --package typescript@5.6.3 -- tsc --project tsconfig.goodsignal.json
+        run: npm exec --yes --package typescript@5.9.3 -- tsc --project tsconfig.goodsignal.json

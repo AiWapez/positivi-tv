@@ -10,6 +10,7 @@ The implemented story flows from the React controls → `/api/stories` → the c
 - Full private editor flow in an isolated temporary workspace: import, inspect, approve, publish, revise, stale-review rejection, and withdraw.
 - Shared filtering/discovery tests, including fixed sample dates and production clock behavior.
 - API handler tests for method, uncached responses, and empty reviewed collection.
+- Emitted JavaScript API loading under Node 24, including JSON import attributes and rewritten dependency extensions.
 
 ## Verification limit
 
