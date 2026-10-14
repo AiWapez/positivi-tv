@@ -1,4 +1,4 @@
-import edition from '../content/edition.json';
+import edition from '../content/edition.json' with { type: 'json' };
 import { buildFeed } from '../src/lib/publication.ts';
 import type { Publication } from '../src/lib/publication.ts';
 interface Request { method?: string }

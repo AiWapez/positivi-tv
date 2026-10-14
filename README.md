@@ -4,7 +4,7 @@
 
 ## Run
 
-Use Node.js 24 or later.
+Use Node.js 24.x.
 
 ```sh
 npm ci

@@ -1,8 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { build } from 'esbuild';
-const result = await build({ entryPoints: [new URL('../../api/stories.ts', import.meta.url).pathname], bundle: true, platform: 'node', format: 'esm', write: false });
-const { default: handler } = await import('data:text/javascript;base64,' + Buffer.from(result.outputFiles[0].text).toString('base64'));
+import handler from '../../api/stories.ts';
 function request(method) {
   const headers = {}, state = { code: 0, data: null, headers };
   const res = { setHeader: (key,value) => { headers[key] = value; }, status: code => { state.code = code; return res; }, json: data => { state.data = data; } };
