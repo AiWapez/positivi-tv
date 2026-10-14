@@ -91,7 +91,8 @@ export function checkBeforeDisplay(segment: Pick<Segment, 'storyId' | 'storyVers
   const t = assertNow(now), generated = instant(manifest?.generatedAt);
   if (!manifest || generated === null || generated > t || t - generated > maxAgeMs) return { allowed: false, reason: 'STATUS_UNAVAILABLE_OR_STALE' };
   const status = manifest.stories?.[segment.storyId];
-  if (!status || !['approved', 'archived'].includes(status.status)) return { allowed: false, reason: 'NOT_CURRENTLY_APPROVED' };
+  // 'listed' = automatic publisher-feed card with its own visible label; still version- and withdrawal-checked.
+  if (!status || !['approved', 'archived', 'listed'].includes(status.status)) return { allowed: false, reason: 'NOT_CURRENTLY_APPROVED' };
   if (status.version !== segment.storyVersion) return { allowed: false, reason: 'VERSION_CHANGED' };
   return { allowed: true, reason: 'CURRENT_AT_MANIFEST_TIME' };
 }

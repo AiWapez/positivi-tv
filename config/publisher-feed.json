@@ -1,0 +1,10 @@
+{
+  "enabled": true,
+  "windowDays": 7,
+  "maxItems": 120,
+  "maxPerSource": 40,
+  "staleAfterHours": 48,
+  "locationResolver": "off",
+  "withdrawn": [],
+  "notes": "Global switch for the automatic publisher-feed lane. Enabled on the integration branch for preview verification; cron starts only on a production release. Per-source switches live in config/feeds.json (sources.<id>.publisherFeed.enabled). Withdraw a card by adding { \"id\": \"...\", \"reason\": \"...\", \"at\": \"YYYY-MM-DD\" } or { \"url\": \"https://...\", ... } and redeploying. Withdrawals take effect at the next deployment, not instantly. Automatic country pins are off until supported event locations can be established. Publisher feeds do not become editor-approved stories."
+}

@@ -5,7 +5,7 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { pathToFileURL } from 'node:url';
 import { spawnSync } from 'node:child_process';
-test('emitted Node API loads its JSON and rewritten JavaScript dependency paths', async () => {
+test('emitted Node API (stories, collect, refresh-feeds) loads its JSON and rewritten JavaScript dependency paths', async () => {
   const dir = await mkdtemp(join(tmpdir(), 'positivitv-runtime-'));
   try {
     const root = new URL('../../',import.meta.url);
@@ -17,8 +17,10 @@ test('emitted Node API loads its JSON and rewritten JavaScript dependency paths'
     for (const path of ['server/collect.mjs','server/queue.mjs','src/goodsignal/safe-fetch.node.mjs','src/goodsignal/url.mjs']) await cp(new URL(path,root),join(dir,path));
     const { default: handler } = await import(pathToFileURL(join(dir,'api/stories.js')).href);
     let code, data; const response = { setHeader() {}, status(value) { code = value; return response; }, json(value) { data = value; } };
-    handler({ method:'GET' },response); assert.equal(code,200); assert.deepEqual(data.stories,[]); assert(data.manifest.generatedAt);
+    await handler({ method:'GET', url:'/api/stories?t=1' },response); assert.equal(code,200); assert.deepEqual(data.stories,[]); assert(data.manifest.generatedAt);
     const { default: collect } = await import(pathToFileURL(join(dir,'api/collect.js')).href);
     await collect({ method:'GET',headers:{} },response); assert.equal(code,401);
+    const { default: refreshFeeds } = await import(pathToFileURL(join(dir,'api/refresh-feeds.js')).href);
+    await refreshFeeds({ method:'GET',headers:{} },response); assert.equal(code,401);
   } finally { await rm(dir,{ recursive:true,force:true }); }
 });

@@ -12,6 +12,7 @@ The implemented story flows from the React controls → `/api/stories` → the c
 - API handler tests for method, uncached responses, and empty reviewed collection.
 - Emitted JavaScript API loading under Node 24, including JSON import attributes and rewritten dependency extensions.
 
+- Publisher-feed lane tests cover the three screening regressions, plan/research/outcome separation, invalid dates, old events, unsafe and off-domain links, unknown and incidental locations, duplicate and syndicated reports, per-source failure carry-over, all-source failure preservation, overlapping runs, refresh isolation, withdrawals, switches, retention and the public contract for both provenances.
 - Collector regressions cover pending-only intake, stable IDs, canonical deduplication, date/domain checks, parser bounds, robots policy, batch limits and endpoint authentication.
 
 ## Verification limit
@@ -22,8 +23,12 @@ Review 1440 × 1000, 1024 × 768, 390 × 844 and 320 × 740. Check spherical Ear
 
 ## Launch boundary
 
-Production edition is intentionally empty until real sources and stories are reviewed. NASA RSS intake and a private daily queue are implemented. Model extraction, unattended publication, accounts and community submissions are not provisioned. The production cron becomes active only after the branch is released. The code is ready for review and preview; it is not evidence that an unattended daily newsroom is operational.
+Production edition is intentionally empty until real sources and stories are reviewed. NASA RSS intake and a private daily queue are implemented. Model extraction, unattended publication of the reviewed edition, accounts and community submissions are not provisioned. The publisher-feed lane is enabled on the integration branch for preview verification; tests use synthetic feeds and make no live publisher requests. The production cron becomes active only after the branch is released. The code is ready for review and preview; it is not evidence that an unattended daily newsroom is operational.
 
 ## Reader-first release additions
 
 Privacy and terms/source information are reachable in the footer on desktop and mobile. Privacy includes clearing device-local favorites. No analytics or auth dependency is included. Production security headers restrict scripts, assets and browser connections to this origin, disable embedded framing and browser camera/microphone/geolocation/payment access, and suppress outgoing referrers. The application does not ask for those permissions. Live header delivery is verified on the preview separately from static configuration tests.
+
+## Publisher-feed integration checks
+
+Local baseline: 76 engine tests and 86 app tests passed unchanged under Node 24.19.0, plus TypeScript/Vite build. Integration amendments add required author and linked-license attribution for licensed sources, skip missing/recognized third-party credits and restrictive rights notices, turn automatic country pins off, and support a read-only publisher-only content release check. Native CI and real preview/storage probes are recorded separately after deployment.

@@ -59,7 +59,9 @@ export interface Selection {
   stories: Story[]; reasons: Record<string, string[]>; relaxations: string[];
   coverageGaps: string[];
 }
+/** 'listed' marks an automatically selected publisher-feed card. It is never an editorial approval. */
+export type ManifestStatus = Story['status'] | 'listed';
 export interface StatusManifest {
   version: string; generatedAt: string;
-  stories: Record<string, { version: number; status: Story['status'] }>;
+  stories: Record<string, { version: number; status: ManifestStatus }>;
 }

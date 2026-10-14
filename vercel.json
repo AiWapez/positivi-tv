@@ -7,10 +7,17 @@
     {
       "path": "/api/collect",
       "schedule": "0 11 * * *"
+    },
+    {
+      "path": "/api/refresh-feeds",
+      "schedule": "0 10 * * *"
     }
   ],
   "functions": {
     "api/collect.ts": {
+      "maxDuration": 60
+    },
+    "api/refresh-feeds.ts": {
       "maxDuration": 60
     }
   },

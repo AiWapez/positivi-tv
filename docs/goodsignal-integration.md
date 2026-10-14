@@ -19,7 +19,7 @@ The API is a bounded collection endpoint, not a paginated search service. Filter
 
 ## Remaining adapters
 
-An official NASA RSS adapter, a private Vercel Blob candidate queue and a protected once-daily collection job are now implemented. Human review still runs locally. Structured extraction, event-level deduplication proposals, a hosted authenticated review interface, real labelled evaluation and unattended edition publication are not connected. See [daily collection](daily-collection.md). The Promise Ledger and broadcast helpers remain engine capabilities; the selected UI deliberately has no broadcast/ticker features.
+An official NASA RSS adapter, a private Vercel Blob candidate queue and a protected once-daily collection job are now implemented. Human review still runs locally. Structured extraction, a hosted authenticated review interface, real labelled evaluation and unattended publication of the reviewed edition are not connected. A separate publisher-feed lane, labelled and switchable, lists headlines automatically without entering the reviewed edition; see [publisher-feed.md](publisher-feed.md). See [daily collection](daily-collection.md). The Promise Ledger and broadcast helpers remain engine capabilities; the selected UI deliberately has no broadcast/ticker features.
 
 Status is authoritative for one deployed snapshot. A withdrawal requires redeployment and does not invalidate immutable older deployment URLs. A shared external status store is needed before claiming cross-deployment removal. Source revocation likewise requires rebuilding the edition. A versioned public Git collection is inappropriate for licenses that prohibit the resulting retention history.
 

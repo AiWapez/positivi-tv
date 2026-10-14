@@ -28,7 +28,7 @@ npm run editor -- inspect story-id
 
 Alternatively load your local ignored `.env.local` explicitly with Node 24 before invoking the editor. Keep production secrets out of local files; use the Development connection/OIDC credentials. The source policy is copied to `.editor/sources.json` only when absent, preserving your local policy edits. Existing candidates and decisions are not overwritten during sync.
 
-Fill in the actual article's outcome/date/evidence and honest location, then re-import the edited candidate. A new version requires a new human decision. Review and publish through [the editor workflow](editor-workflow.md); public output remains the committed reviewed edition. The web Refresh button reads the current deployed edition, not the pending queue.
+Fill in the actual article's outcome/date/evidence and honest location, then re-import the edited candidate. A new version requires a new human decision. Review and publish through [the editor workflow](editor-workflow.md); public output remains the committed reviewed edition. The web Refresh button reads the current deployed edition and the last stored publisher-feed snapshot, not the pending queue. Only feeds with the `review_queue` lane (currently NASA) enter this queue; the separate publisher-feed lane is described in [publisher-feed.md](publisher-feed.md).
 
 ## Cost and coverage boundary
 

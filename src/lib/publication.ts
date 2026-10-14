@@ -1,4 +1,5 @@
-import type { Story } from '../types/index.ts';
+import type { Story, StoryLabel } from '../types/index.ts';
+import { STORY_LABELS } from '../types/index.ts';
 import { canonicalUrl, dateBounds } from '../goodsignal/util.ts';
 import { POLICY_VERSION } from '../goodsignal/types.ts';
 export interface PublishedStory extends Story {
@@ -9,37 +10,71 @@ export interface Publication {
   stories: PublishedStory[];
   statuses: Record<string, { version: number; status: 'approved' | 'archived' | 'withdrawn' | 'pending' }>;
 }
-export function validPublicStory(value: unknown): value is PublishedStory {
-  if (!value || typeof value !== 'object') return false;
-  const s = value as PublishedStory;
+export type ManifestEntry = { version: number; status: 'approved' | 'archived' | 'withdrawn' | 'pending' | 'listed' };
+function validLabels(labels: unknown): labels is StoryLabel[] {
+  return Array.isArray(labels) && labels.length <= STORY_LABELS.length && new Set(labels).size === labels.length
+    && labels.every(l => (STORY_LABELS as readonly unknown[]).includes(l));
+}
+function validCommon(s: PublishedStory): boolean {
   return typeof s.id === 'string' && !!s.id.trim() && Number.isInteger(s.version) && s.version > 0
     && typeof s.title === 'string' && !!s.title.trim() && (s.summary === null || typeof s.summary === 'string')
     && ['Planet','Science','Community','Health'].includes(s.category)
     && typeof s.location === 'string' && (s.lat === null || Number.isFinite(s.lat) && Math.abs(s.lat) <= 90)
     && (s.lng === null || Number.isFinite(s.lng) && Math.abs(s.lng) <= 180)
     && ((s.lat === null) === (s.lng === null)) && ['city','region','country','unknown'].includes(s.locationPrecision)
+    && (s.locationPrecision !== 'unknown' || s.lat === null) && !(s.lat === 0 && s.lng === 0)
     && typeof s.sourceName === 'string' && !!s.sourceName.trim() && typeof s.sourceUrl === 'string'
     && canonicalUrl(s.sourceUrl) === s.sourceUrl && !(new URL(s.sourceUrl).pathname === '/' && !new URL(s.sourceUrl).search)
     && typeof s.publishedAt === 'string' && Number.isFinite(Date.parse(s.publishedAt))
     && typeof s.fetchedAt === 'string' && Number.isFinite(Date.parse(s.fetchedAt))
     && typeof s.expiresAt === 'string' && Number.isFinite(Date.parse(s.expiresAt))
-    && !!dateBounds({ value: s.eventDate!, precision: s.datePrecision!, basis: 'reviewer' })
     && s.isDemo === false && typeof s.archive === 'boolean' && s.policyVersion === POLICY_VERSION
-    && s.image === null && typeof s.imageAlt === 'string' && s.imageCredit === null;
+    && s.image === null && typeof s.imageAlt === 'string' && s.imageCredit === null && validLabels(s.labels)
+    && (s.attribution === undefined || !!s.attribution && typeof s.attribution.author === 'string'
+      && !!s.attribution.author.trim() && s.attribution.author.length <= 500
+      && typeof s.attribution.licenseName === 'string' && !!s.attribution.licenseName.trim()
+      && canonicalUrl(s.attribution.licenseUrl) === s.attribution.licenseUrl);
+}
+/**
+ * Public card contract. Two lanes, never conflated:
+ * - reviewed rows need a recorded human approval upstream and a supported event date.
+ * - publisher_feed rows were selected automatically. They carry no event date, must say so with a
+ *   visible label, may only use a country pin that is labelled as headline-derived, and never use Health.
+ */
+export function validPublicStory(value: unknown): value is PublishedStory {
+  if (!value || typeof value !== 'object') return false;
+  const s = value as PublishedStory;
+  if (!validCommon(s)) return false;
+  if (s.provenance === 'reviewed')
+    return !s.labels.includes('event_date_unconfirmed') && !s.labels.includes('country_from_headline')
+      && !!dateBounds({ value: s.eventDate!, precision: s.datePrecision!, basis: 'reviewer' });
+  if (s.provenance === 'publisher_feed')
+    return s.eventDate === null && s.datePrecision === null && s.archive === false && s.category !== 'Health'
+      && s.labels.includes('event_date_unconfirmed')
+      && (s.locationPrecision === 'country'
+        ? s.lat !== null && s.labels.includes('country_from_headline')
+        : s.locationPrecision === 'unknown' && s.lat === null && !s.labels.includes('country_from_headline'));
+  return false;
+}
+/** A card's provenance must match its manifest status: editorial approval and automatic listing never stand in for each other. */
+export function statusMatchesProvenance(story: Pick<Story, 'provenance' | 'archive'>, status: string | undefined): boolean {
+  if (story.provenance === 'reviewed') return status === (story.archive ? 'archived' : 'approved');
+  if (story.provenance === 'publisher_feed') return status === 'listed';
+  return false;
 }
 /** Trusted server publication only; no article bodies, quotations or private review notes escape. */
 export function buildFeed(publication: Publication, now = new Date().toISOString()) {
   if (publication.schemaVersion !== 1 || !Array.isArray(publication.stories) || !publication.statuses
     || typeof publication.revision !== 'string' || !Number.isFinite(Date.parse(now))) throw new Error('Invalid publication');
   const time = Date.parse(now), ids = new Set<string>(), urls = new Set<string>();
-  const statuses: Publication['statuses'] = Object.create(null);
+  const statuses: Record<string, ManifestEntry> = Object.create(null);
   for (const [id, s] of Object.entries(publication.statuses)) {
     if (!s || !Number.isInteger(s.version) || s.version < 1 || !['approved','archived','withdrawn','pending'].includes(s.status)) throw new Error('Invalid status');
     statuses[id] = { version: s.version, status: 'withdrawn' };
   }
   const stories: Story[] = [];
   for (const row of publication.stories) {
-    if (!validPublicStory(row)) continue;
+    if (!validPublicStory(row) || row.provenance !== 'reviewed') continue;
     const status = publication.statuses[row.id];
     const event = dateBounds({ value: row.eventDate!, precision: row.datePrecision!, basis: 'reviewer' });
     if (!status || status.version !== row.version || status.status !== (row.archive ? 'archived' : 'approved')

@@ -31,7 +31,8 @@ export function publishEdition(candidates: Candidate[], sources: Sources, previo
       locationPrecision: card.location.kind === 'city' ? 'city' : card.location.kind === 'country' ? 'country' : point ? 'region' : 'unknown',
       publishedAt: s.publishedAt, fetchedAt: s.firstRetrievedAt, eventDate: card.eventDate ?? null,
       datePrecision: card.datePrecision ?? null, sourceName: source.displayName, sourceUrl: card.url,
-      image: null, imageAlt: '', imageCredit: null, isDemo: false, archive: card.archive, expiresAt, policyVersion: POLICY_VERSION });
+      image: null, imageAlt: '', imageCredit: null, isDemo: false, archive: card.archive,
+      provenance: 'reviewed', labels: [], expiresAt, policyVersion: POLICY_VERSION });
     statuses[s.id] = { version: s.version, status: s.status === 'archived' ? 'archived' : 'approved' };
   }
   return { schemaVersion: 1, revision: `edition-${now}`, updatedAt: now, stories, statuses };

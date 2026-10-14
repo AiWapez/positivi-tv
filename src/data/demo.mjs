@@ -4,7 +4,7 @@ export const categories = { All: '#FFE438', Planet: '#4AE18B', Science: '#29D6DA
 const make = (id, title, location, category, lat, lng, image, date, summary) => ({
   id, version: 1, eventDate: null, datePrecision: null, archive: false, title, summary, category, location, lat, lng, image: '/assets/' + image + '.jpg', locationPrecision: 'city',
   publishedAt: date + 'T12:00:00Z', fetchedAt: DEMO_DATE, sourceName: null, sourceUrl: null,
-  imageAlt: 'Illustrative ' + (image === 'wind' ? 'wind turbines' : image === 'city' ? 'city landscape' : 'coastline'), imageCredit: 'Unsplash · illustrative photograph', isDemo: true,
+  imageAlt: 'Illustrative ' + (image === 'wind' ? 'wind turbines' : image === 'city' ? 'city landscape' : 'coastline'), imageCredit: 'Unsplash · illustrative photograph', isDemo: true, provenance: 'sample', labels: [],
 });
 export const stories = [
   make('portugal', 'A coastline coming back to life', 'Portugal', 'Planet', 38.72, -9.14, 'coast', '2026-10-12', 'Imagine coastlines restored and nature making a comeback. This fictional story illustrates the design; it is not a report of a real event.'),
