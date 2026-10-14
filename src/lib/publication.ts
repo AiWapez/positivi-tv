@@ -2,6 +2,7 @@ import type { Story, StoryLabel } from '../types/index.ts';
 import { STORY_LABELS } from '../types/index.ts';
 import { canonicalUrl, dateBounds } from '../goodsignal/util.ts';
 import { POLICY_VERSION } from '../goodsignal/types.ts';
+import { validMapArea } from './map-places.ts';
 export interface PublishedStory extends Story {
   expiresAt: string; policyVersion: string;
 }
@@ -46,14 +47,16 @@ export function validPublicStory(value: unknown): value is PublishedStory {
   const s = value as PublishedStory;
   if (!validCommon(s)) return false;
   if (s.provenance === 'reviewed')
-    return !s.labels.includes('event_date_unconfirmed') && !s.labels.includes('country_from_headline')
+    return !s.labels.includes('event_date_unconfirmed') && !s.labels.includes('country_from_headline') && !s.labels.includes('area_from_feed') && s.mapArea === undefined
       && !!dateBounds({ value: s.eventDate!, precision: s.datePrecision!, basis: 'reviewer' });
   if (s.provenance === 'publisher_feed')
     return s.eventDate === null && s.datePrecision === null && s.archive === false && s.category !== 'Health'
       && s.labels.includes('event_date_unconfirmed')
-      && (s.locationPrecision === 'country'
-        ? s.lat !== null && s.labels.includes('country_from_headline')
-        : s.locationPrecision === 'unknown' && s.lat === null && !s.labels.includes('country_from_headline'));
+      && (s.locationPrecision === 'region'
+        ? s.labels.includes('area_from_feed') && !s.labels.includes('country_from_headline') && validMapArea(s.mapArea, s.lat, s.lng, s.location)
+        : s.mapArea === undefined && !s.labels.includes('area_from_feed') && (s.locationPrecision === 'country'
+          ? s.lat !== null && s.labels.includes('country_from_headline')
+          : s.locationPrecision === 'unknown' && s.lat === null && !s.labels.includes('country_from_headline')));
   return false;
 }
 /** A card's provenance must match its manifest status: editorial approval and automatic listing never stand in for each other. */

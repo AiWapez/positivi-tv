@@ -106,7 +106,7 @@ test('no snapshot or a disabled lane serves the reviewed edition alone, honestly
 });
 
 test('checked-in configuration records permissions and conservative map settings for every enabled source', () => {
-  assert.equal(typeof controlConfig.enabled, 'boolean'); assert.equal(controlConfig.locationResolver, 'off');
+  assert.equal(typeof controlConfig.enabled, 'boolean'); assert.equal(controlConfig.locationResolver, 'supported_feed');
   const ids = feedConfig.feeds.map(f => f.id);
   for (const feed of feedConfig.feeds) {
     const source = feedConfig.sources[feed.id]; assert(source, feed.id);

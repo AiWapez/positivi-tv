@@ -1,7 +1,7 @@
 name: PositiviTV app
 on:
   push:
-    branches: [redesign-globe]
+    branches: [main, redesign-globe]
   pull_request:
   workflow_dispatch:
 permissions:

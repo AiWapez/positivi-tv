@@ -11,7 +11,7 @@ PositiviTV now has two publication lanes that are never conflated.
 | Reviewed edition (`content/edition.json`) | `reviewed` | `approved` / `archived` | Reviewed by PositiviTV | A recorded human editorial decision (unchanged GoodSignal workflow) |
 | Publisher feeds (this document) | `publisher_feed` | `listed` | From publisher feeds | Deterministic rules over permitted publisher feeds, with no per-story human approval |
 
-The automatic lane does not create, fake or imply a human review. It never writes `review`, never sets review checks, and never uses the `approved` status. GoodSignal's engine still has no automatic publication path; this lane sits beside it and uses its own explicit policy (`PUBLISHER_FEED_POLICY = publisher-feed-0.2.0`).
+The automatic lane does not create, fake or imply a human review. It never writes `review`, never sets review checks, and never uses the `approved` status. GoodSignal's engine still has no automatic publication path; this lane sits beside it and uses its own explicit policy (`PUBLISHER_FEED_POLICY = publisher-feed-0.3.0`).
 
 What the lane promises: a bounded list of recent headlines from sources whose terms were checked, each linking to the original article, labelled as automatically selected, with withdrawal, version and switch checks on every request.
 
@@ -122,7 +122,7 @@ Someone must recheck source terms periodically, read the per-source `excluded` c
 3. ScienceDaily's separate grant for `/releases/` headlines and summaries: not used, because the general RSS terms forbid omission and storage.
 4. Attribution is implemented: Global Voices and Mongabay require supplied author credits, publisher and original article links, and linked CC licenses. Missing authors, explicit restrictive item-rights notices and recognized third-party/syndication credits are excluded. No descriptions or images are displayed for those sources. Undisclosed licensing exceptions cannot be detected reliably from a feed; source policy review remains necessary.
 5. Duplicate display: near-identical cross-source copies (similarity of at least 0.85, same location) are hidden; everything else is only proposed. Decide whether to show all copies with a "similar story" note instead.
-6. Automatic country pins are off. Publisher cards without supported event locations remain in list browsing. Reviewed stories can still carry supported coordinates.
+6. The supported-feed resolver is enabled: physical outcomes may use an explicit headline-country relation or an unambiguous named physical feature from a small, sourced gazetteer. Coordinates are broad reference points, never exact event sites. Unsupported stories stay unpinned.
 7. Whether to add a GitHub Actions schedule for more than one refresh per day.
 8. Withdrawal requires a redeploy. A faster path would need a shared status store.
 9. The release content gate supports publisher-only editions: `npm run release:check -- --publisher-snapshot /private/path/snapshot.json`. It reads a private exported snapshot, does not crawl or approve, and rejects empty or stale content. Without a snapshot it checks the reviewed edition alone. Never commit the private snapshot.
@@ -151,3 +151,11 @@ Someone must recheck source terms periodically, read the per-source `excluded` c
 Node 24.19.0 local baseline: all 162 supplied tests and the build passed before integration amendments. Additional tests cover author extraction, required attribution, recognized third-party credits, restrictive rights notices, license-link validation, author version changes and the publisher-only release content gate. See `verification.md` for the exact final check results. Browser/device checks remain unperformed.
 
 Real preview run, 14 October 2026: all four enabled feeds fetched successfully through the application fetcher; 7 stories were persisted and served. NASA contributed 4 and Mongabay 3. Unauthenticated collection returned 401. Reader refresh with a timestamp parameter returned the same saved revision. This does not establish screening accuracy or prove a recurring production cron has run.
+
+## Supported map areas (policy 0.3)
+
+`server/feed-location.ts` requires a physical-outcome headline and a local relation or geographical scene-setting opening. Origin/base, ambiguous multiple-feature, nonlocal research and off-Earth stories abstain. Known features come from `src/lib/map-places.ts`, currently Clayoquot Sound and the Klamath River. This is a deliberately small, expandable gazetteer, not broad worldwide place-name recognition. Country fallback retains the existing conservative headline-country relation and is explicitly labelled as a country reference.
+
+Clayoquot Sound uses the Canadian Geographical Names Database point (49.233333, -126.044444): https://geonames.nrcan.gc.ca/search-place-names/unique?id=JADRA. The Klamath area uses the NOAA lower-river reference point (41.51, -123.98): https://www.cnrfc.noaa.gov/obsRiver.php?id=KLMC1. It does not locate the precise salmon observations or removed dams. Registry area radii are conservative display areas, not measured confidence intervals. The point source is linked from the selected card, and cards and accessible pins disclose approximation.
+
+No new article fetching, geocoding API or paid service is added. Feed description text is used in memory and not retained or publicly quoted for location evidence. Stored/public area metadata contains a place ID, input-field basis, reference URL and display-area size. Projection checks named-region coordinates and metadata against the sourced registry. Changing geography changes the story version. The initial live selection opens a mapped card when available, globe discovery prefers other mapped cards, and selecting an unlocated story returns to the overview.

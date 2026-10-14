@@ -80,7 +80,7 @@ export async function createGlobe({ host, stage, markerHost, getMode, onError, o
           }
           // A new story version can move or rename its pin; keep the marker in step with the current data.
           marker.p = point(s.lat, s.lng, 1.015); marker.el.querySelector('.pin-label').textContent = s.location;
-          marker.el.style.setProperty('--pin-color', categories[s.category]); marker.el.setAttribute('aria-label', `${s.location}: ${s.title}${s.isDemo ? '. Design sample.' : ''}`); marker.el.setAttribute('aria-pressed', String(selected === s.id));
+          marker.el.style.setProperty('--pin-color', categories[s.category]); marker.el.setAttribute('aria-label', `${s.location}: ${s.title}${s.isDemo ? '. Design sample.' : s.provenance === 'publisher_feed' ? '. Approximate area, not an exact event site.' : ''}`); marker.el.setAttribute('aria-pressed', String(selected === s.id));
         }
         resize(); dirty = true;
       },

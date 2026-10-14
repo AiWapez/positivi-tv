@@ -5,7 +5,7 @@ import { buildFeed, validPublicStory } from './publication.ts';
 import type { ManifestEntry, Publication, PublishedStory } from './publication.ts';
 
 /** Version of the automatic screening rules. A snapshot made under another version is not served. */
-export const PUBLISHER_FEED_POLICY = 'publisher-feed-0.2.0';
+export const PUBLISHER_FEED_POLICY = 'publisher-feed-0.3.0';
 
 /** Per-source permission record. Every field is maintained by hand from the publisher's own terms. */
 export interface PublisherFeedPermission {
@@ -30,15 +30,16 @@ export interface PublisherFeedControl {
   /** Global switch. false = the lane is neither collected nor served. */
   enabled: boolean;
   windowDays: number; maxItems: number; maxPerSource: number; staleAfterHours: number;
-  locationResolver: 'headline_country' | 'off';
+  locationResolver: 'headline_country' | 'supported_feed' | 'off';
   withdrawn: Withdrawal[];
 }
 export interface PublisherItem {
   id: string; version: number; sourceId: string; url: string; title: string; summary: string | null;
   category: Category; publishedAt: string; fetchedAt: string; lastSeenAt: string;
   labels: StoryLabel[]; location: string; lat: number | null; lng: number | null;
-  locationPrecision: 'country' | 'unknown';
+  locationPrecision: 'region' | 'country' | 'unknown';
   author?: string | null;
+  mapArea?: import('./map-places.ts').MapArea;
 }
 export interface SourceRun {
   status: 'ok' | 'failed' | 'disabled'; checkedAt: string; lastSuccessAt: string | null;
@@ -112,8 +113,11 @@ export function projectPublisherFeed(snapshot: PublisherSnapshot | null, control
         isDemo: false, archive: false, provenance: 'publisher_feed', labels: [...item.labels],
         expiresAt, policyVersion: POLICY_VERSION,
         ...(permission.license && author ? { attribution: { author, licenseName: permission.license.name, licenseUrl: permission.license.url } } : {}),
+        ...(item.mapArea ? { mapArea: { ...item.mapArea } } : {}),
       };
-      if (control.locationResolver === 'off') Object.assign(row, { location: 'Location not specified', lat: null, lng: null, locationPrecision: 'unknown', labels: row.labels.filter(l => l !== 'country_from_headline') });
+      if (control.locationResolver === 'off') {
+        Object.assign(row, { location: 'Location not specified', lat: null, lng: null, locationPrecision: 'unknown', labels: row.labels.filter(l => l !== 'country_from_headline' && l !== 'area_from_feed') }); delete row.mapArea;
+      }
       if (!validPublicStory(row)) continue;
       perSource.set(item.sourceId, count + 1); ids.add(row.id); urls.add(url);
       statuses[row.id] = { version: row.version, status: 'listed' };

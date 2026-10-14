@@ -18,3 +18,5 @@ The source photos are not the exact generated thumbnails inside the reference im
 ## Integrated preview additions
 
 Inter variable font, version 4.1: https://github.com/rsms/inter/tree/v4.1 — Rasmus Andersson, SIL Open Font License 1.1. Local license: fonts/OFL.txt. Sunshine symbol and vector UI icons are authored SVGs. Sample story dates are now fixed examples around October 14, 2026. No production news or publisher claims are supplied.
+
+Map reference coordinates: Canadian Geographical Names Database (Clayoquot Sound, JADRA) and NOAA/CNRFC (Klamath River reference point, KLMC1). Links and interpretation are documented in `src/lib/map-places.ts`; these factual points are not exact event sites.

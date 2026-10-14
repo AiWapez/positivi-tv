@@ -33,10 +33,28 @@ The API rechecks delivery eligibility and sends an uncached status manifest. Bro
 
 ## Content and launch status
 
-Fabricated fallback stories and the old country lookup with 0/0 defaults remain removed. A daily NASA RSS collector writes pending candidates to a private queue; it never publishes them automatically. Separately, a scheduled job (`/api/refresh-feeds`) can store a bounded snapshot of permitted publisher-feed headlines that pass conservative, documented word rules; `/api/stories` serves that snapshot and never crawls. Those rules are not the GoodSignal evidence system and can make mistakes; see [the publisher-feed contract](docs/publisher-feed.md). See [daily collection](docs/daily-collection.md). The cron schedule becomes active only after this code is deployed to production. A real launch needs a verified eligible publisher snapshot (or an approved reviewed edition), occasional source/correction oversight and browser/device QA. `npm run release:check -- --publisher-snapshot /private/path/snapshot.json` supports publisher-only content without inventing human approvals. The integration branch enables this lane for preview verification. Required author/CC attribution is displayed; automatic country pins are off. Source photographs are not automatically republished; live cards currently use category artwork until image rights support is implemented.
+Fabricated fallback stories and the old country lookup with 0/0 defaults remain removed. A daily NASA RSS collector writes pending candidates to a private queue; it never publishes them automatically. Separately, a scheduled job (`/api/refresh-feeds`) can store a bounded snapshot of permitted publisher-feed headlines that pass conservative, documented word rules; `/api/stories` serves that snapshot and never crawls. Those rules are not the GoodSignal evidence system and can make mistakes; see [the publisher-feed contract](docs/publisher-feed.md). See [daily collection](docs/daily-collection.md). The cron schedule becomes active only after this code is deployed to production. A real launch needs a verified eligible publisher snapshot (or an approved reviewed edition), occasional source/correction oversight and browser/device QA. `npm run release:check -- --publisher-snapshot /private/path/snapshot.json` supports publisher-only content without inventing human approvals. The integration branch enables this lane for preview verification. Required author/CC attribution is displayed; automatic pins require a supported physical-outcome location and disclose approximate areas. Source photographs are not automatically republished; live cards currently use category artwork until image rights support is implemented.
 
 There are no accounts, behavioral tracking, community submissions or per-visitor AI calls. The only automated publication is the labelled publisher-feed lane, which is off until switched on. Reading is open without an age or sign-up gate. Favorites stay on the device and can be cleared from Privacy. Email/password accounts, with optional GitHub sign-in, are deferred. See [launch scope and free-only operation](docs/launch-scope.md).
 
 ## Assets and verification
 
 See [asset credits](public/ASSETS.md), [verification](docs/verification.md), and [the editor guide](docs/editor-workflow.md). Inter is local under the SIL OFL; Three.js is pinned to 0.180.0 under MIT. Dependencies are locked with `package-lock.json`.
+
+## Run on your own hardware
+
+Use Node 24, then run:
+
+```sh
+npm ci
+npm run feeds:local
+npm run dev
+```
+
+`feeds:local` uses the same permitted feeds, safe fetcher, automatic selection and location rules, and saves a git-ignored local snapshot. It needs no API key, AI model or Vercel Blob account. The Vite development server reads that file without crawling on visitor requests. Run the command again when you want fresh stories, or schedule it with your operating system. A failed collection preserves the prior snapshot. If an interrupted process leaves a local lock, first confirm no refresh is running before removing the lock named in its error message.
+
+This is a localhost development/self-hosting path, not a hardened public production server. Keep it bound to localhost. `npm run build` produces frontend assets; a public host also needs the API/snapshot adapter. Vercel's production adapter uses the project's own private Blob store and secret. Never reuse someone else's credentials or publish a private editorial workspace.
+
+## License and attribution
+
+Original project code is available under the [MIT License](LICENSE), so you can fork, modify and self-host it. Publisher reporting is not covered by that license. Earth imagery, photographs, Inter, Three.js and other dependencies retain their own terms; see [asset credits](public/ASSETS.md). Source author and license credits must remain with publisher-feed cards.

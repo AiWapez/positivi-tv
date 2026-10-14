@@ -1,6 +1,7 @@
 import { createHash } from 'node:crypto';
 import { screenHeadline } from './publisher-screen.ts';
 import { countryFromHeadline } from './publisher-location.ts';
+import { locateFeedOutcome } from './feed-location.ts';
 import { canonicalUrl } from '../src/goodsignal/util.ts';
 import { PUBLISHER_FEED_POLICY } from '../src/lib/publisher-feed.ts';
 import type { DuplicateProposal, PublisherFeedControl, PublisherItem, PublisherSnapshot, PublisherSources, SourceRun } from '../src/lib/publisher-feed.ts';
@@ -36,7 +37,7 @@ export function shortSummary(text: string): string | null {
 }
 const sameContent = (a: PublisherItem, b: PublisherItem) => a.title === b.title && a.summary === b.summary && a.category === b.category
   && a.location === b.location && a.lat === b.lat && a.lng === b.lng && a.labels.join() === b.labels.join()
-  && a.author === b.author && a.publishedAt === b.publishedAt;
+  && a.author === b.author && a.publishedAt === b.publishedAt && JSON.stringify(a.mapArea) === JSON.stringify(b.mapArea);
 
 /**
  * Builds the next bounded snapshot. Pure: no network, storage or clock access.
@@ -86,13 +87,15 @@ export function buildSnapshot(previous: PublisherSnapshot | null, results: Sourc
         if (/all rights reserved|permission required|not for republication/i.test(c.rights ?? '')) { count('ITEM_RIGHTS_RESTRICTED'); continue; }
         const screen = screenHeadline({ title: c.title, description: c.body ?? '', defaultCategory: permission.category, now });
         if (screen.decision === 'exclude') { for (const r of screen.reasons) count(r); continue; }
-        const place = control.locationResolver === 'headline_country' ? countryFromHeadline(c.title) : null;
+        const place = control.locationResolver === 'supported_feed' ? locateFeedOutcome(c.title, c.body ?? '')
+          : control.locationResolver === 'headline_country' ? (() => { const p = countryFromHeadline(c.title); return p ? { ...p, precision: 'country' as const } : null; })() : null;
         const draft: PublisherItem = {
           id: c.id, version: 1, sourceId, url, title: c.title, summary: permission.summary ? shortSummary(c.body ?? '') : null,
           category: screen.category!, publishedAt: new Date(Date.parse(c.publishedAt)).toISOString(), fetchedAt: now, lastSeenAt: now,
-          labels: place ? [...screen.labels, 'country_from_headline'] : screen.labels,
+          labels: place ? [...screen.labels, place.precision === 'region' ? 'area_from_feed' : 'country_from_headline'] : screen.labels,
           location: place?.name ?? 'Location not specified', lat: place?.lat ?? null, lng: place?.lng ?? null,
-          locationPrecision: place ? 'country' : 'unknown',
+          locationPrecision: place?.precision ?? 'unknown',
+          ...(place && 'mapArea' in place && place.mapArea ? { mapArea: place.mapArea } : {}),
           ...(author ? { author } : {}),
         };
         const prior = prevById.get(c.id);

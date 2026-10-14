@@ -41,4 +41,6 @@ Community Gate v1.1 is a future design reference. Its 18+ contributor rule does 
 2. Run `npm run release:check -- --publisher-snapshot /private/path/snapshot.json` for a publisher-only release, or omit the argument for reviewed content. It refuses empty or stale content and never writes an approval.
 3. Complete real browser/device checks at the four documented viewports, including touch/WebGL, keyboard focus and reduced motion. The current authoring environment cannot perform those checks.
 4. Re-run CI and verify the exact Vercel candidate. Release the matching policy/configuration and verify the stored publisher snapshot; inspect the live API after release.
-5. Before Reddit promotion, make the repository public if desired and choose an explicit code license. Third-party assets and publisher material retain their own terms.
+5. Before Reddit promotion, make the repository public if desired and retain the included MIT code license and separate asset/publisher credits. Third-party assets and publisher material retain their own terms.
+
+The supported-feed map resolver now uses explicit physical-outcome relations and sourced named-feature reference points. It remains deliberately limited and labels approximate areas; unknown places are never filled with a publisher headquarters or 0/0.

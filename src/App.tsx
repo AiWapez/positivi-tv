@@ -25,7 +25,17 @@ export default function App() {
   const items: Story[] = demo ? demoStories as Story[] : feed.stories;
   const visible = useMemo(() => filterStories(items, filters, saved, demo ? Date.parse(DEMO_DATE) : Date.now()), [items, filters, saved, demo]);
   const selected = visible.find(s => s.id === selectedId) ?? null;
-  useEffect(() => { if (globeReady && selected?.lat != null && selected?.lng != null) globe.current?.flyTo(selected.lat, selected.lng); }, [globeReady, selected?.id, selected?.version]);
+  const openedLiveEdition = useRef(false);
+  useEffect(() => {
+    if (demo || openedLiveEdition.current || !feed.stories.length) return;
+    openedLiveEdition.current = true;
+    setSelected((feed.stories.find(s => s.lat !== null && s.lng !== null) ?? feed.stories[0]).id);
+  }, [demo, feed.stories]);
+  useEffect(() => {
+    if (!globeReady || !selected) return;
+    if (selected.lat !== null && selected.lng !== null) globe.current?.flyTo(selected.lat, selected.lng);
+    else globe.current?.reset();
+  }, [globeReady, selected?.id, selected?.version]);
   function reset() { setFilters({ category: 'All', query: '', period: '30', savedOnly: false }); setMessage('Filters reset.'); }
   function changeMode(next: 'globe' | 'list') { setMode(next); setFilters(f => ({ ...f, savedOnly: false })); }
   async function select(id: string) {
@@ -35,7 +45,11 @@ export default function App() {
     setMessage(`Selected ${s.title}, ${s.location}.${s.isDemo ? ' Design sample.' : ''}`);
     if (matchMedia('(max-width: 767px)').matches) explorer.current?.scrollIntoView({ behavior: 'auto', block: 'start' });
   }
-  function discover(random = false) { const s = nextStory(visible, selectedId, random); if (s) void select(s.id); }
+  function discover(random = false) {
+    const mapped = visible.filter(s => s.lat !== null && s.lng !== null);
+    const pool = mode === 'globe' && mapped.some(s => s.id !== selectedId) ? mapped : visible;
+    const s = nextStory(pool, selectedId, random); if (s) void select(s.id);
+  }
   function toggleSave(s: Story) { toggle(s.id); setMessage(saved.has(s.id) ? 'Story removed from saved.' : 'Story saved.'); }
   function switchDemo(value: boolean) { setDemo(value); setSelected(value ? 'portugal' : null); setDialog(null); reset(); const url = new URL(location.href); value ? url.searchParams.set('demo','1') : url.searchParams.delete('demo'); history.replaceState(null, '', url); }
   async function expand() {

@@ -13,8 +13,8 @@ export type Provenance = 'reviewed' | 'publisher_feed' | 'sample';
  * - event_date_unconfirmed: only the publication date is known; the event may be older.
  * - country_from_headline: the pin is an approximate country centre taken from the headline wording.
  */
-export type StoryLabel = 'research_finding' | 'event_date_unconfirmed' | 'country_from_headline';
-export const STORY_LABELS: readonly StoryLabel[] = ['research_finding', 'event_date_unconfirmed', 'country_from_headline'];
+export type StoryLabel = 'research_finding' | 'event_date_unconfirmed' | 'country_from_headline' | 'area_from_feed';
+export const STORY_LABELS: readonly StoryLabel[] = ['research_finding', 'event_date_unconfirmed', 'country_from_headline', 'area_from_feed'];
 export interface Story {
   id: string; version: number; title: string; summary: string | null; category: Category;
   location: string; lat: number | null; lng: number | null;
@@ -26,6 +26,7 @@ export interface Story {
   isDemo: boolean; archive: boolean;
   provenance: Provenance; labels: StoryLabel[];
   attribution?: { author: string; licenseName: string; licenseUrl: string };
+  mapArea?: import('../lib/map-places.ts').MapArea;
 }
 export const CATEGORY_COLORS = { All: '#FFE438', Planet: '#4AE18B', Science: '#29D6DA', Community: '#42ACFF', Health: '#A1E6AF' };
 export type CategoryFilter = 'All' | Category;

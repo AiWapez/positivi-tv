@@ -24,3 +24,5 @@ html{scroll-behavior:auto}body{overflow-x:hidden}svg{display:block;width:20px;he
 @media(max-width:767px){.reader-footer{padding:12px 20px 20px;flex-direction:column;align-items:flex-start}.reader-footer>div{margin-left:-10px}.reader-footer>span{font-size:11px}}
 
 .story-entry{min-width:0;flex-shrink:0}.story-attribution{font-size:11px;line-height:1.6;color:var(--muted);padding:6px 10px;overflow-wrap:anywhere}.story-attribution a{text-decoration:underline;text-underline-offset:3px;display:inline-block;min-height:24px;padding:4px 0}.selected .story-attribution{padding-left:0}.story-copy>.meta{overflow-wrap:anywhere}
+
+.story-attribution a{min-height:44px;display:inline-flex;align-items:center;gap:4px}.story-attribution svg{width:12px;height:12px}.selected-body .event-meta{line-height:1.5}
