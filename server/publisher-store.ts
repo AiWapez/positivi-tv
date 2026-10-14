@@ -1,6 +1,6 @@
 import { randomUUID } from 'node:crypto';
-import { get, put, del, head, BlobPreconditionFailedError } from '@vercel/blob';
-import { validSnapshot } from '../src/lib/publisher-feed.ts';
+import { get, put, del, head, BlobPreconditionFailedError, BlobNotFoundError } from '@vercel/blob';
+import { validSnapshot, PUBLISHER_FEED_POLICY } from '../src/lib/publisher-feed.ts';
 import type { PublisherSnapshot, SnapshotRead } from '../src/lib/publisher-feed.ts';
 import { SNAPSHOT_MAX_BYTES, serializeSnapshot } from './publisher-snapshot.ts';
 
@@ -11,8 +11,8 @@ import { SNAPSHOT_MAX_BYTES, serializeSnapshot } from './publisher-snapshot.ts';
  * - publisher-feed/lock.json     a short-lived run lock created with allowOverwrite: false
  * Visitors never write. Reads from /api/stories go through a per-instance memory cache and the Blob CDN cache.
  */
-export const SNAPSHOT_PATH = 'publisher-feed/current.json';
-export const LOCK_PATH = 'publisher-feed/lock.json';
+export const SNAPSHOT_PATH = `publisher-feed/${PUBLISHER_FEED_POLICY}/current.json`;
+export const LOCK_PATH = `publisher-feed/${PUBLISHER_FEED_POLICY}/lock.json`;
 export const LOCK_STALE_MS = 5 * 60 * 1000;
 
 type GetResult = { statusCode: number; stream: ReadableStream<Uint8Array> | null; etag?: string; blob?: { etag?: string } } | null;
@@ -27,6 +27,7 @@ export const vercelBlob: BlobApi = { get: get as unknown as BlobApi['get'], put:
 export function conflictError(error: unknown): boolean {
   return error instanceof BlobPreconditionFailedError || /already exists|precondition/i.test(String((error as Error)?.message ?? ''));
 }
+const notFound = (error: unknown) => error instanceof BlobNotFoundError || (error as Error)?.name === 'BlobNotFoundError';
 class OversizedObject extends Error {}
 async function readText(result: GetResult, limit: number): Promise<string | null> {
   if (!result || result.statusCode !== 200 || !result.stream) return null;
@@ -52,12 +53,12 @@ export function createPublisherStore(api: BlobApi = vercelBlob) {
      */
     async readCurrent(fresh = false): Promise<{ snapshot: PublisherSnapshot | null; etag: string | null; invalid?: true } | null> {
       const before = fresh ? await api.head(SNAPSHOT_PATH).catch(error => {
-        if ((error as Error)?.name === 'BlobNotFoundError') return null;
+        if (notFound(error)) return null;
         throw error;
       }) : null;
       let result: GetResult;
       try { result = await api.get(SNAPSHOT_PATH, { access: 'private', useCache: !fresh }); }
-      catch (error) { if ((error as Error)?.name === 'BlobNotFoundError') return null; throw error; }
+      catch (error) { if (notFound(error)) return null; throw error; }
       if (!result || result.statusCode !== 200) return null;
       let etag = etagOf(result);
       // HTTP response validators can differ from the Blob API's conditional-write validator.
@@ -84,7 +85,7 @@ export function createPublisherStore(api: BlobApi = vercelBlob) {
       return api.put(SNAPSHOT_PATH, body, etag ? { ...common, ifMatch: etag } : { ...common, allowOverwrite: false });
     },
     /** Used when the lane is switched off, so stored headlines do not outlive the decision. del is free on Blob. */
-    async deleteCurrent() { try { await api.del(SNAPSHOT_PATH); } catch (error) { if ((error as Error)?.name !== 'BlobNotFoundError') throw error; } },
+    async deleteCurrent() { try { await api.del(SNAPSHOT_PATH); } catch (error) { if (!notFound(error)) throw error; } },
     async acquireLock(now = Date.now()): Promise<string | null> {
       const token = randomUUID();
       const attempt = () => api.put(LOCK_PATH, JSON.stringify({ token, at: new Date(now).toISOString() }),
@@ -95,7 +96,7 @@ export function createPublisherStore(api: BlobApi = vercelBlob) {
       let meta: { etag: string; uploadedAt: Date };
       try { meta = await api.head(LOCK_PATH); }
       catch (error) {
-        if ((error as Error)?.name !== 'BlobNotFoundError') throw error;
+        if (!notFound(error)) throw error;
         // Released between our attempt and the check: try once more, otherwise report busy.
         try { await attempt(); return token; } catch (again) { if (conflictError(again)) return null; throw again; }
       }

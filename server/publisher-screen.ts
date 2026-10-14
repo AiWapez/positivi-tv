@@ -140,6 +140,7 @@ export function screenHeadline(input: ScreenInput): ScreenResult {
   if (title.endsWith('?') || ADVICE.test(title)) reasons.push('QUESTION_ADVICE_OR_EXPLAINER');
   for (const m of title.matchAll(YEAR)) if (Number(m[1]) < year) { reasons.push('OLD_YEAR_IN_HEADLINE'); break; }
   for (const m of desc.matchAll(OLD_EVENT_PHRASE)) if (Number(m[1]) < year) { reasons.push('OLD_EVENT_YEAR_IN_DESCRIPTION'); break; }
+  if (/\b(?:destruction|environmental cost|less time to recover)\b/i.test(title)) reasons.push('DETERIORATING_OUTCOME');
   if (CONTEXT_NEGATIVE.test(title) && !RECOVERY.test(title)) reasons.push('NEGATIVE_WITHOUT_RECOVERY');
   if (INTENT.test(title) || MAY.test(title) || MONEY.test(title)) reasons.push('PLAN_OR_UNCERTAIN');
   else if (IN_PROGRESS.test(title)) reasons.push('IN_PROGRESS_NOT_OUTCOME');

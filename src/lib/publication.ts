@@ -2,6 +2,7 @@ import type { Story, StoryLabel } from '../types/index.ts';
 import { STORY_LABELS } from '../types/index.ts';
 import { canonicalUrl, dateBounds } from '../goodsignal/util.ts';
 import { POLICY_VERSION } from '../goodsignal/types.ts';
+import { validStoryImage } from './story-images.ts';
 import { validMapArea } from './map-places.ts';
 export interface PublishedStory extends Story {
   expiresAt: string; policyVersion: string;
@@ -30,7 +31,7 @@ function validCommon(s: PublishedStory): boolean {
     && typeof s.fetchedAt === 'string' && Number.isFinite(Date.parse(s.fetchedAt))
     && typeof s.expiresAt === 'string' && Number.isFinite(Date.parse(s.expiresAt))
     && s.isDemo === false && typeof s.archive === 'boolean' && s.policyVersion === POLICY_VERSION
-    && s.image === null && typeof s.imageAlt === 'string' && s.imageCredit === null && validLabels(s.labels)
+    && validStoryImage(s) && validLabels(s.labels)
     && (s.attribution === undefined || !!s.attribution && typeof s.attribution.author === 'string'
       && !!s.attribution.author.trim() && s.attribution.author.length <= 500
       && typeof s.attribution.licenseName === 'string' && !!s.attribution.licenseName.trim()

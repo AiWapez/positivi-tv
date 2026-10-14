@@ -6,7 +6,7 @@ export interface FeedLocation {
 }
 const esc = (s: string) => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 const ACTION = /\b(?:restor\w*|replant\w*|rebuild\w*|rescu\w*|protect\w*|return\w*|reopen\w*|open(?:s|ed)?|rewild\w*|reintroduc\w*|regrow\w*|clean(?:s|ed|up)?|thriv\w*)\b/i;
-const PHYSICAL = /\b(?:kelp|forests?|reefs?|salmon|dams?|rivers?|wetlands?|shelters?|schools?|libraries|library|homes?|parks?|habitats?|wildlife|trees?|coral|animals?)\b/i;
+const PHYSICAL = /\b(?:kelp|forests?|reefs?|salmon|dams?|rivers?|wetlands?|shelters?|schools?|libraries|library|homes?|parks?|habitats?|wildlife|trees?|coral|animals?|livestock|cattle|giraffes?|leopard cats|falcons?)\b/i;
 const NONLOCAL = /\b(?:Mars|Moon|lunar|rovers?|galax\w*|telescopes?|asteroids?|exoplanets?|spacecraft|satellites?|headquarters|headquartered|based|born|hometown|conference|award|prize|researchers?|scientists?|study|elsewhere|abroad|overseas|distant)\b/i;
 const normalize = (s: string) => s.normalize('NFC').replace(/[\u2018\u2019]/g, "'").replace(/\s+/g, ' ').trim();
 /** Conservative relation rules over permitted feed text only. Never fetches articles or calls a geocoder.
@@ -34,6 +34,11 @@ export function locateFeedOutcome(title: string, description: string): FeedLocat
       if (basis) return { name: p.name, lat: p.lat, lng: p.lng, precision: 'region', mapArea: { placeId: p.id, basis, referenceUrl: p.referenceUrl, areaKm: p.areaKm } };
     }
     return null;
+  }
+  const rescuedSubject = t.match(/\b([\p{Lu}][\p{L}]+)'s rescued (?:animals|leopard cats|turtles|birds)\b/u);
+  if (rescuedSubject) {
+    const rescueCountry = countryFromHeadline(t.replace(rescuedSubject[0], 'rescued animals in ' + rescuedSubject[1]));
+    if (rescueCountry) return { ...rescueCountry, precision: 'country' };
   }
   const country = countryFromHeadline(t);
   // "Volunteers in X restore ..." may locate the volunteers, rather than the outcome.

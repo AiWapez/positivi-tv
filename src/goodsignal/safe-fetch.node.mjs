@@ -20,11 +20,11 @@ async function resolveHost(host) {
 export class FetchFailure extends Error {
   constructor(code, transient = false) { super(code); this.code = code; this.transient = transient; }
 }
-function requestPinned(url, address, { timeoutMs, maxBytes }) {
+function requestPinned(url, address, { timeoutMs, maxBytes, allowJson }) {
   return new Promise((resolve, reject) => {
     const req = httpsRequest(url, {
       family: address.family, autoSelectFamily: false,
-      headers: { 'User-Agent': 'PositiviTV-GoodSignal/0.1', Accept: 'text/html, application/rss+xml, application/atom+xml', 'Accept-Encoding': 'identity' },
+      headers: { 'User-Agent': 'PositiviTV-GoodSignal/0.1', Accept: allowJson ? 'application/json' : 'text/html, application/rss+xml, application/atom+xml', 'Accept-Encoding': 'identity' },
       // The TLS hostname remains the original host. DNS is pinned to the address checked above.
       lookup(_host, _options, callback) { callback(null, address.address, address.family); },
     }, res => {
@@ -32,7 +32,7 @@ function requestPinned(url, address, { timeoutMs, maxBytes }) {
       if (status >= 300 && status < 400) { res.destroy(); resolve({ status, location: res.headers.location }); return; }
       if (status < 200 || status >= 300) { res.destroy(); reject(new FetchFailure('HTTP_' + status, status === 429 || status >= 500)); return; }
       const type = String(res.headers['content-type'] ?? '').split(';')[0].trim().toLowerCase();
-      if (!['text/plain', 'text/html', 'application/rss+xml', 'application/atom+xml', 'application/xml', 'text/xml'].includes(type)) { res.destroy(); reject(new FetchFailure('CONTENT_TYPE_BLOCKED')); return; }
+      if (!['text/plain', 'text/html', 'application/rss+xml', 'application/atom+xml', 'application/xml', 'text/xml', ...(allowJson ? ['application/json'] : [])].includes(type)) { res.destroy(); reject(new FetchFailure('CONTENT_TYPE_BLOCKED')); return; }
       // No decompression: both encoded and decoded response limits remain identical.
       if (res.headers['content-encoding'] && res.headers['content-encoding'] !== 'identity') { res.destroy(); reject(new FetchFailure('ENCODING_BLOCKED')); return; }
       if (Number(res.headers['content-length']) > maxBytes) { res.destroy(); reject(new FetchFailure('RESPONSE_TOO_LARGE')); return; }
@@ -48,8 +48,8 @@ function requestPinned(url, address, { timeoutMs, maxBytes }) {
 /** Explicit permission and robots adapters are mandatory; there are no live default sources. */
 export async function safeFetch(raw, options) {
   const { allowedDomains, permitted, robotsAllowed, resolve = resolveHost, request = requestPinned,
-    maxBytes = 2 * 1024 * 1024, timeoutMs = 10_000, maxRedirects = 5 } = options ?? {};
-  if (!Array.isArray(allowedDomains) || !allowedDomains.length || typeof permitted !== 'function' || typeof robotsAllowed !== 'function'
+    maxBytes = 2 * 1024 * 1024, timeoutMs = 10_000, maxRedirects = 5, allowJson = false } = options ?? {};
+  if (typeof allowJson !== 'boolean' || !Array.isArray(allowedDomains) || !allowedDomains.length || typeof permitted !== 'function' || typeof robotsAllowed !== 'function'
     || !Number.isInteger(maxBytes) || maxBytes < 1 || maxBytes > 2 * 1024 * 1024 || !Number.isFinite(timeoutMs) || timeoutMs <= 0 || timeoutMs > 10_000
     || !Number.isInteger(maxRedirects) || maxRedirects < 0 || maxRedirects > 5) throw new FetchFailure('INVALID_FETCH_POLICY');
   let url = canonicalUrl(raw); const deadline = Date.now() + timeoutMs;
@@ -64,7 +64,7 @@ export async function safeFetch(raw, options) {
     if (!await bounded(() => permitted(url)) || !await bounded(() => robotsAllowed(url))) throw new FetchFailure('FETCH_NOT_PERMITTED');
     const addresses = await bounded(() => resolve(new URL(url).hostname));
     if (!Array.isArray(addresses) || !addresses.length || addresses.some(a => !isPublicAddress(a.address) || a.family !== isIP(a.address))) throw new FetchFailure('DNS_ADDRESS_BLOCKED');
-    const response = await bounded(() => request(url, addresses[0], { maxBytes, timeoutMs: deadline - Date.now() }));
+    const response = await bounded(() => request(url, addresses[0], { maxBytes, timeoutMs: deadline - Date.now(), allowJson }));
     if (response.status >= 300 && response.status < 400) {
       if (!response.location || hop === maxRedirects) throw new FetchFailure('REDIRECT_LIMIT');
       try { url = canonicalUrl(new URL(response.location, url).toString()); } catch { throw new FetchFailure('INVALID_REDIRECT'); }

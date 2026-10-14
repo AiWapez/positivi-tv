@@ -22,7 +22,7 @@ export interface Story {
   publishedAt: string; fetchedAt: string; eventDate: string | null;
   datePrecision: 'day' | 'month' | 'year' | null;
   sourceName: string | null; sourceUrl: string | null;
-  image: string | null; imageAlt: string; imageCredit: string | null;
+  image: string | null; imageAlt: string; imageCredit: string | null; imageContext?: string;
   isDemo: boolean; archive: boolean;
   provenance: Provenance; labels: StoryLabel[];
   attribution?: { author: string; licenseName: string; licenseUrl: string };

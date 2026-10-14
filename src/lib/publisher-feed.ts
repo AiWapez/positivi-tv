@@ -1,3 +1,4 @@
+import { photoFields, photoForStory } from './story-images.ts';
 import type { Category, PublisherFeedStatus, Story, StoryLabel } from '../types/index.ts';
 import { canonicalUrl } from '../goodsignal/util.ts';
 import { POLICY_VERSION } from '../goodsignal/types.ts';
@@ -5,7 +6,7 @@ import { buildFeed, validPublicStory } from './publication.ts';
 import type { ManifestEntry, Publication, PublishedStory } from './publication.ts';
 
 /** Version of the automatic screening rules. A snapshot made under another version is not served. */
-export const PUBLISHER_FEED_POLICY = 'publisher-feed-0.3.0';
+export const PUBLISHER_FEED_POLICY = 'publisher-feed-0.4.0';
 
 /** Per-source permission record. Every field is maintained by hand from the publisher's own terms. */
 export interface PublisherFeedPermission {
@@ -118,6 +119,7 @@ export function projectPublisherFeed(snapshot: PublisherSnapshot | null, control
       if (control.locationResolver === 'off') {
         Object.assign(row, { location: 'Location not specified', lat: null, lng: null, locationPrecision: 'unknown', labels: row.labels.filter(l => l !== 'country_from_headline' && l !== 'area_from_feed') }); delete row.mapArea;
       }
+      Object.assign(row, photoFields(photoForStory(row)));
       if (!validPublicStory(row)) continue;
       perSource.set(item.sourceId, count + 1); ids.add(row.id); urls.add(url);
       statuses[row.id] = { version: row.version, status: 'listed' };

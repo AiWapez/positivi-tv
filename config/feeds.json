@@ -37,7 +37,9 @@
       "maxBytes": 2097152,
       "lanes": [
         "publisher_feed"
-      ]
+      ],
+      "supplementalUrl": "https://news.mongabay.com/wp-json/wp/v2/posts?per_page=100&_fields=link,title,excerpt,date_gmt,byline",
+      "supplementalBylineUrl": "https://news.mongabay.com/wp-json/wp/v2/byline"
     },
     {
       "id": "globalvoices",
@@ -164,7 +166,7 @@
         ],
         "attribution": "Author, publisher, original article link and linked license shown with every card. Items missing an author are omitted.",
         "exceptions": "Photos credited to others are excluded from the license and are not imported. Descriptions are used only for private screening and are never stored or shown, because shortening them would be a modification under ND terms.",
-        "notes": "Feed fetched during preparation on 2026-10-14 (26 items visible, host news.mongabay.com only). robots.txt blocks nothing for *. Feed body exceeds 100 KB, so maxBytes is raised to the 2 MB fetcher cap.",
+        "notes": "Feed fetched during preparation on 2026-10-14 (26 items visible, host news.mongabay.com only). robots.txt blocks nothing for *. Feed body exceeds 100 KB, so maxBytes is raised to the 2 MB fetcher cap. A bounded public WordPress metadata endpoint supplements RSS, with the original UTC publication date and publisher-supplied byline; no article body or photograph is imported. Byline taxonomy names are used; SEO authors and WordPress account names are not treated as article writers.",
         "requiresAuthor": true,
         "license": {
           "name": "CC BY-ND 4.0",

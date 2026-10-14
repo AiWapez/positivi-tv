@@ -21,7 +21,7 @@ test('automatic cards are labelled publisher_feed, carry visible qualifiers and 
   const feed = combined();
   assert.equal(feed.stories.length, 2);
   for (const s of feed.stories) {
-    assert.equal(s.provenance, 'publisher_feed'); assert.equal(s.eventDate, null); assert.equal(s.image, null); assert.equal(s.archive, false);
+    assert.equal(s.provenance, 'publisher_feed'); assert.equal(s.eventDate, null); assert.match(s.image, /^\/assets\/stories\//); assert.equal(s.archive, false);
     assert(s.labels.includes('event_date_unconfirmed'));
     assert.equal(feed.manifest.stories[s.id].status, 'listed');
     assert(validPublicStory({ ...s, expiresAt: '9999-01-01T00:00:00Z', policyVersion: POLICY_VERSION }), 'client-side validation accepts it');
@@ -35,7 +35,7 @@ test('automatic cards are labelled publisher_feed, carry visible qualifiers and 
 
 test('public cards expose no evidence, corroboration, body, screening or duplicate fields', () => {
   for (const s of combined().stories) assert.deepEqual(Object.keys(s).sort(), ['archive', 'category', 'datePrecision', 'eventDate', 'fetchedAt', 'id', 'image', 'imageAlt',
-    'imageCredit', 'isDemo', 'labels', 'lat', 'lng', 'location', 'locationPrecision', 'provenance', 'publishedAt', 'sourceName', 'sourceUrl', 'summary', 'title', 'version']);
+    'imageContext', 'imageCredit', 'isDemo', 'labels', 'lat', 'lng', 'location', 'locationPrecision', 'provenance', 'publishedAt', 'sourceName', 'sourceUrl', 'summary', 'title', 'version']);
 });
 
 test('withdrawal by id or URL removes the card and marks the manifest withdrawn', () => {

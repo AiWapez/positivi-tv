@@ -9,6 +9,9 @@ export const MAP_PLACES = [
   { id: 'us-klamath-river', name: 'Klamath River area, US', aliases: ['Klamath River'], lat: 41.51, lng: -123.98,
     areaKm: 450, referenceUrl: 'https://www.cnrfc.noaa.gov/obsRiver.php?id=KLMC1',
     referenceNote: 'NOAA reference point on the lower river. Marker represents the river area, not the dam-removal or salmon-observation site.', checkedAt: '2026-10-14' },
+  { id: 'ao-bicuar', name: 'Bicuar National Park, Angola', aliases: ['Bicuar National Park', 'Bicuari National Park'], lat: -15.355582, lng: 14.773276,
+    areaKm: 100, referenceUrl: 'https://www.geonames.org/3351643/parque-nacional-do-bicuari.html',
+    referenceNote: 'GeoNames park reference point; broad park area, not the precise release location.', checkedAt: '2026-10-14' },
 ] as const;
 export interface MapArea { placeId: string; basis: 'title' | 'feed_description'; referenceUrl: string; areaKm: number }
 export function validMapArea(area: unknown, lat: number | null, lng: number | null, name: string): area is MapArea {
