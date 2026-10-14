@@ -1,0 +1,25 @@
+name: PositiviTV app
+on:
+  push:
+    branches: [redesign-globe]
+  pull_request:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38
+        with:
+          node-version: '24'
+          cache: npm
+      - run: npm ci
+      - run: npm run test:goodsignal
+      - run: npm run test:app
+      - run: npm run demo:goodsignal
+      - run: npm run build

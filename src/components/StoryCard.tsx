@@ -1,88 +1,22 @@
-import { CATEGORY_MAP } from "../data/categories";
-import type { Story } from "../types";
-
-interface StoryCardProps {
-  story: Story;
-  onClose: () => void;
+import Icon from './Icon';
+import { CATEGORY_COLORS } from '../types';
+import type { Story } from '../types';
+import { dateLabel, eventLabel } from '../lib/story-utils';
+export function StoryArt({ story, decorative = false }: { story: Story; decorative?: boolean }) {
+  return story.image ? <img src={story.image} alt={decorative ? '' : story.imageAlt} loading="lazy" width="170" height="168" />
+    : <div className={`story-art category-${story.category.toLowerCase()}`} aria-hidden="true"><Icon name="globe" /></div>;
 }
-
-export default function StoryCard({ story, onClose }: StoryCardProps) {
-  const cat = CATEGORY_MAP[story.category];
-  const date = new Date(story.publishedAt).toLocaleDateString("en-US", {
-    month: "short",
-    day: "numeric",
-  });
-
-  return (
-    <div
-      className="slide-up"
-      style={{
-        background: "rgba(10, 14, 26, 0.98)",
-        borderTop: `2px solid ${cat.color}40`,
-        borderRadius: "16px 16px 0 0",
-        backdropFilter: "blur(16px)",
-      }}
-    >
-      {/* Drag handle */}
-      <div className="flex justify-center pt-3 pb-2">
-        <div className="w-9 h-1 rounded-full bg-white/15" />
-      </div>
-
-      <div className="px-4 pb-5 overflow-y-auto max-h-[40vh]">
-        {/* Category tag + location + close */}
-        <div className="flex justify-between items-center mb-2">
-          <div className="flex items-center gap-2">
-            <span
-              className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded"
-              style={{
-                color: cat.color,
-                background: `${cat.color}15`,
-              }}
-            >
-              {cat.emoji} {cat.label}
-            </span>
-            <span className="text-[10px] text-white/30">
-              {story.locationName}
-            </span>
-          </div>
-          <button
-            onClick={onClose}
-            className="w-7 h-7 flex items-center justify-center rounded-full bg-white/5 text-white/50 hover:text-white text-xs"
-          >
-            ✕
-          </button>
-        </div>
-
-        {/* Headline */}
-        <h2 className="text-[17px] font-bold leading-snug mb-2">
-          {story.title}
-        </h2>
-
-        {/* Summary */}
-        <p className="text-[13px] leading-relaxed text-white/55 mb-4">
-          {story.description}
-        </p>
-
-        {/* Source + link */}
-        <div className="flex justify-between items-center">
-          <span className="text-[11px] text-white/25">
-            {story.source} · {date}
-          </span>
-          <a
-            href={story.url}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-[11px] font-bold no-underline px-3.5 py-1.5 rounded-lg"
-            style={{
-              color: cat.color,
-              background: `${cat.color}12`,
-              border: `1px solid ${cat.color}30`,
-            }}
-          >
-            Read Full Story →
-          </a>
-        </div>
-      </div>
+export function StoryButton({ story, selected, onSelect }: { story: Story; selected: boolean; onSelect: (id: string) => void }) {
+  return <button className="story" aria-pressed={selected} onClick={() => onSelect(story.id)}>
+    <StoryArt story={story} decorative /><span className="story-copy"><span className="eyebrow"><i className="dot" style={{ background: CATEGORY_COLORS[story.category] }} />{story.location}</span><strong>{story.title}</strong><span className="meta">{dateLabel(story)}</span></span><span className="card-arrow" aria-hidden="true"><Icon name="arrow" /></span>
+  </button>;
+}
+export default function SelectedStoryCard({ story, saved, onSave, onClose, onNext, onReadSample }: { story: Story; saved: boolean; onSave: () => void; onClose: () => void; onNext: () => void; onReadSample: () => void }) {
+  return <article id="selected" className="selected" aria-label="Selected story">
+    <button className="save-toggle" onClick={onSave} aria-label={saved ? 'Remove from saved' : 'Save story'} aria-pressed={saved}><Icon name="bookmark" /></button>
+    <button className="close" onClick={onClose} aria-label="Close selected story"><Icon name="close" /></button>
+    <StoryArt story={story} /><div className="selected-body"><div className="eyebrow"><i className="dot" style={{ background: CATEGORY_COLORS[story.category] }} />{story.location} · {story.category}</div><h2>{story.title}</h2><div className="meta">{dateLabel(story)}</div>{eventLabel(story) && <div className="event-meta">{eventLabel(story)}</div>}
+      <div className="actions">{story.isDemo ? <button className="primary" onClick={onReadSample}>Read story <Icon name="external" /></button> : <a className="primary" href={story.sourceUrl!} target="_blank" rel="noopener noreferrer">Read story <Icon name="external" /></a>}<button className="secondary" onClick={onNext}>Next location <Icon name="arrow" /></button></div>
     </div>
-  );
+  </article>;
 }

@@ -1,64 +1,28 @@
-# Integrating the standalone engine later
+# GoodSignal integration status
 
-This branch is safe to review independently of the website. Nothing imports the engine from `src/App.tsx` or `api/stories.ts`, and no ingestion schedule is installed.
+The globe redesign integrates the standalone engine into a maintainer-operated publication workflow. It preserves the existing React/Vite framework and Vercel `/api/stories` route.
 
-## Run locally
+1. Maintainer imports a candidate into ignored `.editor/` storage.
+2. GoodSignal prepares findings and a human records the current-version decision.
+3. `server/publish.ts` applies the engine's eligibility, edition composition and public projection.
+4. `content/edition.json` records a public edition and statuses together.
+5. `api/stories.ts` rechecks expiry, policy, dates and current status/version on every request, returning an uncached feed and manifest.
+6. The frontend filters the same dataset for list and globe, checks fresh status before selection, refreshes while visible, and clears stale live data.
 
-Use Node.js 24. From the repository root:
+See [the editor guide](editor-workflow.md) for trust, permissions, retention and release details. The checked-in production collection is empty, and synthetic samples are an explicit frontend mode only.
 
-```sh
-npm run test:goodsignal
-npm run demo:goodsignal
-```
+## Implemented boundaries
 
-These commands need no npm installation, API key, or network connection. Node strips the erasable TypeScript syntax for execution. This is distinct from static type checking. With TypeScript installed, run `npm run typecheck:goodsignal`; CI obtains the existing project's TypeScript version explicitly for this check.
+No article body, evidence quotation, review note, API credential, or private workspace enters the browser feed. There is no public approval endpoint. GitHub repository writes and deployment permissions authorize publication; the CLI does not authenticate a remote editor. Live cards use category artwork rather than assuming rights to publisher images. Unknown/multiple/global locations stay in lists without invented points.
 
-## Core usage
+The API is a bounded collection endpoint, not a paginated search service. Filtering is local over the same edition; `nextCursor` is null. Refresh checks the deployed collection and does not consume a third-party news quota or create a new edition.
 
-```ts
-import {
-  assessCandidate, applyHumanDecision, composeEdition,
-  scheduleChannel, publicCard, makeManifest, checkBeforeDisplay,
-} from './src/goodsignal/index.ts';
+## Remaining adapters
 
-// candidates and source policies come from trusted host storage/adapters.
-const assessment = assessCandidate(candidate, context);
-// Present every finding and source context to an authenticated editor.
-// The host authenticates/authorizes and records this decision before calling:
-const approved = applyHumanDecision(candidate, editorDecision, context);
-const edition = composeEdition([approved], context);
-const cards = edition.stories.map(s => publicCard(s, context));
-const schedule = scheduleChannel(edition.stories, context);
-const manifest = makeManifest(edition.stories, context, collectionVersion);
-// Publish the matching cards/schedule/status generation atomically.
-// At playback, obtain a sufficiently fresh authoritative manifest first:
-const guard = checkBeforeDisplay(schedule[0], freshlyFetchedManifest, currentUtcTime);
-if (guard.allowed) {
-  // Render the permitted card as safe text, with source and true date.
-}
-```
+Permitted live ingestion, structured extraction, automated deduplication proposals, a hosted authenticated review interface, private durable candidate storage, real labelled evaluation, and scheduled daily edition builds are not connected. The Promise Ledger and broadcast helpers remain engine capabilities; the selected UI deliberately has no broadcast/ticker features.
 
-This illustrates the order of operations, not a runnable backend. Definitions, durable storage, review UI, authentication, live data, and manifest transport must be supplied by integration. `makeManifest` is for trusted server use; a browser cannot authorize content by generating its own manifest.
+Status is authoritative for one deployed snapshot. A withdrawal requires redeployment and does not invalidate immutable older deployment URLs. A shared external status store is needed before claiming cross-deployment removal. Source revocation likewise requires rebuilding the edition. A versioned public Git collection is inappropriate for licenses that prohibit the resulting retention history.
 
-## Node fetching
+## Verification
 
-Import `safeFetch` separately from `src/goodsignal/safe-fetch.node.mjs`. Supply permitted domains and reviewed fetch/robots policy callbacks. Do not pass callbacks or DNS/request adapters from untrusted requests. The default transport checks and pins public DNS answers; the callbacks must themselves fetch/cache policy data safely. It returns article/feed text, not parsed stories.
-
-No model provider is bundled. A future extraction adapter should have no tools, return constrained structured fields, cache by content/model/policy version, retain uncertainty, and stop at a configured spend cap. Convert extraction into a candidate only after runtime validation, and show supporting context to a reviewer. String/span presence is not semantic verification.
-
-## Corrections and live playback
-
-Persist versioned story history with optimistic concurrency. An edit invalidates the previous approval immediately; approval of the revised version is a new decision. Rebuild the collection and manifest together, revalidate status before every new card, and clear any withdrawn card already visible when its update arrives. Enforce a measured cache/refresh budget. Define offline behavior and a “Rejoin channel” control explicitly.
-
-`buildTour` handles one full bounded cycle. `scheduleChannel` produces a finite offline snapshot. A future live scheduler must carry cycle and passed-over state across incremental block updates and avoid rescheduling already-played events as new. That service is not installed here.
-
-## Before replacing the legacy API
-
-1. Establish source-specific fetch/display/storage permissions and remove the existing hardcoded fallback array and single-word classifier from the replacement path.
-2. Implement authenticated editorial review and durable auditable storage.
-3. Produce an approved collection without fabricated fallbacks; use a dated archive when current supply is thin.
-4. Connect authoritative manifests and test withdrawal propagation through real CDN/browser behavior.
-5. Evaluate actual labelled feed candidates with event-grouped/time-separated holdouts.
-6. Integrate the globe, ticker, and player in a separately reviewed website change.
-
-All current test fixtures are synthetic. Do not copy their “approved” fields, example domains, evidence notes, or claimed permissions into a public source collection.
+Engine regression fixtures are synthetic; passing them is not a news-quality benchmark. Feed delivery and editorial flow have integration tests. Browser/WebGL/touch verification remains a separate acceptance step; see [verification](verification.md).

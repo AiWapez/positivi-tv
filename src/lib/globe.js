@@ -1,0 +1,90 @@
+import * as THREE from 'three';
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+import { CATEGORY_COLORS as categories } from '../types/index.ts';
+
+const point = (lat, lng, r = 1) => {
+  const phi = (90 - lat) * Math.PI / 180, theta = (lng + 180) * Math.PI / 180;
+  return new THREE.Vector3(-r * Math.sin(phi) * Math.cos(theta), r * Math.cos(phi), r * Math.sin(phi) * Math.sin(theta));
+};
+export async function createGlobe({ host, stage, markerHost, getMode, onError, onSelect }) {
+  let renderer, controls, observer, frameId = 0, disposed = false, dirty = true, last = 0, flight = null;
+  const scene = new THREE.Scene(), camera = new THREE.PerspectiveCamera(40, 1, .1, 100);
+  const markers = new Map(), reduced = matchMedia('(prefers-reduced-motion: reduce)');
+  const markDirty = () => { dirty = true; };
+  const cancelTravel = () => { flight = null; };
+  const contextLost = event => { event.preventDefault(); onError(new Error('WebGL context was lost. Use the list or reload to restore Earth.')); };
+  function dispose() {
+    if (disposed) return; disposed = true; cancelAnimationFrame(frameId); observer?.disconnect();
+    document.removeEventListener('visibilitychange', markDirty); reduced.removeEventListener('change', markDirty);
+    controls?.removeEventListener('start', cancelTravel); controls?.removeEventListener('change', markDirty); controls?.dispose();
+    renderer?.domElement.removeEventListener('webglcontextlost', contextLost);
+    const textures = new Set(); scene.traverse(node => { node.geometry?.dispose(); const materials = Array.isArray(node.material) ? node.material : [node.material]; for (const material of materials) if (material) { if (material.map) textures.add(material.map); material.dispose(); } });
+    for (const texture of textures) texture.dispose();
+    for (const marker of markers.values()) marker.el.remove(); markers.clear();
+    renderer?.dispose(); renderer?.domElement.remove();
+  }
+  try {
+    renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true, powerPreference: 'low-power' });
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.75)); renderer.outputColorSpace = THREE.SRGBColorSpace;
+    host.appendChild(renderer.domElement); camera.position.copy(point(20, 5, 3.45));
+    controls = new OrbitControls(camera, renderer.domElement);
+    controls.enablePan = false; controls.enableDamping = true; controls.dampingFactor = .07; controls.rotateSpeed = .55; controls.zoomSpeed = .65;
+    controls.minDistance = 1.65; controls.maxDistance = 5; controls.minPolarAngle = .05; controls.maxPolarAngle = Math.PI - .05; controls.update(); controls.saveState();
+    const texture = await new THREE.TextureLoader().loadAsync('/assets/earth.jpg');
+    texture.colorSpace = THREE.SRGBColorSpace; texture.anisotropy = Math.min(8, renderer.capabilities.getMaxAnisotropy());
+    scene.add(new THREE.Mesh(new THREE.SphereGeometry(1, 96, 64), new THREE.MeshPhongMaterial({ map: texture, shininess: 5, specular: 0x223344 })));
+    scene.add(new THREE.AmbientLight(0xffffff, 2.1)); const sunlight = new THREE.DirectionalLight(0xdcefff, 2); scene.add(sunlight);
+    scene.add(new THREE.Mesh(new THREE.SphereGeometry(1.025, 64, 48), new THREE.ShaderMaterial({ transparent: true, depthWrite: false, blending: THREE.AdditiveBlending,
+      uniforms: { glowColor: { value: new THREE.Color('#339FFF') } },
+      vertexShader: 'varying vec3 n; varying vec3 eye; void main(){vec4 p=modelViewMatrix*vec4(position,1.0);n=normalize(normalMatrix*normal);eye=normalize(-p.xyz);gl_Position=projectionMatrix*p;}',
+      fragmentShader: 'uniform vec3 glowColor; varying vec3 n; varying vec3 eye; void main(){float rim=pow(1.0-max(dot(normalize(n),normalize(eye)),0.0),3.5);gl_FragColor=vec4(glowColor,rim*0.65);}' })));
+    const stars = []; let seed = 31; const random = () => { seed = seed * 16807 % 2147483647; return (seed - 1) / 2147483646; };
+    for (let i = 0; i < 550; i++) { const v = new THREE.Vector3(random() - .5, random() - .5, random() - .5).normalize().multiplyScalar(18); stars.push(v.x, v.y, v.z); }
+    const starGeometry = new THREE.BufferGeometry(); starGeometry.setAttribute('position', new THREE.Float32BufferAttribute(stars, 3));
+    scene.add(new THREE.Points(starGeometry, new THREE.PointsMaterial({ color: 0xa8c8ec, size: .021, transparent: true, opacity: .48, depthWrite: false })));
+    controls.addEventListener('start', cancelTravel); controls.addEventListener('change', markDirty);
+    const resize = () => { const w = host.clientWidth, h = host.clientHeight; if (!w || !h || disposed) return; renderer.setSize(w, h, false); camera.aspect = w / h; camera.updateProjectionMatrix(); dirty = true; };
+    observer = new ResizeObserver(resize); observer.observe(host); resize();
+    renderer.domElement.addEventListener('webglcontextlost', contextLost);
+    document.addEventListener('visibilitychange', markDirty); reduced.addEventListener('change', markDirty);
+    function frame(now) {
+      if (disposed) return; frameId = requestAnimationFrame(frame);
+      if (document.hidden || getMode() === 'list' || now - last < 32) return; last = now;
+      if (flight) {
+        const t = reduced.matches || !flight.duration ? 1 : Math.min(1, (now - flight.start) / flight.duration), ease = t * t * (3 - 2 * t);
+        const from = flight.from.clone().normalize(), to = flight.to.clone().normalize(), q = new THREE.Quaternion().setFromUnitVectors(from, to);
+        camera.position.copy(from.applyQuaternion(new THREE.Quaternion().slerp(q, ease)).multiplyScalar(THREE.MathUtils.lerp(flight.from.length(), flight.to.length(), ease)));
+        if (t === 1) flight = null; dirty = true;
+      }
+      controls.update(); if (!dirty) return; dirty = false;
+      sunlight.position.copy(camera.position).add(new THREE.Vector3(-2, 2, 1)); camera.updateMatrixWorld(); renderer.render(scene, camera);
+      for (const marker of markers.values()) {
+        const normal = marker.p.clone().normalize(), view = camera.position.clone().sub(marker.p).normalize(), screen = marker.p.clone().project(camera);
+        const visible = normal.dot(view) > .025 && Math.abs(screen.x) < 1 && Math.abs(screen.y) < 1 && screen.z < 1;
+        marker.el.hidden = !visible;
+        if (visible) { marker.el.style.left = `${(screen.x * .5 + .5) * stage.clientWidth}px`; marker.el.style.top = `${(-screen.y * .5 + .5) * stage.clientHeight}px`; }
+      }
+    }
+    frameId = requestAnimationFrame(frame);
+    return {
+      update(items, selected) {
+        const located = items.filter(s => Number.isFinite(s.lat) && s.lat >= -90 && s.lat <= 90 && Number.isFinite(s.lng) && s.lng >= -180 && s.lng <= 180);
+        const ids = new Set(located.map(s => s.id));
+        for (const [id, marker] of markers) if (!ids.has(id)) { marker.el.remove(); markers.delete(id); }
+        for (const s of located) {
+          let marker = markers.get(s.id);
+          if (!marker) {
+            const el = document.createElement('button'); el.className = 'pin'; el.dataset.story = s.id; el.hidden = true;
+            const dot = document.createElement('span'); dot.className = 'pin-dot'; const label = document.createElement('span'); label.className = 'pin-label'; label.textContent = s.location;
+            el.append(dot, label); el.onclick = () => onSelect(s.id); markerHost.appendChild(el); marker = { el, p: point(s.lat, s.lng, 1.015) }; markers.set(s.id, marker);
+          }
+          marker.el.style.setProperty('--pin-color', categories[s.category]); marker.el.setAttribute('aria-label', `${s.location}: ${s.title}${s.isDemo ? '. Design sample.' : ''}`); marker.el.setAttribute('aria-pressed', String(selected === s.id));
+        }
+        resize(); dirty = true;
+      },
+      flyTo(lat, lng) { if (!Number.isFinite(lat) || !Number.isFinite(lng)) return; flight = { start: performance.now(), from: camera.position.clone(), to: point(lat, lng, 3.05), duration: reduced.matches ? 0 : 1050 }; dirty = true; },
+      zoom(factor) { flight = null; camera.position.setLength(THREE.MathUtils.clamp(camera.position.length() * factor, controls.minDistance, controls.maxDistance)); controls.update(); dirty = true; },
+      reset() { flight = null; controls.reset(); dirty = true; }, redraw: markDirty, dispose,
+    };
+  } catch (error) { dispose(); throw error; }
+}
