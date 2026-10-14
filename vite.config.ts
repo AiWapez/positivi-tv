@@ -15,7 +15,7 @@ export default defineConfig({ plugins: [react(), {
       try {
         const [edition, feeds, control] = await Promise.all([json('./content/edition.json'), json('./config/feeds.json'), json('./config/publisher-feed.json')]);
         const snapshot: PublisherSnapshot | null = await json('./content/publisher-feed.local.json').catch(() => null);
-        res.end(JSON.stringify(buildCombinedFeed(edition, { snapshot, status: snapshot ? 'ok' : 'unavailable' }, control, feeds.sources)));
+        res.end(JSON.stringify(buildCombinedFeed(edition, { snapshot, status: snapshot ? 'ok' : 'unavailable' }, control, feeds.sources, new Date().toISOString(), { subjectPhotos: new URL(req.url ?? '/', 'http://localhost').searchParams.get('photos') === 'subjects-v1' })));
       } catch { res.statusCode = 503; res.end(JSON.stringify({ error: 'Edition unavailable' })); }
     });
   },

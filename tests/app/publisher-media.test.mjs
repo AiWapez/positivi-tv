@@ -69,3 +69,25 @@ test('a real BlobNotFoundError permits a first snapshot and retry after a lock d
  const store=createPublisherStore({head:async()=>{throw new BlobNotFoundError()},get:async()=>{throw new BlobNotFoundError()},put:async()=>({}),del:async()=>{throw new BlobNotFoundError()}});
  assert.equal(await store.readCurrent(true),null);assert.equal(await store.readCurrent(false),null);await store.deleteCurrent();assert(await store.acquireLock());
 });
+
+test('subject photo selection differentiates animal stories while keeping the original catalog available',()=>{
+ for(const [title,id] of [["Rescued leopard cats in Thailand",'leopard-cat'],['Giraffes return to Bicuar National Park','giraffe'],['Volunteers protect livestock in Zimbabwe','cattle']]){
+  const story={title,category:'Planet'};assert.equal(photoForStory(story).id,id);assert.equal(photoForStory(story,false).id,'forest');
+ }
+ for(const title of ['Elephant herd returns to Kenya park','Bison herds roam the prairie again','Sea cows return to Florida springs'])assert.notEqual(photoForStory({title,category:'Planet'}).id,'cattle',title);
+ assert.equal(photoForStory({title:'Dairy cows graze restored pasture',category:'Planet'}).id,'cattle');
+});
+test('the subject-photo API profile changes only presentation, preserves the manifest, and reads no external feed',async()=>{
+ const {createStoriesHandler}=await import('../../api/stories.ts');const ss=sources(),settings=control({locationResolver:'supported_feed'});
+ const snap=buildSnapshot(null,[{sourceId:'alpha',ok:true,candidates:[candidate('alpha','herd','Volunteers protect livestock in Zimbabwe')]}],ss,settings,NOW);
+ let reads=0;const handler=createStoriesHandler({edition:{schemaVersion:1,revision:'empty',updatedAt:null,stories:[],statuses:{}},sources:ss,control:settings,now:()=>NOW,readSnapshot:async()=>{reads++;return{snapshot:snap,status:'ok'}}});
+ const run=async(url)=>{let status,data;const res={setHeader(){},status(n){status=n;return res},json(value){data=value}};await handler({method:'GET',url},res);assert.equal(status,200);return data};
+ const base=await run('/api/stories'),rich=await run('/api/stories?photos=subjects-v1&t=whatever'),unknown=await run('/api/stories?photos=unknown');
+ assert.equal(base.stories[0].imageContext,'forest');assert.equal(rich.stories[0].imageContext,'cattle');assert.equal(unknown.stories[0].imageContext,'forest');assert.equal(reads,3);
+ assert.deepEqual(base.manifest,rich.manifest);assert.equal(base.revision,rich.revision);assert.equal(base.stories[0].id,rich.stories[0].id);assert.equal(base.stories[0].version,rich.stories[0].version);
+});
+test('trafficked animals awaiting a return are not a completed rescue or reunion',()=>{
+ const rejected=screenHeadline({title:'Five orangutans found in India face long road back home to Indonesia',description:'The animals may have been trafficked across international borders.',defaultCategory:'Planet',now:NOW});assert.equal(rejected.decision,'exclude');assert(rejected.reasons.includes('ENFORCEMENT_OR_LEGAL'));
+ assert.equal(screenHeadline({title:'Animals found awaiting rescue in Thailand',description:'',defaultCategory:'Planet',now:NOW}).decision,'exclude');
+ assert.equal(screenHeadline({title:'Volunteers reunite rescued animals in Thailand',description:'A completed reunion.',defaultCategory:'Planet',now:NOW}).decision,'list');
+});

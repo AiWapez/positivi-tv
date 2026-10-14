@@ -12,8 +12,14 @@ Two deterioration headlines exposed by the wider intake are regression cases. Th
 
 ## Photos
 
-Six checked Wikimedia Commons photos are bundled locally. Known supported locations receive location photos; other cards receive explicit subject illustrations. Neither is represented as an image of the reported event. Cards show that distinction, source credit and linked license. Broken images fall back to category artwork. No live browser request goes to an image vendor, and no paid generation or image API is used.
+Nine checked Wikimedia Commons photos are bundled locally. Known supported locations receive location photos; other cards receive explicit subject illustrations. Neither is represented as an image of the reported event. Cards show that distinction, source credit and linked license. Broken images fall back to category artwork. No live browser request goes to an image vendor, and no paid generation or image API is used.
 
 Only catalogued local asset paths with matching alt text, credit and catalog ID satisfy the public card validator. Untrusted feed image URLs remain blocked. Extending the catalog requires checking the file's license and caption. Source reporting and photo licenses are separate. Commons thumbnail renditions are resized; CSS may crop their display. The forest image remains available under CC BY-SA 4.0; the MIT code license does not replace asset licenses.
 
 See `/ASSETS.md` for sources. Snapshot and lock paths are now scoped to the screening-policy version so a preview collection does not replace the previous production policy's data. Old policy objects remain private and are no longer used by the new build.
+
+## Subject-photo compatibility
+
+The current frontend requests `?photos=subjects-v1` to select the expanded, checked animal-photo catalog. The default API response retains the original six-photo catalog so an already-open older app does not reject stories when it encounters an unfamiliar photo ID. The presentation profile does not change eligibility, story IDs, versions, the manifest or collection behavior. Local development uses the same profile.
+
+A wider archive sample added no qualifying mapped outcomes. An unresolved trafficked-animal story from that sample is now a permanent rejection regression. No extra archive request is added to the daily job. Screening policy `publisher-feed-0.4.1` uses a separate private snapshot path.

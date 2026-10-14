@@ -6,7 +6,7 @@ import { buildFeed, validPublicStory } from './publication.ts';
 import type { ManifestEntry, Publication, PublishedStory } from './publication.ts';
 
 /** Version of the automatic screening rules. A snapshot made under another version is not served. */
-export const PUBLISHER_FEED_POLICY = 'publisher-feed-0.4.0';
+export const PUBLISHER_FEED_POLICY = 'publisher-feed-0.4.1';
 
 /** Per-source permission record. Every field is maintained by hand from the publisher's own terms. */
 export interface PublisherFeedPermission {
@@ -81,7 +81,7 @@ function wellFormed(item: unknown): item is PublisherItem {
  * status to, plus its served URLs: the editorial decision always wins, including a withdrawal.
  */
 export function projectPublisherFeed(snapshot: PublisherSnapshot | null, control: PublisherFeedControl, sources: PublisherSources,
-  now: string, reserved: { ids: Set<string>; urls: Set<string> } = { ids: new Set(), urls: new Set() }) {
+  now: string, reserved: { ids: Set<string>; urls: Set<string> } = { ids: new Set(), urls: new Set() }, options: { subjectPhotos?: boolean } = {}) {
   const statuses: Record<string, ManifestEntry> = Object.create(null);
   const stories: Story[] = [];
   const time = Date.parse(now);
@@ -119,7 +119,7 @@ export function projectPublisherFeed(snapshot: PublisherSnapshot | null, control
       if (control.locationResolver === 'off') {
         Object.assign(row, { location: 'Location not specified', lat: null, lng: null, locationPrecision: 'unknown', labels: row.labels.filter(l => l !== 'country_from_headline' && l !== 'area_from_feed') }); delete row.mapArea;
       }
-      Object.assign(row, photoFields(photoForStory(row)));
+      Object.assign(row, photoFields(photoForStory(row, options.subjectPhotos ?? false)));
       if (!validPublicStory(row)) continue;
       perSource.set(item.sourceId, count + 1); ids.add(row.id); urls.add(url);
       statuses[row.id] = { version: row.version, status: 'listed' };
@@ -136,12 +136,12 @@ export type SnapshotRead = { snapshot: PublisherSnapshot | null; status: 'ok' | 
  * Edition first, then automatic publisher-feed cards. Any id the edition has a status for, and any URL it
  * serves, is reserved for the edition. If the lane fails for any reason the edition is still served.
  */
-export function buildCombinedFeed(edition: Publication, read: SnapshotRead, control: PublisherFeedControl, sources: PublisherSources, now = new Date().toISOString()) {
+export function buildCombinedFeed(edition: Publication, read: SnapshotRead, control: PublisherFeedControl, sources: PublisherSources, now = new Date().toISOString(), options: { subjectPhotos?: boolean } = {}) {
   const base = buildFeed(edition, now);
   const reserved = { ids: new Set(Object.keys(edition.statuses)), urls: new Set(base.stories.map(s => s.sourceUrl!)) };
   for (const s of base.stories) reserved.ids.add(s.id);
   let lane: ReturnType<typeof projectPublisherFeed> = { stories: [], statuses: Object.create(null) }, laneFailed = false;
-  try { lane = projectPublisherFeed(read.snapshot, control, sources, now, reserved); } catch { laneFailed = true; }
+  try { lane = projectPublisherFeed(read.snapshot, control, sources, now, reserved, options); } catch { laneFailed = true; }
   const statuses: Record<string, ManifestEntry> = Object.assign(Object.create(null), lane.statuses);
   for (const [id, entry] of Object.entries(base.manifest.stories)) statuses[id] = entry;
   const snapshot = !laneFailed && control.enabled && read.snapshot && validSnapshot(read.snapshot) && read.snapshot.policy === PUBLISHER_FEED_POLICY ? read.snapshot : null;

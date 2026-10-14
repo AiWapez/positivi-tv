@@ -15,7 +15,7 @@ export interface StoriesDeps {
 }
 /**
  * GET /api/stories. Serves the reviewed edition plus the last stored publisher-feed snapshot.
- * Query strings (including the client's cache-busting refresh) are ignored; a visitor request can never
+ * An optional subject-photo presentation profile is accepted; other query strings never
  * start an upstream crawl. If the snapshot cannot be read, the reviewed edition is served alone.
  */
 export function createStoriesHandler(deps: StoriesDeps) {
@@ -28,7 +28,10 @@ export function createStoriesHandler(deps: StoriesDeps) {
     if (req.method !== 'GET') { res.setHeader('Allow', 'GET'); res.status(405).json({ error: 'Method not allowed' }); return; }
     let read: SnapshotRead = { snapshot: null, status: 'unavailable' };
     if (deps.control.enabled) { try { read = await deps.readSnapshot(); } catch { /* edition-only */ } }
-    try { res.status(200).json(buildCombinedFeed(deps.edition, read, deps.control, deps.sources, (deps.now ?? (() => new Date().toISOString()))())); }
+    try {
+      const subjectPhotos = new URL(req.url ?? '/api/stories', 'http://localhost').searchParams.get('photos') === 'subjects-v1';
+      res.status(200).json(buildCombinedFeed(deps.edition, read, deps.control, deps.sources, (deps.now ?? (() => new Date().toISOString()))(), { subjectPhotos }));
+    }
     catch { res.status(503).json({ error: 'Stories are temporarily unavailable.' }); }
   };
 }

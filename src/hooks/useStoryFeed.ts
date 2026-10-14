@@ -13,7 +13,7 @@ export function useStoryFeed() {
     controller.current?.abort(); const request = new AbortController(); controller.current = request;
     setLoading(true);
     try {
-      const response = await fetch('/api/stories', { cache: 'no-store', signal: request.signal });
+      const response = await fetch('/api/stories?photos=subjects-v1', { cache: 'no-store', signal: request.signal });
       if (!response.ok) throw new Error('Feed unavailable');
       const payload = await response.json() as Payload;
       if (!payload || !Array.isArray(payload.stories) || !payload.manifest || typeof payload.revision !== 'string') throw new Error('Invalid feed');

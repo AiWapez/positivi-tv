@@ -33,3 +33,11 @@ These are place or subject illustrations, not evidence photographs of a reported
 - `assets/stories/forest.jpg`: ImagePerson, [Costa Rica Rainforest 0017](https://commons.wikimedia.org/wiki/File:Costa_Rica_Rainforest_0017.jpg), [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/). This image retains that license independently of MIT code licensing.
 
 Bicuar park reference: [GeoNames 3351643](https://www.geonames.org/3351643/parque-nacional-do-bicuari.html), approximate park reference point; coordinates from GeoNames under its [CC BY license](https://www.geonames.org/export/).
+
+## Additional subject illustrations
+
+These are animal subject photos, with no claim to depict the reported individual animals or events. Commons thumbnail renditions are resized and may be cropped in display. The original files retain their linked licenses independently of the MIT code license.
+
+- `assets/stories/leopard-cat.jpg`: Mike Prince from Bangalore, India, [original file](https://commons.wikimedia.org/wiki/File:Leopard_Cat_(14839635578).jpg), [CC BY 2.0](https://creativecommons.org/licenses/by/2.0/).
+- `assets/stories/giraffe.jpg`: Giles Laurent, [original file](https://commons.wikimedia.org/wiki/File:106_Angolan_giraffe_walking_in_the_Kalahari_Desert_of_Namibia_Photo_by_Giles_Laurent.jpg), [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/).
+- `assets/stories/cattle.jpg`: arboresce, [original file](https://commons.wikimedia.org/wiki/File:Nguni_Cows.jpg), [CC BY-SA 2.0](https://creativecommons.org/licenses/by-sa/2.0/).
