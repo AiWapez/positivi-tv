@@ -35,21 +35,7 @@ export function normalizeText(s: string): string {
 export function hasSpan(body: string, quote: unknown): boolean {
   return typeof quote === 'string' && quote.trim().length > 0 && normalizeText(body).includes(normalizeText(quote));
 }
-/** URL syntax gate only. Network adapters must pin/check resolved addresses at connection time. */
-export function canonicalUrl(raw: string): string | null {
-  try {
-    const u = new URL(raw);
-    if (u.protocol !== 'https:' || u.username || u.password || (u.port && u.port !== '443')) return null;
-    const h = u.hostname.toLowerCase();
-    if (!h.includes('.') || h.endsWith('.') || /(?:^|\.)(?:localhost|local|internal|test|invalid|example)$/.test(h)
-      || h.includes(':') || /^\d+(?:\.\d+)*$/.test(h)) return null;
-    u.hash = '';
-    for (const key of [...u.searchParams.keys()]) {
-      if (/^utm_/i.test(key) || ['fbclid', 'gclid', 'msclkid'].includes(key.toLowerCase())) u.searchParams.delete(key);
-    }
-    u.searchParams.sort(); return u.toString();
-  } catch { return null; }
-}
+export { canonicalUrl } from './url.mjs';
 export function validLocation(l: Location): boolean {
   if (!l || !['point', 'city', 'country', 'region', 'multi', 'global', 'unknown'].includes(l.kind) || !Array.isArray(l.points)) return false;
   if (l.kind === 'global' || l.kind === 'unknown') return l.points.length === 0;

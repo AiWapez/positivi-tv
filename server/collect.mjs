@@ -3,7 +3,7 @@ import { XMLParser } from 'fast-xml-parser';
 import robotsParser from 'robots-parser';
 import { decodeHTML } from 'entities';
 import { safeFetch } from '../src/goodsignal/safe-fetch.node.mjs';
-import { canonicalUrl } from '../src/goodsignal/util.ts';
+import { canonicalUrl } from '../src/goodsignal/url.mjs';
 const agent = 'PositiviTV-GoodSignal';
 export function plainText(value) {
   const text = typeof value === 'string' ? value : value?.['#text'] ?? '';
