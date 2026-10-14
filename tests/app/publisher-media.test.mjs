@@ -63,3 +63,9 @@ test('JSON metadata fetching requires explicit opt-in and keeps the fetcher secu
  const seen=[];const fetcher=async(url,options)=>{if(!url.endsWith('/robots.txt'))seen.push(options.allowJson);return{text:url.endsWith('/robots.txt')?'User-agent: *\nAllow: /':'[]'}};
  const {fetchPermittedFeed}=await import('../../server/collect.mjs');await fetchPermittedFeed(feed,fetcher);await fetchPermittedFeed({...feed,format:'wordpress'},fetcher);assert.deepEqual(seen,[false,true]);
 });
+
+test('a real BlobNotFoundError permits a first snapshot and retry after a lock disappears',async()=>{
+ const {BlobNotFoundError}=await import('@vercel/blob');const {createPublisherStore}=await import('../../server/publisher-store.ts');
+ const store=createPublisherStore({head:async()=>{throw new BlobNotFoundError()},get:async()=>{throw new BlobNotFoundError()},put:async()=>({}),del:async()=>{throw new BlobNotFoundError()}});
+ assert.equal(await store.readCurrent(true),null);assert.equal(await store.readCurrent(false),null);await store.deleteCurrent();assert(await store.acquireLock());
+});
