@@ -5,12 +5,20 @@ import { buildSnapshot } from '../../server/publisher-snapshot.ts';
 import { buildCombinedFeed, projectPublisherFeed } from '../../src/lib/publisher-feed.ts';
 import { validPublicStory } from '../../src/lib/publication.ts';
 import { POLICY_VERSION } from '../../src/goodsignal/types.ts';
+import { createSnapshotReader } from '../../server/publisher-store.ts';
 import { NOW, sources, control, candidate, feeds, rss, item } from './publisher-fixtures.mjs';
 const licensed = () => sources({ alpha: { ...sources().alpha, publisherFeed: { ...sources().alpha.publisherFeed,
   requiresAuthor: true, license: { name: 'CC BY 3.0', url: 'https://creativecommons.org/licenses/by/3.0/' },
   blockedCredits: ['Associated Press', 'republished from'] } } });
 const build = (candidates, previous = null) => buildSnapshot(previous, [{ sourceId: 'alpha', ok: true, candidates }], licensed(), control({ locationResolver: 'off' }), NOW);
 const good = extra => candidate('alpha', 'forest', 'Volunteers restore wetland', { author: 'A. Reporter', ...extra });
+test('a first-read cache miss does not hide the first successful collection for the full good-read TTL', async () => {
+  let clock = 0, snapshot = null, reads = 0;
+  const reader = createSnapshotReader(async () => { reads++; return snapshot ? { snapshot } : null; }, { clock: () => clock, okTtlMs: 1800000, failTtlMs: 60000 });
+  assert.equal((await reader()).status, 'unavailable');
+  snapshot = build([good()]); clock = 60001;
+  assert.equal((await reader()).status, 'ok'); assert.equal(reads, 2);
+});
 test('collector preserves supplied RSS/Atom author credits without leaking HTML', () => {
   const [c] = parseFeed(rss([item('alpha.example.org', 'forest', 'Volunteers restore wetland', { 'dc:creator': '<b>A. Reporter</b>', 'dc:rights': 'CC BY 3.0' })]), feeds()[0], NOW);
   assert.equal(c.author, 'A. Reporter'); assert.equal(c.rights, 'CC BY 3.0');

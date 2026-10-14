@@ -121,7 +121,9 @@ export function createSnapshotReader(read: () => Promise<{ snapshot: PublisherSn
         const result = await read();
         // An object that exists but is invalid is a failure: keep the last good copy and retry soon.
         if (result?.invalid) throw new Error('Invalid stored snapshot');
-        cached = result?.snapshot ? { snapshot: result.snapshot, status: 'ok' } : { snapshot: null, status: 'unavailable' }; until = clock() + okTtl;
+        cached = result?.snapshot ? { snapshot: result.snapshot, status: 'ok' } : { snapshot: null, status: 'unavailable' };
+        // An initial miss is retried promptly; the first collection must not leave readers empty for 30 minutes.
+        until = clock() + (result?.snapshot ? okTtl : failTtl);
       } catch {
         cached = cached?.snapshot ? cached : { snapshot: null, status: 'unavailable' }; until = clock() + failTtl;
       }

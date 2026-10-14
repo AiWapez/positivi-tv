@@ -86,7 +86,7 @@ Rules that apply to every source: only the configured feed URL and its robots.tx
 
 ## 9. Visitor path
 
-`GET /api/stories` reads the stored snapshot and never fetches feeds. Query strings, including the client's refresh parameter, are ignored. The snapshot is cached in memory per server instance (30 minutes after a good read, 60 seconds after a failure or an invalid stored object, keeping the last good copy) and read with the Blob CDN cache enabled. Withdrawals, switches, domains, the window and retention are rechecked on every request, so a cached snapshot cannot override them. Responses stay `no-store` and carry a fresh manifest; the existing 25 second polling and 30 second display check apply to both lanes. If the snapshot cannot be read, the reviewed edition is served alone and `publisherFeed.status` is `unavailable`. A malformed stored row is skipped on its own. The browser also checks that each card's provenance matches its manifest status (`reviewed` with `approved`/`archived`, `publisher_feed` with `listed`).
+`GET /api/stories` reads the stored snapshot and never fetches feeds. Query strings, including the client's refresh parameter, are ignored. The snapshot is cached in memory per server instance (30 minutes after a good read, 60 seconds after a miss, failure or an invalid stored object, keeping the last good copy) and read with the Blob CDN cache enabled. Withdrawals, switches, domains, the window and retention are rechecked on every request, so a cached snapshot cannot override them. Responses stay `no-store` and carry a fresh manifest; the existing 25 second polling and 30 second display check apply to both lanes. If the snapshot cannot be read, the reviewed edition is served alone and `publisherFeed.status` is `unavailable`. A malformed stored row is skipped on its own. The browser also checks that each card's provenance matches its manifest status (`reviewed` with `approved`/`archived`, `publisher_feed` with `listed`).
 
 ## 10. Switches and withdrawals
 
@@ -149,3 +149,5 @@ Someone must recheck source terms periodically, read the per-source `excluded` c
 ## Integration verification
 
 Node 24.19.0 local baseline: all 162 supplied tests and the build passed before integration amendments. Additional tests cover author extraction, required attribution, recognized third-party credits, restrictive rights notices, license-link validation, author version changes and the publisher-only release content gate. See `verification.md` for the exact final check results. Browser/device checks remain unperformed.
+
+Real preview run, 14 October 2026: all four enabled feeds fetched successfully through the application fetcher; 7 stories were persisted and served. NASA contributed 4 and Mongabay 3. Unauthenticated collection returned 401. Reader refresh with a timestamp parameter returned the same saved revision. This does not establish screening accuracy or prove a recurring production cron has run.
