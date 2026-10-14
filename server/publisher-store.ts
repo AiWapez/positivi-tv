@@ -43,8 +43,6 @@ async function readText(result: GetResult, limit: number): Promise<string | null
 const etagOf = (result: GetResult) => result?.etag || result?.blob?.etag || null;
 
 export function createPublisherStore(api: BlobApi = vercelBlob) {
-  /** Fresh ETag for a known-present object, used when a read did not report one. */
-  const headEtag = async (path: string) => { try { return (await api.head(path)).etag || null; } catch { return null; } };
   return {
     /**
      * Returns null when no snapshot exists. Returns { snapshot: null, invalid: true, etag } when an object
@@ -53,14 +51,28 @@ export function createPublisherStore(api: BlobApi = vercelBlob) {
      * "no snapshot", so a transient failure cannot discard carried items. fresh=true bypasses the CDN.
      */
     async readCurrent(fresh = false): Promise<{ snapshot: PublisherSnapshot | null; etag: string | null; invalid?: true } | null> {
+      const before = fresh ? await api.head(SNAPSHOT_PATH).catch(error => {
+        if ((error as Error)?.name === 'BlobNotFoundError') return null;
+        throw error;
+      }) : null;
       let result: GetResult;
       try { result = await api.get(SNAPSHOT_PATH, { access: 'private', useCache: !fresh }); }
       catch (error) { if ((error as Error)?.name === 'BlobNotFoundError') return null; throw error; }
       if (!result || result.statusCode !== 200) return null;
-      const etag = etagOf(result) ?? (fresh ? await headEtag(SNAPSHOT_PATH) : null);
+      let etag = etagOf(result);
+      // HTTP response validators can differ from the Blob API's conditional-write validator.
+      // Bracket the strongly consistent read with metadata checks; never attach a newer version's
+      // validator to older content, and use the Blob API's own validator for a subsequent write.
+      const authoritativeEtag = async () => {
+        if (!fresh) return etag;
+        const after = await api.head(SNAPSHOT_PATH);
+        if (!before?.etag || before.etag !== after.etag) throw new Error('Snapshot changed while reading');
+        return after.etag;
+      };
       let text: string | null;
       try { text = await readText(result, SNAPSHOT_MAX_BYTES); }
-      catch (error) { if (error instanceof OversizedObject) return { snapshot: null, etag, invalid: true }; throw error; }
+      catch (error) { if (error instanceof OversizedObject) return { snapshot: null, etag: await authoritativeEtag(), invalid: true }; throw error; }
+      etag = await authoritativeEtag();
       let parsed: unknown = null;
       try { parsed = text === null ? null : JSON.parse(text); } catch { return { snapshot: null, etag, invalid: true }; }
       return validSnapshot(parsed) ? { snapshot: parsed, etag } : { snapshot: null, etag, invalid: true };
@@ -93,10 +105,12 @@ export function createPublisherStore(api: BlobApi = vercelBlob) {
     },
     async releaseLock(token: string) {
       try {
+        const before = await api.head(LOCK_PATH);
         const result = await api.get(LOCK_PATH, { access: 'private', useCache: false });
         const text = await readText(result, 4096);
         if (!text || JSON.parse(text).token !== token) return;
-        const etag = etagOf(result) ?? await headEtag(LOCK_PATH);
+        const after = await api.head(LOCK_PATH);
+        const etag = before.etag === after.etag ? after.etag : null;
         // Never delete without a precondition; an unreleased lock expires after LOCK_STALE_MS.
         if (etag) await api.del(LOCK_PATH, { ifMatch: etag });
       } catch { /* A lock left behind expires after LOCK_STALE_MS. */ }
