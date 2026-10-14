@@ -10,5 +10,9 @@ export function useSavedStories() {
     try { localStorage.setItem(key, JSON.stringify([...next])); setWarning(false); } catch { setWarning(true); }
     setSaved(next);
   }
-  return { saved, toggle, storageWarning };
+  function clear() {
+    try { localStorage.removeItem(key); setWarning(false); } catch { setWarning(true); }
+    setSaved(new Set());
+  }
+  return { saved, toggle, clear, storageWarning };
 }

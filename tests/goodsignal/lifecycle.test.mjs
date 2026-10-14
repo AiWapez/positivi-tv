@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { exactLowerBound, evaluateAutomation, recordPromise, proposePromiseMatches, POLICY_VERSION } from '../../src/goodsignal/index.ts';
+import { exactLowerBound, wilsonLowerBound, evaluateAutomation, recordPromise, proposePromiseMatches, POLICY_VERSION } from '../../src/goodsignal/index.ts';
 import { story, context, NOW } from './fixtures.mjs';
 function labels(n, overrides = {}) {
   return Array.from({ length: n }, (_, i) => ({ eventCluster: 'event-' + i, sourceId: 'source-0', topics: ['education'],
@@ -11,8 +11,22 @@ test('exact bound does not confuse observed approval with population certainty',
   assert(Math.abs(exactLowerBound(50, 50) - .05 ** (1 / 50)) < 1e-10);
   assert(Math.abs(exactLowerBound(49, 50) - .9086018692803026) < 1e-10);
 });
-test('fifty perfect samples do not meet a 97 percent lower-bound requirement', () => {
+test('Wilson interval matches boundary cases and rejects invalid counts', () => {
+  const z2 = 1.959963984540054 ** 2;
+  assert.equal(wilsonLowerBound(0, 100), 0);
+  assert(Math.abs(wilsonLowerBound(100, 100) - 100 / (100 + z2)) < 1e-12);
+  assert(wilsonLowerBound(50, 50) < .95);
+  assert(wilsonLowerBound(148, 150) >= .95);
+  assert(wilsonLowerBound(147, 150) < .95);
+  for (const counts of [[1,0],[-1,10],[11,10],[.5,10],[1,Infinity]]) assert.throws(() => wilsonLowerBound(...counts));
+});
+test('fifty perfect samples do not meet v3.1 automation evidence requirements', () => {
   assert.equal(evaluateAutomation(labels(50), options).proposal, false);
+});
+test('a high observed approval rate still needs a sufficient Wilson lower bound', () => {
+  const candidates = labels(100); candidates[0].action = 'reject'; candidates[1].action = 'reject';
+  const result = evaluateAutomation(candidates, options);
+  assert.equal(result.proposal, false); assert(result.lowerBound < .95);
 });
 test('sufficient clean samples produce a proposal, never permission to publish', () => {
   const result = evaluateAutomation(labels(120), options);

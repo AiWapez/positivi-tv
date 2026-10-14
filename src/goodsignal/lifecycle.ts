@@ -71,11 +71,18 @@ export function exactLowerBound(successes: number, total: number): number {
   for (let i = 0; i < 70; i++) { const mid = (lo + hi) / 2; if (tail(mid) < .05) lo = mid; else hi = mid; }
   return (lo + hi) / 2;
 }
+/** Lower endpoint of the two-sided 95% Wilson score interval (z = 1.95996). */
+export function wilsonLowerBound(successes: number, total: number): number {
+  if (!Number.isSafeInteger(total) || total < 1 || !Number.isSafeInteger(successes) || successes < 0 || successes > total) throw new TypeError('Invalid binomial counts');
+  if (!successes) return 0;
+  const z = 1.959963984540054, z2 = z * z, p = successes / total;
+  return Math.max(0, (p + z2 / (2 * total) - z * Math.sqrt(p * (1 - p) / total + z2 / (4 * total * total))) / (1 + z2 / total));
+}
 /** Advisory only: this engine never turns on automated publication. */
 export function evaluateAutomation(labels: AutomationLabel[], options: {
   now: string; sourceId: string; topic: string; modelVersion: string; minSamples?: number; target?: number;
 }) {
-  const now = assertNow(options.now), min = options.minSamples ?? 50, target = options.target ?? .97;
+  const now = assertNow(options.now), min = options.minSamples ?? 100, target = options.target ?? .95;
   if (!Number.isInteger(min) || min < 1 || !Number.isFinite(target) || target <= 0 || target >= 1) throw new TypeError('Invalid automation criteria');
   const sensitive = ['health_medicine', 'governance_rights'];
   if (sensitive.includes(options.topic)) return { proposal: false, samples: 0, successes: 0, lowerBound: 0, reason: 'NEVER_AUTOMATE' };
@@ -88,7 +95,7 @@ export function evaluateAutomation(labels: AutomationLabel[], options: {
   const groups = new Map<string, AutomationLabel[]>();
   for (const l of cohort) groups.set(l.eventCluster, [...groups.get(l.eventCluster) ?? [], l]);
   const samples = groups.size, successes = [...groups.values()].filter(ls => ls.every(l => l.action === 'approve' && l.edited === false)).length;
-  const lowerBound = samples ? exactLowerBound(successes, samples) : 0;
+  const lowerBound = samples ? wilsonLowerBound(successes, samples) : 0;
   return { proposal: samples >= min && lowerBound >= target, samples, successes, lowerBound,
     reason: samples < min ? 'INSUFFICIENT_SAMPLES' : lowerBound < target ? 'INSUFFICIENT_PRECISION_EVIDENCE' : 'HUMAN_POLICY_APPROVAL_REQUIRED' };
 }

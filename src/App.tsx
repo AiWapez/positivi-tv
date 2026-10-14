@@ -4,6 +4,7 @@ import GlobeScene from './components/GlobeScene';
 import type { GlobeControls } from './components/GlobeScene';
 import SelectedStoryCard, { StoryButton, StoryArt } from './components/StoryCard';
 import StoryDialog from './components/StoryDialog';
+import ReaderInfo from './components/ReaderInfo';
 import { useSavedStories } from './hooks/useSavedStories';
 import { useStoryFeed } from './hooks/useStoryFeed';
 import { CATEGORY_COLORS } from './types';
@@ -15,10 +16,10 @@ const repo = 'https://github.com/AiWapez/positivi-tv';
 export default function App() {
   const [demo, setDemo] = useState(() => new URLSearchParams(location.search).get('demo') === '1');
   const { feed, loading, error, refresh, confirm } = useStoryFeed();
-  const { saved, toggle, storageWarning } = useSavedStories();
+  const { saved, toggle, clear, storageWarning } = useSavedStories();
   const [filters, setFilters] = useState<Filters>({ category: 'All', query: '', period: '30', savedOnly: false });
   const [mode, setMode] = useState<'globe' | 'list'>('globe'), [selectedId, setSelected] = useState<string | null>(demo ? 'portugal' : null);
-  const [dialog, setDialog] = useState<'about' | 'filters' | 'sample' | null>(null), [message, setMessage] = useState('');
+  const [dialog, setDialog] = useState<'about' | 'filters' | 'sample' | 'privacy' | 'terms' | null>(null), [message, setMessage] = useState('');
   const [globeReady, setGlobeReady] = useState(false), [globeFailed, setGlobeFailed] = useState(false), [expanded, setExpanded] = useState(false);
   const globe = useRef<GlobeControls>(null), explorer = useRef<HTMLElement>(null), discovery = useRef<HTMLButtonElement>(null);
   const items: Story[] = demo ? demoStories as Story[] : feed.stories;
@@ -46,7 +47,7 @@ export default function App() {
   useEffect(() => { const sync = () => { setExpanded(!!document.fullscreenElement); globe.current?.redraw(); }; document.addEventListener('fullscreenchange', sync); return () => document.removeEventListener('fullscreenchange', sync); }, []);
   useEffect(() => {
     if (!expanded) return;
-    const nodes = document.querySelectorAll<HTMLElement>('.topbar,.sidebar,.mobile-nav'); nodes.forEach(el => { el.inert = true; }); document.body.classList.add('globe-expanded');
+    const nodes = document.querySelectorAll<HTMLElement>('.topbar,.sidebar,.mobile-nav,.reader-footer'); nodes.forEach(el => { el.inert = true; }); document.body.classList.add('globe-expanded');
     const key = (e: KeyboardEvent) => {
       if (dialog) return;
       if (e.key === 'Escape' && !document.fullscreenElement) setExpanded(false);
@@ -81,10 +82,12 @@ export default function App() {
         {selected && mode === 'globe' && <SelectedStoryCard story={selected} saved={saved.has(selected.id)} onSave={() => toggleSave(selected)} onClose={() => { setSelected(null); discovery.current?.focus(); }} onNext={() => discover()} onReadSample={() => setDialog('sample')} />}
         <div className="globe-footer"><span className="hint"><Icon name="mouse" />Drag to rotate · Scroll to zoom · Select a pin</span><button className="surprise" ref={discovery} disabled={!visible.length} onClick={() => discover(true)}><Icon name="shuffle" />Take me somewhere good</button></div><a className="credit" href="https://visibleearth.nasa.gov/images/57723/the-blue-marble" target="_blank" rel="noopener noreferrer">Earth imagery: NASA / Blue Marble</a>
       </section></main>
+      <footer className="reader-footer" aria-label="Reader information"><span>Good news. Open to everyone.</span><div><button onClick={() => setDialog('about')}>About</button><button onClick={() => setDialog('privacy')}>Privacy</button><button onClick={() => setDialog('terms')}>Terms &amp; sources</button></div></footer>
       <nav className="mobile-nav" aria-label="Mobile navigation"><button className={mode === 'globe' && !filters.savedOnly ? 'active' : ''} aria-pressed={mode === 'globe' && !filters.savedOnly} onClick={() => changeMode('globe')}><Icon name="globe" />Explore</button><button className={mode === 'list' && !filters.savedOnly ? 'active' : ''} aria-pressed={mode === 'list' && !filters.savedOnly} onClick={() => changeMode('list')}><Icon name="stories" />Stories</button><button className={filters.savedOnly ? 'active' : ''} aria-pressed={filters.savedOnly} onClick={() => { setFilters(f => ({ ...f, savedOnly: true })); setMode('list'); }}><Icon name="bookmark" />Saved<span className="sr-only">{saved.size} saved</span></button></nav>
     </div>
     <StoryDialog open={dialog !== null} onClose={() => setDialog(null)}>
-      {dialog === 'about' && <><p className="eyebrow">PositiviTV</p><h2 id="dialog-title">A world of good.</h2><p>Constructive stories, with their sources intact. A free, open-source window onto the brighter side of our planet.</p><div className="sample-callout"><strong>GoodSignal, with a human in the loop</strong><p>Stories are checked for constructive outcomes, evidence and event dates before an editor approves them. Refresh checks the latest published edition; it never fabricates new stories.</p></div><p>Earth: NASA / Blue Marble. Sample photos: Unsplash. Inter: Rasmus Andersson, SIL Open Font License. Globe: Three.js, MIT.</p><div className="about-actions"><a className="primary" href={repo} target="_blank" rel="noopener noreferrer">View on GitHub <Icon name="external" /></a><button className="secondary" onClick={() => switchDemo(!demo)}>{demo ? 'Reviewed news' : 'Try sample edition'}</button></div></>}
+      {(dialog === 'privacy' || dialog === 'terms') && <ReaderInfo page={dialog} savedCount={saved.size} onClear={() => { clear(); setMessage('Saved stories cleared from this device.'); }} />}
+      {dialog === 'about' && <><p className="eyebrow">PositiviTV</p><h2 id="dialog-title">A world of good.</h2><p>Constructive stories, with their sources intact. A free window onto the brighter side of our planet, built to explore and share.</p><div className="sample-callout"><strong>GoodSignal, with a human in the loop</strong><p>Stories are checked for constructive outcomes, evidence and event dates before an editor approves them. Refresh checks the latest published edition; it never fabricates new stories.</p></div><p>Earth: NASA / Blue Marble. Sample photos: Unsplash. Inter: Rasmus Andersson, SIL Open Font License. Globe: Three.js, MIT.</p><div className="about-actions"><a className="primary" href={repo} target="_blank" rel="noopener noreferrer">View on GitHub <Icon name="external" /></a><button className="secondary" onClick={() => switchDemo(!demo)}>{demo ? 'Reviewed news' : 'Try sample edition'}</button></div></>}
       {dialog === 'filters' && <><p className="eyebrow">Your view of the world</p><h2 id="dialog-title">Choose a date range.</h2><div className="date-options">{Object.entries(periods).map(([value,label]) => <button key={value} className={`date-option ${filters.period === value ? 'active' : ''}`} aria-pressed={filters.period === value} onClick={() => { setFilters(f => ({ ...f, period: value as Filters['period'] })); setDialog(null); }}><Icon name="calendar" />{label}</button>)}</div><p className="filter-note">{demo ? 'Fixed sample dates around October 14, 2026.' : 'Filters use original publication dates. Event dates and archive labels remain visible on each story.'}</p></>}
       {dialog === 'sample' && selected?.isDemo && <><StoryArt story={selected} /><p className="eyebrow">{selected.location} · {selected.category}</p><h2 id="dialog-title">{selected.title}</h2><p>{selected.summary}</p><div className="sample-callout"><strong>Design sample</strong><p>This fictional story has no publisher or original article. {dateLabel(selected)} is a fixed example date.</p></div><p className="image-credit">{selected.imageCredit}</p><button className="primary" onClick={() => toggleSave(selected)} aria-pressed={saved.has(selected.id)}><Icon name="bookmark" />{saved.has(selected.id) ? 'Remove from saved' : 'Save story'}</button></>}
     </StoryDialog><div className="sr-only" aria-live="polite" aria-atomic="true">{message}</div>

@@ -11,7 +11,8 @@
     "demo:goodsignal": "node scripts/goodsignal-demo.mjs",
     "typecheck:goodsignal": "tsc --project tsconfig.goodsignal.json",
     "test:app": "node --test tests/app/*.test.mjs",
-    "editor": "node scripts/editor.mjs"
+    "editor": "node scripts/editor.mjs",
+    "release:check": "node scripts/release-check.mjs"
   },
   "dependencies": {
     "@vercel/blob": "2.8.2",

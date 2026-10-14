@@ -2,7 +2,7 @@
 
 Version 0.1.0 • Policy `goodsignal-0.1.0` • 14 October 2026
 
-This consolidates the combined Claude/ChatGPT v3 proposal and the subsequent amendments. It is the normative implementation contract for the standalone engine, not a claim of measured news-screening quality. When a design aspiration is not yet implemented, it is identified below. The existing website is not integrated on this branch.
+This consolidates the combined Claude/ChatGPT v3 proposal and the subsequent amendments. It is the normative implementation contract for the standalone engine, not a claim of measured news-screening quality. When a design aspiration is not yet implemented, it is identified below. The reader integration is documented separately in `goodsignal-integration.md`; see `launch-scope.md` for current product decisions.
 
 ## 1. Product and launch boundary
 
@@ -117,7 +117,7 @@ The ticker uses the same approved slate, deduplicates events, and omits current/
 
 `recordPromise` stores a private traceable plan with a supported quoted quantity/deadline and trusted editor identity. `proposePromiseMatches` returns proposals using reviewed topic/entities and quantity; it never asserts “Promise kept.” Human confirmation of beneficiary group, geography, quantity/unit, deadline, and full scope remains required. Public matching/UI are deferred. Store only within source retention terms and operational budget.
 
-`evaluateAutomation` is advisory only. It groups samples by event, keeps source/topic/model/policy cohorts separate, excludes old/future labels, treats edited approvals as unassisted failures, and refuses sensitive/flagged classes including sensitive secondary topics. Defaults: at least 50 independent events and a one-sided 95% exact binomial lower approval bound of at least 0.97. Even 50/50 does not meet that target.
+`evaluateAutomation` is advisory only. It groups samples by event, keeps source/topic/model/policy cohorts separate, excludes old/future labels, treats edited approvals as unassisted failures, and refuses sensitive/flagged classes including sensitive secondary topics. Defaults, amended to v3.1: at least 100 independent events and the lower endpoint of the two-sided 95% Wilson score interval at least 0.95. Even 50/50 does not meet that bound. `exactLowerBound` remains available for comparison; proposal decisions use `wilsonLowerBound`.
 
 The statistical calculation assumes independent fixed-sample trials. Correlated events, selective review, repeated tuning, distribution shifts, and multiple classes can invalidate a naive interpretation. A later automation service needs independent holdout evidence, source-policy checks, human approval of each class, random audits with minimum cadence, revocation, immediate suspension after severe failures, and a global kill switch. **This engine enables no automatic publication path.** All publication still requires recorded human approval.
 
