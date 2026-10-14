@@ -29,7 +29,7 @@ const EXTRACTIVE = stems(['coal', 'oil', 'gas', 'pipelines?', 'mines?', 'mining'
   'trophy', 'trawl(?:s|ers?|ing)?', 'fishing fleets?', 'petrol', 'diesel', 'fossil', 'petroleum', 'refinery']);
 const ENFORCEMENT = stems(['arrest(?:s|ed)?', 'charged', 'indicted', 'convicted', 'sentenced', 'jailed', 'prison', 'lawsuits?', 'sue[sd]?',
   'probe', 'investigation', 'raids?', 'bust(?:ed)?', 'racket', 'seize[sd]?', 'nabbed', 'fraud', 'scam(?:s|mers?)?', 'smuggl(?:ing|ed|ers?)',
-  'trafficking', 'police']);
+  'traffick(?:ing|ed|ers?)', 'police']);
 const CONFLICT = stems(['wars?', 'warfare', 'airstrikes?', 'invasion', 'invaded?', 'ceasefire', 'sanctions?', 'famine', 'outbreaks?',
   'epidemic', 'pandemic', 'crisis', 'crises', 'emergency', 'evacuat(?:e|ed|ion)', 'collapse[sd]?', 'militants?', 'troops', 'military',
   'terror(?:ism|ists?)?', 'genocide', 'riots?']);
@@ -142,6 +142,7 @@ export function screenHeadline(input: ScreenInput): ScreenResult {
   for (const m of desc.matchAll(OLD_EVENT_PHRASE)) if (Number(m[1]) < year) { reasons.push('OLD_EVENT_YEAR_IN_DESCRIPTION'); break; }
   if (/\b(?:destruction|environmental cost|less time to recover)\b/i.test(title)) reasons.push('DETERIORATING_OUTCOME');
   if (CONTEXT_NEGATIVE.test(title) && !RECOVERY.test(title)) reasons.push('NEGATIVE_WITHOUT_RECOVERY');
+  if (/\b(?:face[sd]? (?:a )?long road (?:back|home)|await(?:s|ing)? (?:rescue|release|reunion))\b/i.test(title)) reasons.push('UNRESOLVED_OUTCOME');
   if (INTENT.test(title) || MAY.test(title) || MONEY.test(title)) reasons.push('PLAN_OR_UNCERTAIN');
   else if (IN_PROGRESS.test(title)) reasons.push('IN_PROGRESS_NOT_OUTCOME');
   else if (!COMPLETED.test(title)) reasons.push('NO_COMPLETED_OUTCOME');
