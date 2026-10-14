@@ -54,3 +54,12 @@ test('public cards carry local photo references while source and event dates sta
  const settings=control({locationResolver:'supported_feed'}),snapshot=buildSnapshot(null,[{sourceId:'alpha',ok:true,candidates:[candidate('alpha','kelp','Volunteers replant kelp forests in Clayoquot Sound')]}],sources(),settings,NOW);
  const [card]=projectPublisherFeed(snapshot,settings,sources(),NOW).stories;assert.equal(card.imageContext,'clayoquot');assert.equal(card.image,'/assets/stories/clayoquot.jpg');assert.equal(card.eventDate,null);assert.equal(card.attribution,undefined);assert(validStoryImage(card));assert.equal(photoForStory({title:'Perseverance rover reaches milestone',category:'Science'}).id,'rover');
 });
+
+test('JSON metadata fetching requires explicit opt-in and keeps the fetcher security policy',async()=>{
+ const {safeFetch}=await import('../../src/goodsignal/safe-fetch.node.mjs');const observed=[];
+ const options={allowedDomains:['alpha.example.org'],permitted:async()=>true,robotsAllowed:async()=>true,resolve:async()=>[{address:'93.184.216.34',family:4}],request:async(_url,_address,p)=>{observed.push(p.allowJson);return{status:200,text:'[]'}}};
+ await safeFetch('https://alpha.example.org/data',options);await safeFetch('https://alpha.example.org/data',{...options,allowJson:true});assert.deepEqual(observed,[false,true]);
+ await assert.rejects(()=>safeFetch('https://alpha.example.org/data',{...options,allowJson:'true'}),/INVALID_FETCH_POLICY/);
+ const seen=[];const fetcher=async(url,options)=>{if(!url.endsWith('/robots.txt'))seen.push(options.allowJson);return{text:url.endsWith('/robots.txt')?'User-agent: *\nAllow: /':'[]'}};
+ const {fetchPermittedFeed}=await import('../../server/collect.mjs');await fetchPermittedFeed(feed,fetcher);await fetchPermittedFeed({...feed,format:'wordpress'},fetcher);assert.deepEqual(seen,[false,true]);
+});

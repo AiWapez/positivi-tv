@@ -60,7 +60,7 @@ export async function fetchPermittedFeed(config, fetcher = safeFetch) {
     }
     return robots.get(origin).isAllowed(url, agent) === true;
   };
-  return fetcher(config.url, { allowedDomains: config.allowedDomains, permitted, robotsAllowed, maxBytes: feedByteLimit(config) });
+  return fetcher(config.url, { allowedDomains: config.allowedDomains, permitted, robotsAllowed, maxBytes: feedByteLimit(config), allowJson: config.format === 'wordpress' || config.format === 'bylines' });
 }
 export async function collectCandidates(configs, now = new Date().toISOString(), fetcher = safeFetch) {
   const candidates = [], errors = [], seen = new Set();

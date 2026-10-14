@@ -11,7 +11,7 @@ export async function collectPublisherFeed(feed, now, fetcher, pause = delay) {
     try {
       // The publisher advertises a 10-second crawl delay. Keep metadata requests bounded and spaced.
       await pause(10000);
-      const response = await fetchPermittedFeed({ ...feed, url: feed.supplementalUrl }, fetcher);
+      const response = await fetchPermittedFeed({ ...feed, url: feed.supplementalUrl, format: 'wordpress' }, fetcher);
       const rows = JSON.parse(response.text);
       if (!Array.isArray(rows) || rows.length > 100) throw new Error('Invalid metadata batch');
       const ids = [...new Set(rows.flatMap(r => Array.isArray(r?.byline) ? r.byline : []).filter(id => Number.isSafeInteger(id) && id > 0))].slice(0, 100);
@@ -20,7 +20,7 @@ export async function collectPublisherFeed(feed, now, fetcher, pause = delay) {
         await pause(10000);
         const url = new URL(feed.supplementalBylineUrl);
         url.searchParams.set('per_page', '100'); url.searchParams.set('include', ids.join(',')); url.searchParams.set('_fields', 'id,name');
-        const authors = await fetchPermittedFeed({ ...feed, url: url.href, maxBytes: 512 * 1024 }, fetcher);
+        const authors = await fetchPermittedFeed({ ...feed, url: url.href, format: 'bylines', maxBytes: 512 * 1024 }, fetcher);
         const terms = JSON.parse(authors.text);
         if (!Array.isArray(terms) || terms.length > 100) throw new Error('Invalid bylines');
         for (const term of terms) if (ids.includes(term?.id)) {
