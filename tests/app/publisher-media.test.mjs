@@ -74,6 +74,8 @@ test('subject photo selection differentiates animal stories while keeping the or
  for(const [title,id] of [["Rescued leopard cats in Thailand",'leopard-cat'],['Giraffes return to Bicuar National Park','giraffe'],['Volunteers protect livestock in Zimbabwe','cattle']]){
   const story={title,category:'Planet'};assert.equal(photoForStory(story).id,id);assert.equal(photoForStory(story,false).id,'forest');
  }
+ for(const title of ['Elephant herd returns to Kenya park','Bison herds roam the prairie again','Sea cows return to Florida springs'])assert.notEqual(photoForStory({title,category:'Planet'}).id,'cattle',title);
+ assert.equal(photoForStory({title:'Dairy cows graze restored pasture',category:'Planet'}).id,'cattle');
 });
 test('the subject-photo API profile changes only presentation, preserves the manifest, and reads no external feed',async()=>{
  const {createStoriesHandler}=await import('../../api/stories.ts');const ss=sources(),settings=control({locationResolver:'supported_feed'});

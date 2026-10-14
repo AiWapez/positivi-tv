@@ -162,4 +162,4 @@ No new article fetching, geocoding API or paid service is added. Feed descriptio
 
 ## Coverage and image amendment
 
-The current policy is `publisher-feed-0.4.0`, with a 30-day publication window and policy-scoped private snapshot paths. It supplements Mongabay RSS with bounded keyless metadata and real byline records. Public cards may use only the checked local illustration catalog. See [coverage and photos](coverage-and-photos.md) for the exact boundaries and attribution rules. Earlier no-image and fixed snapshot-path descriptions above describe the original candidate.
+The current policy is `publisher-feed-0.4.1` (0.4.1 adds rejection of unresolved trafficked-animal journeys; see coverage and photos), with a 30-day publication window and policy-scoped private snapshot paths. It supplements Mongabay RSS with bounded keyless metadata and real byline records. Public cards may use only the checked local illustration catalog. See [coverage and photos](coverage-and-photos.md) for the exact boundaries and attribution rules. Earlier no-image and fixed snapshot-path descriptions above describe the original candidate.

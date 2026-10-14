@@ -20,7 +20,8 @@ export function photoForStory(story: Pick<Story,'title'|'category'|'mapArea'>, s
   const id = story.mapArea?.placeId === 'ca-clayoquot-sound' ? 'clayoquot' : story.mapArea?.placeId === 'us-klamath-river' ? 'klamath'
     : subjectPhotos && /\bleopard cats?\b/i.test(story.title) ? 'leopard-cat'
     : subjectPhotos && /\bgiraffes?\b/i.test(story.title) ? 'giraffe'
-    : subjectPhotos && /\b(?:livestock|cattle|cows?|herds?)\b/i.test(story.title) ? 'cattle'
+    // Farm animals only: "herd" alone also describes elephants or bison, and "sea cows" are manatees or dugongs.
+    : subjectPhotos && /\b(?:livestock|cattle)\b|(?<!\bsea )\bcows?\b/i.test(story.title) ? 'cattle'
     : /\b(?:Perseverance|rovers?|Mars)\b/i.test(story.title) ? 'rover' : /\b(?:Moon|lunar)\b/i.test(story.title) ? 'moon'
     : story.category === 'Science' ? 'space' : 'forest';
   return STORY_PHOTOS.find(p=>p.id===id)!;
