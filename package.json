@@ -5,24 +5,38 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "vite build",
-    "preview": "vite preview"
+    "build": "tsc --noEmit && vite build",
+    "preview": "vite preview",
+    "test:goodsignal": "node --test tests/goodsignal/*.test.mjs",
+    "demo:goodsignal": "node scripts/goodsignal-demo.mjs",
+    "typecheck:goodsignal": "tsc --project tsconfig.goodsignal.json",
+    "test:app": "node --test tests/app/*.test.mjs",
+    "editor": "node scripts/editor.mjs",
+    "release:check": "node scripts/release-check.mjs",
+    "feeds:local": "node scripts/sync-local-feeds.mjs"
   },
   "dependencies": {
-    "leaflet": "^1.9.4",
+    "@vercel/blob": "2.8.2",
+    "entities": "8.1.0",
+    "fast-xml-parser": "5.11.2",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
-    "react-leaflet": "^4.2.1"
+    "robots-parser": "3.0.1",
+    "three": "0.180.0"
   },
   "devDependencies": {
-    "@types/leaflet": "^1.9.14",
+    "@types/node": "^24.0.0",
     "@types/react": "^18.3.12",
     "@types/react-dom": "^18.3.1",
     "@vitejs/plugin-react": "^4.3.4",
     "autoprefixer": "^10.4.20",
     "postcss": "^8.4.49",
     "tailwindcss": "^3.4.17",
-    "typescript": "^5.6.3",
+    "typescript": "5.9.3",
     "vite": "^6.0.5"
-  }
+  },
+  "engines": {
+    "node": "24.x"
+  },
+  "license": "MIT"
 }

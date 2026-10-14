@@ -1,0 +1,31 @@
+name: GoodSignal engine
+on:
+  push:
+    branches: [goodsignal-engine]
+  pull_request:
+    paths:
+      - 'src/goodsignal/**'
+      - 'tests/goodsignal/**'
+      - 'scripts/goodsignal-demo.mjs'
+      - 'tsconfig.goodsignal.json'
+      - 'package.json'
+      - '.github/workflows/goodsignal.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  engine:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
+        with:
+          node-version: '24'
+          package-manager-cache: false
+      - run: npm run test:goodsignal
+      - run: npm run demo:goodsignal
+      - name: Check engine types without installing frontend dependencies
+        run: npm exec --yes --package typescript@5.9.3 -- tsc --project tsconfig.goodsignal.json
