@@ -15,7 +15,22 @@ try {
   const [command, arg, decision] = process.argv.slice(2), now = new Date().toISOString();
   const context = async () => ({ now, sources: await read(new URL('sources.json', workspace)) });
   const savePrivate = async s => { await write(new URL(`history/${s.id}-${s.version}-${randomUUID()}.json`, workspace), s); await write(idPath(s.id), s); };
-  if (command === 'import') {
+  if (command === 'sync') {
+    const { listBatches, readBatch } = await import('../server/queue.mjs');
+    const config = await read(new URL('config/feeds.json', root));
+    try { await read(new URL('sources.json', workspace)); } catch (e) { if (e.code !== 'ENOENT') throw e; await write(new URL('sources.json', workspace), config.sources); }
+    let imported = 0;
+    for (const entry of await listBatches()) {
+      if (Date.now() - new Date(entry.uploadedAt).getTime() > 30 * 86400000) continue;
+      const batch = await readBatch(entry.pathname); if (!batch) continue;
+      for (const candidate of batch.candidates) {
+        if (validateStory(candidate).length || candidate.status !== 'pending' || candidate.review) continue;
+        try { await read(idPath(candidate.id)); continue; } catch (e) { if (e.code !== 'ENOENT') throw e; }
+        await savePrivate(candidate); imported++;
+      }
+    }
+    console.log(`Imported ${imported} new pending candidates. Existing local reviews were preserved. No publication occurred.`);
+  } else if (command === 'import') {
     const supplied = await read(resolve(arg)); const errors = validateStory(supplied); if (errors.length) throw new Error(errors.join(', '));
     const target = idPath(supplied.id); let previous = null;
     try { previous = await read(target); } catch (e) { if (e.code !== 'ENOENT') throw e; }
@@ -43,6 +58,6 @@ try {
     edition.revision = `edition-${now}`; edition.updatedAt = now; await write(content, edition);
     try { await savePrivate(withdrawStory(await read(idPath(arg)))); } catch (e) { if (e.code !== 'ENOENT') throw e; }
     console.log('Withdrawal prepared. Commit content/edition.json and deploy; existing deployments remain unchanged until then.');
-  } else throw new Error('Usage: npm run editor -- import file.json | inspect ID | review ID decision.json | publish | withdraw ID');
+  } else throw new Error('Usage: npm run editor -- sync | import file.json | inspect ID | review ID decision.json | publish | withdraw ID');
 } catch (e) { console.error(e.message); process.exitCode = 1; }
 finally { if (locked) await unlink(lock); }

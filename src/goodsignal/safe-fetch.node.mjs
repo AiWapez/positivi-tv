@@ -32,7 +32,7 @@ function requestPinned(url, address, { timeoutMs, maxBytes }) {
       if (status >= 300 && status < 400) { res.destroy(); resolve({ status, location: res.headers.location }); return; }
       if (status < 200 || status >= 300) { res.destroy(); reject(new FetchFailure('HTTP_' + status, status === 429 || status >= 500)); return; }
       const type = String(res.headers['content-type'] ?? '').split(';')[0].trim().toLowerCase();
-      if (!['text/html', 'application/rss+xml', 'application/atom+xml', 'application/xml', 'text/xml'].includes(type)) { res.destroy(); reject(new FetchFailure('CONTENT_TYPE_BLOCKED')); return; }
+      if (!['text/plain', 'text/html', 'application/rss+xml', 'application/atom+xml', 'application/xml', 'text/xml'].includes(type)) { res.destroy(); reject(new FetchFailure('CONTENT_TYPE_BLOCKED')); return; }
       // No decompression: both encoded and decoded response limits remain identical.
       if (res.headers['content-encoding'] && res.headers['content-encoding'] !== 'identity') { res.destroy(); reject(new FetchFailure('ENCODING_BLOCKED')); return; }
       if (Number(res.headers['content-length']) > maxBytes) { res.destroy(); reject(new FetchFailure('RESPONSE_TOO_LARGE')); return; }

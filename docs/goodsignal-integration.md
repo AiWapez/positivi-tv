@@ -19,7 +19,7 @@ The API is a bounded collection endpoint, not a paginated search service. Filter
 
 ## Remaining adapters
 
-Permitted live ingestion, structured extraction, automated deduplication proposals, a hosted authenticated review interface, private durable candidate storage, real labelled evaluation, and scheduled daily edition builds are not connected. The Promise Ledger and broadcast helpers remain engine capabilities; the selected UI deliberately has no broadcast/ticker features.
+An official NASA RSS adapter, a private Vercel Blob candidate queue and a protected once-daily collection job are now implemented. Human review still runs locally. Structured extraction, event-level deduplication proposals, a hosted authenticated review interface, real labelled evaluation and unattended edition publication are not connected. See [daily collection](daily-collection.md). The Promise Ledger and broadcast helpers remain engine capabilities; the selected UI deliberately has no broadcast/ticker features.
 
 Status is authoritative for one deployed snapshot. A withdrawal requires redeployment and does not invalidate immutable older deployment URLs. A shared external status store is needed before claiming cross-deployment removal. Source revocation likewise requires rebuilding the edition. A versioned public Git collection is inappropriate for licenses that prohibit the resulting retention history.
 

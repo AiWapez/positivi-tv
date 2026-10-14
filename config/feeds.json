@@ -1,0 +1,5 @@
+{
+  "feeds": [{ "id": "nasa", "url": "https://www.nasa.gov/feed/", "allowedDomains": ["www.nasa.gov", "science.nasa.gov"], "topic": "science_space", "fetchPolicyRef": "https://www.nasa.gov/rss-feeds/" }],
+  "sources": { "nasa": { "id": "nasa", "displayName": "NASA", "domains": ["www.nasa.gov", "science.nasa.gov"], "enabled": true, "tier": 1, "type": "primary", "permissions": { "title": true, "summary": true, "policyRef": "https://www.nasa.gov/nasa-brand-center/images-and-media/", "retentionDays": 30 } } },
+  "notes": "Fetch permission covers the official RSS feed. Per-story rights, third-party credits, evidence, dates and suitability still require human review. No images are imported. No endorsement is implied."
+}

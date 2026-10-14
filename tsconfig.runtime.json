@@ -1,5 +1,11 @@
 {
   "extends": "./tsconfig.json",
-  "compilerOptions": { "noEmit": false, "rootDir": ".", "outDir": ".runtime-check" },
-  "include": ["api/stories.ts"]
+  "compilerOptions": {
+    "noEmit": false,
+    "rootDir": ".",
+    "outDir": ".runtime-check"
+  },
+  "include": [
+    "api/*.ts"
+  ]
 }

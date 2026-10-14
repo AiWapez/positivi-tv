@@ -44,4 +44,4 @@ Commit and deploy `content/edition.json` promptly. A deployed withdrawal removes
 
 ## Consistent supply
 
-This release supports manual, reviewed publication without paid services. It does not scrape feeds, generate stories, run an LLM, or schedule daily ingestion. Next, configure permitted RSS/API sources and an extraction adapter that writes candidates only. Keep quotas, licensing, source bias, duplication and editorial capacity explicit; let a smaller honest edition be valid.
+This release supports reviewed publication without paid model calls. [The daily NASA collector](daily-collection.md) writes pending candidates to a private queue. Import them with `npm run editor -- sync` under an authorized Vercel development environment. Additional permitted RSS/API sources and structured extraction can be added later. Keep quotas, licensing, source bias, duplication and editorial capacity explicit; let a smaller honest edition be valid.

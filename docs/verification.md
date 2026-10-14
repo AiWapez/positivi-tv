@@ -12,6 +12,8 @@ The implemented story flows from the React controls → `/api/stories` → the c
 - API handler tests for method, uncached responses, and empty reviewed collection.
 - Emitted JavaScript API loading under Node 24, including JSON import attributes and rewritten dependency extensions.
 
+- Collector regressions cover pending-only intake, stable IDs, canonical deduplication, date/domain checks, parser bounds, robots policy, batch limits and endpoint authentication.
+
 ## Verification limit
 
 No supported browser-control capability is available in this authoring environment. Browser rendering, screenshots, actual WebGL execution, touch and keyboard interaction testing have not been performed or claimed. The approved static concept is the reference; this React port still needs the viewport checks below.
@@ -20,4 +22,4 @@ Review 1440 × 1000, 1024 × 768, 390 × 844 and 320 × 740. Check spherical Ear
 
 ## Launch boundary
 
-Production edition is intentionally empty until real sources and stories are reviewed. No live ingestion, model extraction, daily scheduling, external database, accounts or social network is provisioned. The code is ready for review and preview; it is not evidence that an unattended daily newsroom is operational.
+Production edition is intentionally empty until real sources and stories are reviewed. NASA RSS intake and a private daily queue are implemented. Model extraction, unattended publication, accounts and community submissions are not provisioned. The production cron becomes active only after the branch is released. The code is ready for review and preview; it is not evidence that an unattended daily newsroom is operational.

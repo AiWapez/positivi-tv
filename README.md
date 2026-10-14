@@ -33,7 +33,7 @@ The API rechecks delivery eligibility and sends an uncached status manifest. Bro
 
 ## Content and launch status
 
-The old keyword classifier, fabricated fallback stories and inferred country coordinates have been removed from the active application. There is no automatic ingestion job or daily news service connected yet. A real launch needs configured permitted sources, approved initial stories, ongoing editorial ownership, and browser/device QA. Source photographs are not automatically republished; live cards currently use category artwork until image rights support is implemented.
+The old keyword classifier, fabricated fallback stories and inferred country coordinates have been removed from the active application. A daily NASA RSS collector writes pending candidates to a private queue; it never publishes them automatically. See [daily collection](docs/daily-collection.md). The cron schedule becomes active only after this code is deployed to production. A real launch needs configured permitted sources, approved initial stories, ongoing editorial ownership, and browser/device QA. Source photographs are not automatically republished; live cards currently use category artwork until image rights support is implemented.
 
 There are no accounts, behavioral tracking, community submissions, per-visitor AI calls, or automated publication. Those features are outside this version.
 
