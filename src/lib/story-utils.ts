@@ -37,9 +37,10 @@ const LABEL_TEXT: Record<StoryLabel, string | null> = {
   // Worded per General Counsel (2026-10-15); the country name is filled in by qualifierLabels.
   country_from_publisher: 'Approximate pin: placed in {country} because this publisher covers {country}. The headline doesn\'t name a place.',
   area_from_feed: 'Approximate area identified in publisher text; not an exact event site',
-  // DRAFT wording for the two publisher-tag labels, pending General Counsel. The place name is filled in by qualifierLabels.
+  // Worded per General Counsel (2026-10-15). The country name is filled in by qualifierLabels. The area label deliberately names no
+  // country: the pin may sit just across a border from the tagged country, so the card must not say which country it is in.
   country_from_publisher_tag: 'Approximate pin: placed in {country} because the publisher tags this story with that country. The headline doesn\'t name a place.',
-  area_from_publisher: 'Approximate pin: placed near the location the publisher gives for this story in {country}. It may be a nearby town or site, not the exact spot.',
+  area_from_publisher: 'Approximate pin: placed near the location the publisher gives for this story. It may be a nearby town or site, not the exact spot.',
 };
 export function qualifierLabels(s: Story): string[] {
   return (s.labels ?? []).map(l => LABEL_TEXT[l]?.split('{country}').join(s.location) ?? null).filter((x): x is string => !!x);

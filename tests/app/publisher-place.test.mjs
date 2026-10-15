@@ -115,7 +115,8 @@ test('with the switch on, a point inside the tagged country becomes an approxima
   const stories = projectPublisherFeed(snap, ctl, src, NOW).stories;
   assert.equal(stories.length, 1, 'the public contract accepts the card');
   const [story] = stories;
-  assert(qualifierLabels(story).includes('Approximate pin: placed near the location the publisher gives for this story in South Africa. It may be a nearby town or site, not the exact spot.'));
+  assert(qualifierLabels(story).includes('Approximate pin: placed near the location the publisher gives for this story. It may be a nearby town or site, not the exact spot.'));
+  assert(!qualifierLabels(story).join(' ').includes(item.location), 'the area label names no country, because the pin may sit just across a border');
 });
 
 test('with the switch on, a single country tag becomes a labelled country pin; global or several countries get none', () => {
@@ -183,4 +184,18 @@ test('no source uses the publisher place switch yet, and the metadata request do
 test('taggedCountries ignores regions and duplicates', () => {
   assert.deepEqual(taggedCountries(tagsOf(['asia', 'india', 'south-asia', 'india'])).map(c => c.name), ['India']);
   assert.deepEqual(taggedCountries(undefined), []);
+});
+
+test('only the two cleared Mongabay terms records list place tags and coordinates, and the About dialog carries the approved pin sentence', () => {
+  const config = JSON.parse(readFileSync(new URL('../../config/feeds.json', import.meta.url), 'utf8'));
+  const tagField = 'location tags (used only to place a pin; not shown as article text)';
+  const pointField = 'publisher map coordinates (rounded to about 11 km; used only to place a pin)';
+  for (const [id, source] of Object.entries(config.sources)) {
+    const fields = source.publisherFeed?.permittedFields ?? [];
+    const cleared = id === 'mongabay' || id === 'mongabay-upbeat';
+    assert.equal(fields.includes(tagField) && fields.includes(pointField), cleared, id);
+    if (cleared) assert(/GC reviewed 2026-10-15: location tags and coordinates are facts used only for pin placement, not a modification under CC BY-ND 4\.0\./.test(source.publisherFeed.notes), id);
+  }
+  const app = readFileSync(new URL('../../src/App.tsx', import.meta.url), 'utf8');
+  assert(app.includes('Map pins are approximate. They come from a place named in the headline or from the location the publisher gives for the story, and each card says which.'));
 });
