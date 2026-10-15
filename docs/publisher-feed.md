@@ -156,6 +156,9 @@ Someone must recheck source terms periodically, read the per-source `excluded` c
 | `server/publisher-refresh.ts` | One collection run: lock, fetch, build, compare-and-swap write |
 | `server/publisher-screen.ts` | Headline screening rules |
 | `server/publisher-location.ts` | Headline-only country resolver |
+| `server/publisher-place.ts` | Publisher place tags and coordinates into an approximate pin (switched off) |
+| `server/publisher-place-tags.mjs` | Defensive reader for a post's `class_list` location tags and `coordinates` |
+| `server/country-boxes.json` | Padded country boxes for the coordinate check, built by `scripts/build-country-boxes.mjs` |
 | `server/publisher-snapshot.ts` | Pure snapshot builder, deduplication, summaries, size limit |
 | `server/publisher-store.ts` | Private Blob storage, run lock, visitor-path cached reader |
 | `server/cron-auth.ts` | Bearer `CRON_SECRET` check |
