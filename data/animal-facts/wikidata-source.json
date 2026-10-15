@@ -1,0 +1,1670 @@
+{
+ "source": "Wikidata (CC0 1.0)",
+ "retrieved": "2026-10-15",
+ "requests": [
+  "https://www.wikidata.org/w/api.php?action=wbgetentities&sites=enwiki&titles=African%20bush%20elephant|African%20forest%20elephant|Asian%20elephant|Northern%20giraffe|Sumatran%20rhinoceros|Javan%20rhinoceros|Black%20rhinoceros|White%20rhinoceros|Indian%20rhinoceros|Tiger&props=claims|labels|sitelinks|info&languages=en&sitefilter=enwiki&format=json",
+  "https://www.wikidata.org/w/api.php?action=wbgetentities&sites=enwiki&titles=Red%20panda|Bornean%20orangutan|Sumatran%20orangutan|Tapanuli%20orangutan|Mountain%20gorilla|Chimpanzee|Bonobo|Humpback%20whale|Blue%20whale|Sperm%20whale&props=claims|labels|sitelinks|info&languages=en&sitefilter=enwiki&format=json",
+  "https://www.wikidata.org/w/api.php?action=wbgetentities&sites=enwiki&titles=Gray%20whale|Killer%20whale|Beluga%20whale|Narwhal|Common%20bottlenose%20dolphin|Vaquita|Sea%20otter|Dugong|Walrus|Koala&props=claims|labels|sitelinks|info&languages=en&sitefilter=enwiki&format=json",
+  "https://www.wikidata.org/w/api.php?action=wbgetentities&sites=enwiki&titles=Tasmanian%20devil|African%20wild%20dog|Ethiopian%20wolf|Saiga%20antelope|American%20bison|European%20bison|Przewalski%27s%20horse|Iberian%20lynx|Hippopotamus|Okapi&props=claims|labels|sitelinks|info&languages=en&sitefilter=enwiki&format=json",
+  "https://www.wikidata.org/w/api.php?action=wbgetentities&sites=enwiki&titles=Proboscis%20monkey|Pygmy%20hippopotamus|Amazonian%20manatee|West%20Indian%20manatee|Bald%20eagle|California%20condor|Kakapo|Atlantic%20puffin|Emperor%20penguin|African%20penguin&props=claims|labels|sitelinks|info&languages=en&sitefilter=enwiki&format=json",
+  "https://www.wikidata.org/w/api.php?action=wbgetentities&sites=enwiki&titles=Shoebill|Resplendent%20quetzal|Andean%20condor|Green%20sea%20turtle|Leatherback%20sea%20turtle|Hawksbill%20sea%20turtle|Loggerhead%20sea%20turtle|Komodo%20dragon|Saltwater%20crocodile|Nile%20crocodile&props=claims|labels|sitelinks|info&languages=en&sitefilter=enwiki&format=json",
+  "https://www.wikidata.org/w/api.php?action=wbgetentities&sites=enwiki&titles=Gharial|Gal%C3%A1pagos%20tortoise|Axolotl|King%20cobra|Panamanian%20golden%20frog|Whale%20shark|Great%20white%20shark|Great%20hammerhead|Giant%20oceanic%20manta%20ray|Atlantic%20salmon&props=claims|labels|sitelinks|info&languages=en&sitefilter=enwiki&format=json",
+  "https://www.wikidata.org/w/api.php?action=wbgetentities&sites=enwiki&titles=Chinook%20salmon|Sockeye%20salmon|Atlantic%20bluefin%20tuna|Southern%20bluefin%20tuna|European%20eel|Giant%20squid|West%20Indian%20Ocean%20coelacanth|Monarch%20butterfly|Western%20honey%20bee|Coconut%20crab&props=claims|labels|sitelinks|info&languages=en&sitefilter=enwiki&format=json",
+  "https://www.wikidata.org/w/api.php?action=wbgetentities&sites=enwiki&titles=Clouded%20leopard|Leopard%20cat|Cheetah&props=claims|labels|sitelinks|info&languages=en&sitefilter=enwiki&format=json",
+  "https://www.wikidata.org/w/api.php?action=wbgetentities&sites=enwiki&titles=Lion|Leopard|Snow%20leopard&props=claims|labels|sitelinks|info&languages=en&sitefilter=enwiki&format=json",
+  "https://www.wikidata.org/w/api.php?action=wbgetentities&sites=enwiki&titles=Wolf|Brown%20bear|Polar%20bear&props=claims|labels|sitelinks|info&languages=en&sitefilter=enwiki&format=json",
+  "https://www.wikidata.org/w/api.php?action=wbgetentities&sites=enwiki&titles=Giant%20panda|Wandering%20albatross|Whooping%20crane&props=claims|labels|sitelinks|info&languages=en&sitefilter=enwiki&format=json",
+  "https://www.wikidata.org/w/api.php?action=wbgetentities&sites=enwiki&titles=Peregrine%20falcon|Philippine%20eagle|Scarlet%20macaw|Hyacinth%20macaw&props=claims|labels|sitelinks|info&languages=en&sitefilter=enwiki&format=json",
+  "https://www.wikidata.org/w/api.php?action=wbgetentities&sites=enwiki&titles=Harpy%20eagle|Spoon-billed%20sandpiper|Snowy%20owl|Greater%20flamingo&props=claims|labels|sitelinks|info&languages=en&sitefilter=enwiki&format=json",
+  "https://www.wikidata.org/w/api.php?action=wbgetentities&sites=enwiki&titles=Orca|K%C4%81k%C4%81p%C5%8D|Giant%20clam&props=claims|labels|sitelinks|info&languages=en&sitefilter=enwiki&format=json",
+  "https://www.wikidata.org/w/api.php?action=wbgetentities&sites=enwiki&titles=Giant%20otter&props=claims|labels|sitelinks|info&languages=en&sitefilter=enwiki&format=json"
+ ],
+ "records": {
+  "african-bush-elephant": {
+   "qid": "Q36557",
+   "lastrevid": 2531932579,
+   "modified": "2026-08-16T10:05:18Z",
+   "wikidataLabel": "African bush elephant",
+   "wikipediaTitle": "African bush elephant",
+   "rankIsSpecies": true,
+   "scientificName": "Loxodonta africana",
+   "status": "EN",
+   "longestLifespan": {
+    "amount": 65,
+    "unit": "year"
+   },
+   "gestation": {
+    "amount": 22,
+    "unit": "month"
+   },
+   "adultWeight": null
+  },
+  "african-forest-elephant": {
+   "qid": "Q189514",
+   "lastrevid": 2551133734,
+   "modified": "2026-09-30T03:12:15Z",
+   "wikidataLabel": "Loxodonta cyclotis",
+   "wikipediaTitle": "African forest elephant",
+   "rankIsSpecies": true,
+   "scientificName": "Loxodonta cyclotis",
+   "status": "CR",
+   "longestLifespan": null,
+   "gestation": null,
+   "adultWeight": null
+  },
+  "asian-elephant": {
+   "qid": "Q133006",
+   "lastrevid": 2531602112,
+   "modified": "2026-08-15T07:22:20Z",
+   "wikidataLabel": "Asian elephant",
+   "wikipediaTitle": "Asian elephant",
+   "rankIsSpecies": true,
+   "scientificName": "Elephas maximus",
+   "status": "EN",
+   "longestLifespan": {
+    "amount": 65.5,
+    "unit": "year"
+   },
+   "gestation": {
+    "amount": 22,
+    "unit": "month"
+   },
+   "adultWeight": null
+  },
+  "northern-giraffe": {
+   "qid": "Q15083",
+   "lastrevid": 2552171702,
+   "modified": "2026-10-02T13:26:27Z",
+   "wikidataLabel": "northern giraffe",
+   "wikipediaTitle": "Northern giraffe",
+   "rankIsSpecies": true,
+   "scientificName": "Giraffa camelopardalis",
+   "status": "VU",
+   "longestLifespan": {
+    "amount": 39.5,
+    "unit": "year"
+   },
+   "gestation": {
+    "amount": 457,
+    "unit": "day"
+   },
+   "adultWeight": null
+  },
+  "sumatran-rhinoceros": {
+   "qid": "Q29220",
+   "lastrevid": 2555070455,
+   "modified": "2026-10-08T16:42:23Z",
+   "wikidataLabel": "Sumatran rhinoceros",
+   "wikipediaTitle": "Sumatran rhinoceros",
+   "rankIsSpecies": true,
+   "scientificName": "Dicerorhinus sumatrensis",
+   "status": "CR",
+   "longestLifespan": null,
+   "gestation": {
+    "amount": 400,
+    "unit": "day"
+   },
+   "adultWeight": null
+  },
+  "javan-rhinoceros": {
+   "qid": "Q170311",
+   "lastrevid": 2535680839,
+   "modified": "2026-08-24T05:18:03Z",
+   "wikidataLabel": "Javan rhinoceros",
+   "wikipediaTitle": "Javan rhinoceros",
+   "rankIsSpecies": true,
+   "scientificName": "Rhinoceros sondaicus",
+   "status": "CR",
+   "longestLifespan": null,
+   "gestation": {
+    "amount": 480,
+    "unit": "day"
+   },
+   "adultWeight": null
+  },
+  "black-rhinoceros": {
+   "qid": "Q95036",
+   "lastrevid": 2531932412,
+   "modified": "2026-08-16T10:04:36Z",
+   "wikidataLabel": "Diceros bicornis",
+   "wikipediaTitle": "Black rhinoceros",
+   "rankIsSpecies": true,
+   "scientificName": "Diceros bicornis",
+   "status": "CR",
+   "longestLifespan": {
+    "amount": 49,
+    "unit": "year"
+   },
+   "gestation": {
+    "amount": 450,
+    "unit": "day"
+   },
+   "adultWeight": null
+  },
+  "white-rhinoceros": {
+   "qid": "Q159918",
+   "lastrevid": 2531932409,
+   "modified": "2026-08-16T10:04:35Z",
+   "wikidataLabel": "White rhinoceros",
+   "wikipediaTitle": "White rhinoceros",
+   "rankIsSpecies": true,
+   "scientificName": "Ceratotherium simum",
+   "status": "NT",
+   "longestLifespan": {
+    "amount": 45,
+    "unit": "year"
+   },
+   "gestation": {
+    "amount": 490,
+    "unit": "day"
+   },
+   "adultWeight": null
+  },
+  "indian-rhinoceros": {
+   "qid": "Q47910",
+   "lastrevid": 2542393761,
+   "modified": "2026-09-08T18:06:33Z",
+   "wikidataLabel": "Indian rhinoceros",
+   "wikipediaTitle": "Indian rhinoceros",
+   "rankIsSpecies": true,
+   "scientificName": "Rhinoceros unicornis",
+   "status": "VU",
+   "longestLifespan": {
+    "amount": 43.5,
+    "unit": "year"
+   },
+   "gestation": {
+    "amount": 480,
+    "unit": "day"
+   },
+   "adultWeight": null
+  },
+  "tiger": {
+   "qid": "Q19939",
+   "lastrevid": 2546084047,
+   "modified": "2026-09-15T07:48:46Z",
+   "wikidataLabel": "tiger",
+   "wikipediaTitle": "Tiger",
+   "rankIsSpecies": true,
+   "scientificName": "Panthera tigris",
+   "status": "EN",
+   "longestLifespan": {
+    "amount": 26.3,
+    "unit": "year"
+   },
+   "gestation": {
+    "amount": 107,
+    "unit": "day"
+   },
+   "adultWeight": {
+    "male": {
+     "amount": 180,
+     "unit": "kg"
+    },
+    "female": {
+     "amount": 120,
+     "unit": "kg"
+    }
+   }
+  },
+  "lion": {
+   "qid": "Q140",
+   "lastrevid": 2554519250,
+   "modified": "2026-10-07T11:58:54Z",
+   "wikidataLabel": "lion",
+   "wikipediaTitle": "Lion",
+   "rankIsSpecies": true,
+   "scientificName": "Panthera leo",
+   "status": "VU",
+   "longestLifespan": {
+    "amount": 27,
+    "unit": "year"
+   },
+   "gestation": {
+    "amount": 108,
+    "unit": "day"
+   },
+   "adultWeight": {
+    "male": {
+     "amount": 188,
+     "unit": "kg"
+    },
+    "female": {
+     "amount": 126,
+     "unit": "kg"
+    }
+   }
+  },
+  "leopard": {
+   "qid": "Q34706",
+   "lastrevid": 2539197764,
+   "modified": "2026-09-01T20:32:16Z",
+   "wikidataLabel": "leopard",
+   "wikipediaTitle": "Leopard",
+   "rankIsSpecies": true,
+   "scientificName": "Panthera pardus",
+   "status": "VU",
+   "longestLifespan": {
+    "amount": 27.3,
+    "unit": "year"
+   },
+   "gestation": {
+    "amount": 91,
+    "unit": "day"
+   },
+   "adultWeight": null
+  },
+  "snow-leopard": {
+   "qid": "Q30197",
+   "lastrevid": 2548915943,
+   "modified": "2026-09-23T21:16:23Z",
+   "wikidataLabel": "snow leopard",
+   "wikipediaTitle": "Snow leopard",
+   "rankIsSpecies": true,
+   "scientificName": "Panthera uncia",
+   "status": "VU",
+   "longestLifespan": null,
+   "gestation": {
+    "amount": 102,
+    "unit": "day"
+   },
+   "adultWeight": null
+  },
+  "clouded-leopard": {
+   "qid": "Q36135",
+   "lastrevid": 2557349019,
+   "modified": "2026-10-15T16:16:18Z",
+   "wikidataLabel": "clouded leopard",
+   "wikipediaTitle": "Clouded leopard",
+   "rankIsSpecies": true,
+   "scientificName": "Neofelis nebulosa",
+   "status": "VU",
+   "longestLifespan": {
+    "amount": 19.8,
+    "unit": "year"
+   },
+   "gestation": {
+    "amount": 90,
+    "unit": "day"
+   },
+   "adultWeight": null
+  },
+  "leopard-cat": {
+   "qid": "Q42627",
+   "lastrevid": 2551130750,
+   "modified": "2026-09-30T03:03:14Z",
+   "wikidataLabel": "Prionailurus bengalensis",
+   "wikipediaTitle": "Leopard cat",
+   "rankIsSpecies": true,
+   "scientificName": "Prionailurus bengalensis",
+   "status": "LC",
+   "longestLifespan": {
+    "amount": 17,
+    "unit": "year"
+   },
+   "gestation": {
+    "amount": 67,
+    "unit": "day"
+   },
+   "adultWeight": null
+  },
+  "cheetah": {
+   "qid": "Q23907",
+   "lastrevid": 2551132071,
+   "modified": "2026-09-30T03:07:24Z",
+   "wikidataLabel": "cheetah",
+   "wikipediaTitle": "Cheetah",
+   "rankIsSpecies": true,
+   "scientificName": "Acinonyx jubatus",
+   "status": "VU",
+   "longestLifespan": {
+    "amount": 20.5,
+    "unit": "year"
+   },
+   "gestation": {
+    "amount": 92,
+    "unit": "day"
+   },
+   "adultWeight": {
+    "male": {
+     "amount": 40.2,
+     "unit": "kg"
+    },
+    "female": {
+     "amount": 35,
+     "unit": "kg"
+    }
+   }
+  },
+  "wolf": {
+   "qid": "Q18498",
+   "lastrevid": 2556340399,
+   "modified": "2026-10-12T20:58:15Z",
+   "wikidataLabel": "grey wolf",
+   "wikipediaTitle": "Wolf",
+   "rankIsSpecies": true,
+   "scientificName": "Canis lupus",
+   "status": "LC",
+   "longestLifespan": {
+    "amount": 20.6,
+    "unit": "year"
+   },
+   "gestation": {
+    "amount": 62,
+    "unit": "day"
+   },
+   "adultWeight": null
+  },
+  "brown-bear": {
+   "qid": "Q36341",
+   "lastrevid": 2549916646,
+   "modified": "2026-09-27T07:23:16Z",
+   "wikidataLabel": "brown bear",
+   "wikipediaTitle": "Brown bear",
+   "rankIsSpecies": true,
+   "scientificName": "Ursus arctos",
+   "status": "LC",
+   "longestLifespan": {
+    "amount": 40,
+    "unit": "year"
+   },
+   "gestation": {
+    "amount": 7,
+    "unit": "month"
+   },
+   "adultWeight": null
+  },
+  "polar-bear": {
+   "qid": "Q33609",
+   "lastrevid": 2553476372,
+   "modified": "2026-10-05T14:19:24Z",
+   "wikidataLabel": "Ursus maritimus",
+   "wikipediaTitle": "Polar bear",
+   "rankIsSpecies": true,
+   "scientificName": "Ursus maritimus",
+   "status": "VU",
+   "longestLifespan": {
+    "amount": 43.8,
+    "unit": "year"
+   },
+   "gestation": {
+    "amount": 8.5,
+    "unit": "month"
+   },
+   "adultWeight": null
+  },
+  "giant-panda": {
+   "qid": "Q33602",
+   "lastrevid": 2549365099,
+   "modified": "2026-09-25T19:54:13Z",
+   "wikidataLabel": "Giant panda",
+   "wikipediaTitle": "Giant panda",
+   "rankIsSpecies": true,
+   "scientificName": "Ailuropoda melanoleuca",
+   "status": "VU",
+   "longestLifespan": {
+    "amount": 36.8,
+    "unit": "year"
+   },
+   "gestation": {
+    "amount": 130,
+    "unit": "day"
+   },
+   "adultWeight": {
+    "both": {
+     "amount": 117.5,
+     "unit": "kg"
+    }
+   }
+  },
+  "red-panda": {
+   "qid": "Q41960",
+   "lastrevid": 2538890714,
+   "modified": "2026-09-01T03:21:59Z",
+   "wikidataLabel": "Red Panda",
+   "wikipediaTitle": "Red panda",
+   "rankIsSpecies": true,
+   "scientificName": "Ailurus fulgens",
+   "status": "EN",
+   "longestLifespan": {
+    "amount": 19,
+    "unit": "year"
+   },
+   "gestation": {
+    "amount": 135,
+    "unit": "day"
+   },
+   "adultWeight": {
+    "both": {
+     "amount": 4.95,
+     "unit": "kg"
+    }
+   }
+  },
+  "bornean-orangutan": {
+   "qid": "Q599672",
+   "lastrevid": 2549156120,
+   "modified": "2026-09-25T03:27:14Z",
+   "wikidataLabel": "Bornean orangutan",
+   "wikipediaTitle": "Bornean orangutan",
+   "rankIsSpecies": true,
+   "scientificName": "Pongo pygmaeus",
+   "status": "CR",
+   "longestLifespan": {
+    "amount": 59,
+    "unit": "year"
+   },
+   "gestation": {
+    "amount": 248,
+    "unit": "day"
+   },
+   "adultWeight": null
+  },
+  "sumatran-orangutan": {
+   "qid": "Q543424",
+   "lastrevid": 2551373512,
+   "modified": "2026-09-30T15:54:42Z",
+   "wikidataLabel": "Sumatran orangutan",
+   "wikipediaTitle": "Sumatran orangutan",
+   "rankIsSpecies": true,
+   "scientificName": "Pongo abelii",
+   "status": "CR",
+   "longestLifespan": null,
+   "gestation": null,
+   "adultWeight": null
+  },
+  "tapanuli-orangutan": {
+   "qid": "Q42564025",
+   "lastrevid": 2512174988,
+   "modified": "2026-06-30T11:31:47Z",
+   "wikidataLabel": "Tapanuli orangutan",
+   "wikipediaTitle": "Tapanuli orangutan",
+   "rankIsSpecies": true,
+   "scientificName": "Pongo tapanuliensis",
+   "status": "CR",
+   "longestLifespan": null,
+   "gestation": null,
+   "adultWeight": null
+  },
+  "mountain-gorilla": {
+   "qid": "Q737878",
+   "lastrevid": 2545574691,
+   "modified": "2026-09-14T11:43:48Z",
+   "wikidataLabel": "mountain gorilla",
+   "wikipediaTitle": "Mountain gorilla",
+   "rankIsSpecies": true,
+   "scientificName": "Gorilla beringei beringei",
+   "status": "EN",
+   "longestLifespan": null,
+   "gestation": null,
+   "adultWeight": null
+  },
+  "chimpanzee": {
+   "qid": "Q4126704",
+   "lastrevid": 2555066928,
+   "modified": "2026-10-08T16:20:24Z",
+   "wikidataLabel": "chimpanzee",
+   "wikipediaTitle": "Chimpanzee",
+   "rankIsSpecies": true,
+   "scientificName": "Pan troglodytes",
+   "status": "EN",
+   "longestLifespan": {
+    "amount": 59.4,
+    "unit": "year"
+   },
+   "gestation": {
+    "amount": 225,
+    "unit": "day"
+   },
+   "adultWeight": null
+  },
+  "bonobo": {
+   "qid": "Q19537",
+   "lastrevid": 2532342436,
+   "modified": "2026-08-17T13:32:16Z",
+   "wikidataLabel": "Bonobo",
+   "wikipediaTitle": "Bonobo",
+   "rankIsSpecies": true,
+   "scientificName": "Pan paniscus",
+   "status": "EN",
+   "longestLifespan": null,
+   "gestation": {
+    "amount": 8,
+    "unit": "month"
+   },
+   "adultWeight": null
+  },
+  "humpback-whale": {
+   "qid": "Q132905",
+   "lastrevid": 2540980684,
+   "modified": "2026-09-06T09:06:28Z",
+   "wikidataLabel": "humpback whale",
+   "wikipediaTitle": "Humpback whale",
+   "rankIsSpecies": true,
+   "scientificName": "Megaptera novaeangliae",
+   "status": "LC",
+   "longestLifespan": null,
+   "gestation": null,
+   "adultWeight": {
+    "both": {
+     "amount": 45,
+     "unit": "tonne"
+    }
+   }
+  },
+  "blue-whale": {
+   "qid": "Q42196",
+   "lastrevid": 2544905280,
+   "modified": "2026-09-13T06:46:49Z",
+   "wikidataLabel": "Balaenoptera musculus",
+   "wikipediaTitle": "Blue whale",
+   "rankIsSpecies": true,
+   "scientificName": "Balaenoptera musculus",
+   "status": "EN",
+   "longestLifespan": null,
+   "gestation": {
+    "amount": 11.5,
+    "unit": "month"
+   },
+   "adultWeight": null
+  },
+  "sperm-whale": {
+   "qid": "Q81214",
+   "lastrevid": 2534414704,
+   "modified": "2026-08-21T20:37:59Z",
+   "wikidataLabel": "sperm whale",
+   "wikipediaTitle": "Sperm whale",
+   "rankIsSpecies": true,
+   "scientificName": "Physeter macrocephalus",
+   "status": "VU",
+   "longestLifespan": null,
+   "gestation": {
+    "amount": 15,
+    "unit": "month"
+   },
+   "adultWeight": null
+  },
+  "gray-whale": {
+   "qid": "Q179154",
+   "lastrevid": 2557103910,
+   "modified": "2026-10-15T01:40:31Z",
+   "wikidataLabel": "gray whale",
+   "wikipediaTitle": "Gray whale",
+   "rankIsSpecies": true,
+   "scientificName": "Eschrichtius robustus",
+   "status": "LC",
+   "longestLifespan": null,
+   "gestation": {
+    "amount": 12,
+    "unit": "month"
+   },
+   "adultWeight": null
+  },
+  "orca": {
+   "qid": "Q26843",
+   "lastrevid": 2556554221,
+   "modified": "2026-10-13T10:27:04Z",
+   "wikidataLabel": "Orcinus orca",
+   "wikipediaTitle": "Orca",
+   "rankIsSpecies": true,
+   "scientificName": "Orcinus orca",
+   "status": "DD",
+   "longestLifespan": null,
+   "gestation": {
+    "amount": 16.5,
+    "unit": "month"
+   },
+   "adultWeight": null
+  },
+  "beluga": {
+   "qid": "Q132072",
+   "lastrevid": 2546718680,
+   "modified": "2026-09-16T16:26:21Z",
+   "wikidataLabel": "beluga whale",
+   "wikipediaTitle": "Beluga whale",
+   "rankIsSpecies": true,
+   "scientificName": "Delphinapterus leucas",
+   "status": "LC",
+   "longestLifespan": {
+    "amount": 40,
+    "unit": "year"
+   },
+   "gestation": {
+    "amount": 1,
+    "unit": "year"
+   },
+   "adultWeight": null
+  },
+  "narwhal": {
+   "qid": "Q159426",
+   "lastrevid": 2549578754,
+   "modified": "2026-09-26T08:23:25Z",
+   "wikidataLabel": "narwhal",
+   "wikipediaTitle": "Narwhal",
+   "rankIsSpecies": true,
+   "scientificName": "Monodon monoceros",
+   "status": "LC",
+   "longestLifespan": null,
+   "gestation": {
+    "amount": 1,
+    "unit": "year"
+   },
+   "adultWeight": null
+  },
+  "bottlenose-dolphin": {
+   "qid": "Q174199",
+   "lastrevid": 2537136035,
+   "modified": "2026-08-27T18:04:55Z",
+   "wikidataLabel": "common bottlenose dolphin",
+   "wikipediaTitle": "Common bottlenose dolphin",
+   "rankIsSpecies": true,
+   "scientificName": "Tursiops truncatus",
+   "status": "LC",
+   "longestLifespan": {
+    "amount": 51.6,
+    "unit": "year"
+   },
+   "gestation": {
+    "amount": 1,
+    "unit": "year"
+   },
+   "adultWeight": null
+  },
+  "vaquita": {
+   "qid": "Q725493",
+   "lastrevid": 2555091320,
+   "modified": "2026-10-08T17:58:55Z",
+   "wikidataLabel": "Vaquita",
+   "wikipediaTitle": "Vaquita",
+   "rankIsSpecies": true,
+   "scientificName": "Phocoena sinus",
+   "status": "CR",
+   "longestLifespan": null,
+   "gestation": null,
+   "adultWeight": null
+  },
+  "sea-otter": {
+   "qid": "Q41407",
+   "lastrevid": 2531932499,
+   "modified": "2026-08-16T10:04:58Z",
+   "wikidataLabel": "sea otter",
+   "wikipediaTitle": "Sea otter",
+   "rankIsSpecies": true,
+   "scientificName": "Enhydra lutris",
+   "status": "EN",
+   "longestLifespan": {
+    "amount": 15,
+    "unit": "year"
+   },
+   "gestation": null,
+   "adultWeight": null
+  },
+  "dugong": {
+   "qid": "Q129544",
+   "lastrevid": 2552141430,
+   "modified": "2026-10-02T11:50:00Z",
+   "wikidataLabel": "dugong",
+   "wikipediaTitle": "Dugong",
+   "rankIsSpecies": true,
+   "scientificName": "Dugong dugon",
+   "status": "VU",
+   "longestLifespan": {
+    "amount": 73,
+    "unit": "year"
+   },
+   "gestation": null,
+   "adultWeight": null
+  },
+  "walrus": {
+   "qid": "Q40994",
+   "lastrevid": 2555006657,
+   "modified": "2026-10-08T11:36:48Z",
+   "wikidataLabel": "walrus",
+   "wikipediaTitle": "Walrus",
+   "rankIsSpecies": true,
+   "scientificName": "Odobenus rosmarus",
+   "status": "VU",
+   "longestLifespan": null,
+   "gestation": {
+    "amount": 15,
+    "unit": "month"
+   },
+   "adultWeight": null
+  },
+  "koala": {
+   "qid": "Q36101",
+   "lastrevid": 2556023182,
+   "modified": "2026-10-11T22:39:17Z",
+   "wikidataLabel": "koala",
+   "wikipediaTitle": "Koala",
+   "rankIsSpecies": true,
+   "scientificName": "Phascolarctos cinereus",
+   "status": "VU",
+   "longestLifespan": {
+    "amount": 22,
+    "unit": "year"
+   },
+   "gestation": {
+    "amount": 37,
+    "unit": "day"
+   },
+   "adultWeight": null
+  },
+  "tasmanian-devil": {
+   "qid": "Q134964",
+   "lastrevid": 2544783491,
+   "modified": "2026-09-12T23:42:57Z",
+   "wikidataLabel": "Tasmanian devil",
+   "wikipediaTitle": "Tasmanian devil",
+   "rankIsSpecies": true,
+   "scientificName": "Sarcophilus harrisii",
+   "status": "EN",
+   "longestLifespan": {
+    "amount": 13,
+    "unit": "year"
+   },
+   "gestation": {
+    "amount": 21,
+    "unit": "day"
+   },
+   "adultWeight": null
+  },
+  "african-wild-dog": {
+   "qid": "Q173651",
+   "lastrevid": 2553268856,
+   "modified": "2026-10-05T02:25:31Z",
+   "wikidataLabel": "African wild dog",
+   "wikipediaTitle": "African wild dog",
+   "rankIsSpecies": true,
+   "scientificName": "Lycaon pictus",
+   "status": "EN",
+   "longestLifespan": {
+    "amount": 17,
+    "unit": "year"
+   },
+   "gestation": {
+    "amount": 70,
+    "unit": "day"
+   },
+   "adultWeight": null
+  },
+  "ethiopian-wolf": {
+   "qid": "Q188957",
+   "lastrevid": 2550358368,
+   "modified": "2026-09-28T06:38:32Z",
+   "wikidataLabel": "Canis simensis",
+   "wikipediaTitle": "Ethiopian wolf",
+   "rankIsSpecies": true,
+   "scientificName": "Canis simensis",
+   "status": "EN",
+   "longestLifespan": null,
+   "gestation": null,
+   "adultWeight": null
+  },
+  "saiga": {
+   "qid": "Q126683",
+   "lastrevid": 2514192649,
+   "modified": "2026-07-05T17:38:21Z",
+   "wikidataLabel": "Saiga",
+   "wikipediaTitle": "Saiga antelope",
+   "rankIsSpecies": true,
+   "scientificName": "Saiga tatarica",
+   "status": "NT",
+   "longestLifespan": null,
+   "gestation": {
+    "amount": 139,
+    "unit": "day"
+   },
+   "adultWeight": null
+  },
+  "american-bison": {
+   "qid": "Q82728",
+   "lastrevid": 2553433775,
+   "modified": "2026-10-05T12:03:53Z",
+   "wikidataLabel": "American bison",
+   "wikipediaTitle": "American bison",
+   "rankIsSpecies": true,
+   "scientificName": "Bison bison",
+   "status": "NT",
+   "longestLifespan": {
+    "amount": 33.5,
+    "unit": "year"
+   },
+   "gestation": {
+    "amount": 285,
+    "unit": "day"
+   },
+   "adultWeight": null
+  },
+  "european-bison": {
+   "qid": "Q81091",
+   "lastrevid": 2542581681,
+   "modified": "2026-09-09T06:49:30Z",
+   "wikidataLabel": "Bison bonasus",
+   "wikipediaTitle": "European bison",
+   "rankIsSpecies": true,
+   "scientificName": "Bison bonasus",
+   "status": "NT",
+   "longestLifespan": {
+    "amount": 26.4,
+    "unit": "year"
+   },
+   "gestation": {
+    "amount": 263,
+    "unit": "day"
+   },
+   "adultWeight": null
+  },
+  "przewalskis-horse": {
+   "qid": "Q22712",
+   "lastrevid": 2538877377,
+   "modified": "2026-09-01T02:51:09Z",
+   "wikidataLabel": "Przewalski's horse",
+   "wikipediaTitle": "Przewalski's horse",
+   "rankIsSpecies": true,
+   "scientificName": "Equus ferus przewalskii",
+   "status": "EN",
+   "longestLifespan": null,
+   "gestation": {
+    "amount": 340,
+    "unit": "day"
+   },
+   "adultWeight": null
+  },
+  "iberian-lynx": {
+   "qid": "Q129727",
+   "lastrevid": 2557291212,
+   "modified": "2026-10-15T12:10:42Z",
+   "wikidataLabel": "Iberian lynx",
+   "wikipediaTitle": "Iberian lynx",
+   "rankIsSpecies": true,
+   "scientificName": "Lynx pardinus",
+   "status": "VU",
+   "longestLifespan": null,
+   "gestation": null,
+   "adultWeight": null
+  },
+  "hippopotamus": {
+   "qid": "Q34505",
+   "lastrevid": 2556586466,
+   "modified": "2026-10-13T13:03:08Z",
+   "wikidataLabel": "Nile hippopotamus",
+   "wikipediaTitle": "Hippopotamus",
+   "rankIsSpecies": true,
+   "scientificName": "Hippopotamus amphibius",
+   "status": "VU",
+   "longestLifespan": {
+    "amount": 61.2,
+    "unit": "year"
+   },
+   "gestation": {
+    "amount": 8,
+    "unit": "month"
+   },
+   "adultWeight": null
+  },
+  "okapi": {
+   "qid": "Q82037",
+   "lastrevid": 2553136210,
+   "modified": "2026-10-04T18:11:30Z",
+   "wikidataLabel": "Okapia johnstoni",
+   "wikipediaTitle": "Okapi",
+   "rankIsSpecies": true,
+   "scientificName": "Okapia johnstoni",
+   "status": "EN",
+   "longestLifespan": {
+    "amount": 33.5,
+    "unit": "year"
+   },
+   "gestation": {
+    "amount": 14.5,
+    "unit": "month"
+   },
+   "adultWeight": {
+    "both": {
+     "amount": 250,
+     "unit": "kg"
+    }
+   }
+  },
+  "proboscis-monkey": {
+   "qid": "Q192029",
+   "lastrevid": 2547655704,
+   "modified": "2026-09-19T04:26:24Z",
+   "wikidataLabel": "Nasalis larvatus",
+   "wikipediaTitle": "Proboscis monkey",
+   "rankIsSpecies": true,
+   "scientificName": "Nasalis larvatus",
+   "status": "EN",
+   "longestLifespan": {
+    "amount": 25.1,
+    "unit": "year"
+   },
+   "gestation": null,
+   "adultWeight": null
+  },
+  "pygmy-hippopotamus": {
+   "qid": "Q22110899",
+   "lastrevid": 2556539716,
+   "modified": "2026-10-13T09:28:17Z",
+   "wikidataLabel": "Choeropsis liberiensis",
+   "wikipediaTitle": "Pygmy hippopotamus",
+   "rankIsSpecies": true,
+   "scientificName": "Choeropsis liberiensis",
+   "status": "EN",
+   "longestLifespan": null,
+   "gestation": null,
+   "adultWeight": null
+  },
+  "amazonian-manatee": {
+   "qid": "Q456206",
+   "lastrevid": 2555128250,
+   "modified": "2026-10-08T20:56:11Z",
+   "wikidataLabel": "Amazonian manatee",
+   "wikipediaTitle": "Amazonian manatee",
+   "rankIsSpecies": true,
+   "scientificName": "Trichechus inunguis",
+   "status": "VU",
+   "longestLifespan": {
+    "amount": 40,
+    "unit": "year"
+   },
+   "gestation": {
+    "amount": 13,
+    "unit": "month"
+   },
+   "adultWeight": null
+  },
+  "west-indian-manatee": {
+   "qid": "Q40261",
+   "lastrevid": 2555559273,
+   "modified": "2026-10-10T09:25:02Z",
+   "wikidataLabel": "West Indian manatee",
+   "wikipediaTitle": "West Indian manatee",
+   "rankIsSpecies": true,
+   "scientificName": "Trichechus manatus",
+   "status": "VU",
+   "longestLifespan": null,
+   "gestation": {
+    "amount": 13,
+    "unit": "month"
+   },
+   "adultWeight": null
+  },
+  "bald-eagle": {
+   "qid": "Q127216",
+   "lastrevid": 2542875140,
+   "modified": "2026-09-09T20:06:40Z",
+   "wikidataLabel": "bald eagle",
+   "wikipediaTitle": "Bald eagle",
+   "rankIsSpecies": true,
+   "scientificName": "Haliaeetus leucocephalus",
+   "status": "LC",
+   "longestLifespan": null,
+   "gestation": null,
+   "adultWeight": {
+    "male": {
+     "amount": 4.13,
+     "unit": "kg"
+    },
+    "female": {
+     "amount": 5.35,
+     "unit": "kg"
+    }
+   }
+  },
+  "california-condor": {
+   "qid": "Q194314",
+   "lastrevid": 2535770404,
+   "modified": "2026-08-24T10:56:06Z",
+   "wikidataLabel": "California condor",
+   "wikipediaTitle": "California condor",
+   "rankIsSpecies": true,
+   "scientificName": "Gymnogyps californianus",
+   "status": "CR",
+   "longestLifespan": null,
+   "gestation": null,
+   "adultWeight": {
+    "both": {
+     "amount": 8.45,
+     "unit": "kg"
+    }
+   }
+  },
+  "kakapo": {
+   "qid": "Q179959",
+   "lastrevid": 2533991814,
+   "modified": "2026-08-21T02:27:03Z",
+   "wikidataLabel": "Kakapo",
+   "wikipediaTitle": "Kākāpō",
+   "rankIsSpecies": true,
+   "scientificName": "Strigops habroptila",
+   "status": "CR",
+   "longestLifespan": null,
+   "gestation": null,
+   "adultWeight": null
+  },
+  "atlantic-puffin": {
+   "qid": "Q26685",
+   "lastrevid": 2533964364,
+   "modified": "2026-08-21T01:09:19Z",
+   "wikidataLabel": "Atlantic Puffin",
+   "wikipediaTitle": "Atlantic puffin",
+   "rankIsSpecies": true,
+   "scientificName": "Fratercula arctica",
+   "status": "VU",
+   "longestLifespan": null,
+   "gestation": null,
+   "adultWeight": {
+    "both": {
+     "amount": 376,
+     "unit": "g"
+    }
+   }
+  },
+  "emperor-penguin": {
+   "qid": "Q161829",
+   "lastrevid": 2547952011,
+   "modified": "2026-09-20T15:16:02Z",
+   "wikidataLabel": "Emperor Penguin",
+   "wikipediaTitle": "Emperor penguin",
+   "rankIsSpecies": true,
+   "scientificName": "Aptenodytes forsteri",
+   "status": "NT",
+   "longestLifespan": null,
+   "gestation": null,
+   "adultWeight": null
+  },
+  "african-penguin": {
+   "qid": "Q244813",
+   "lastrevid": 2553171226,
+   "modified": "2026-10-04T20:21:48Z",
+   "wikidataLabel": "African Penguin",
+   "wikipediaTitle": "African penguin",
+   "rankIsSpecies": true,
+   "scientificName": "Spheniscus demersus",
+   "status": "CR",
+   "longestLifespan": null,
+   "gestation": null,
+   "adultWeight": null
+  },
+  "whooping-crane": {
+   "qid": "Q457477",
+   "lastrevid": 2549217652,
+   "modified": "2026-09-25T09:35:14Z",
+   "wikidataLabel": "whooping crane",
+   "wikipediaTitle": "Whooping crane",
+   "rankIsSpecies": true,
+   "scientificName": "Grus americana",
+   "status": "EN",
+   "longestLifespan": null,
+   "gestation": null,
+   "adultWeight": {
+    "both": {
+     "amount": 7.497,
+     "unit": "kg"
+    }
+   }
+  },
+  "peregrine-falcon": {
+   "qid": "Q30535",
+   "lastrevid": 2553363227,
+   "modified": "2026-10-05T08:33:10Z",
+   "wikidataLabel": "Peregrine Falcon",
+   "wikipediaTitle": "Peregrine falcon",
+   "rankIsSpecies": true,
+   "scientificName": "Falco peregrinus",
+   "status": "LC",
+   "longestLifespan": null,
+   "gestation": null,
+   "adultWeight": null
+  },
+  "philippine-eagle": {
+   "qid": "Q185213",
+   "lastrevid": 2547694753,
+   "modified": "2026-09-19T08:24:49Z",
+   "wikidataLabel": "Philippine Eagle",
+   "wikipediaTitle": "Philippine eagle",
+   "rankIsSpecies": true,
+   "scientificName": "Pithecophaga jefferyi",
+   "status": "CR",
+   "longestLifespan": null,
+   "gestation": null,
+   "adultWeight": null
+  },
+  "scarlet-macaw": {
+   "qid": "Q243761",
+   "lastrevid": 2548363187,
+   "modified": "2026-09-22T09:38:34Z",
+   "wikidataLabel": "scarlet macaw",
+   "wikipediaTitle": "Scarlet macaw",
+   "rankIsSpecies": true,
+   "scientificName": "Ara macao",
+   "status": "LC",
+   "longestLifespan": null,
+   "gestation": null,
+   "adultWeight": null
+  },
+  "hyacinth-macaw": {
+   "qid": "Q463154",
+   "lastrevid": 2535644448,
+   "modified": "2026-08-24T01:54:45Z",
+   "wikidataLabel": "Hyacinth Macaw",
+   "wikipediaTitle": "Hyacinth macaw",
+   "rankIsSpecies": true,
+   "scientificName": "Anodorhynchus hyacinthinus",
+   "status": "VU",
+   "longestLifespan": null,
+   "gestation": null,
+   "adultWeight": null
+  },
+  "harpy-eagle": {
+   "qid": "Q53745",
+   "lastrevid": 2542170868,
+   "modified": "2026-09-08T09:22:09Z",
+   "wikidataLabel": "harpy eagle",
+   "wikipediaTitle": "Harpy eagle",
+   "rankIsSpecies": true,
+   "scientificName": "Harpia harpyja",
+   "status": "VU",
+   "longestLifespan": null,
+   "gestation": null,
+   "adultWeight": {
+    "male": {
+     "amount": 4.4,
+     "unit": "kg"
+    },
+    "female": {
+     "amount": 7.5,
+     "unit": "kg"
+    }
+   }
+  },
+  "spoon-billed-sandpiper": {
+   "qid": "Q28065684",
+   "lastrevid": 2533956444,
+   "modified": "2026-08-21T00:47:35Z",
+   "wikidataLabel": "Spoon-billed Sandpiper",
+   "wikipediaTitle": "Spoon-billed sandpiper",
+   "rankIsSpecies": true,
+   "scientificName": "Calidris pygmaea",
+   "status": "CR",
+   "longestLifespan": null,
+   "gestation": null,
+   "adultWeight": null
+  },
+  "snowy-owl": {
+   "qid": "Q170177",
+   "lastrevid": 2557036209,
+   "modified": "2026-10-14T21:02:46Z",
+   "wikidataLabel": "Snowy Owl",
+   "wikipediaTitle": "Snowy owl",
+   "rankIsSpecies": true,
+   "scientificName": "Bubo scandiacus",
+   "status": "VU",
+   "longestLifespan": null,
+   "gestation": null,
+   "adultWeight": null
+  },
+  "greater-flamingo": {
+   "qid": "Q179863",
+   "lastrevid": 2555241296,
+   "modified": "2026-10-09T06:08:53Z",
+   "wikidataLabel": "Greater Flamingo",
+   "wikipediaTitle": "Greater flamingo",
+   "rankIsSpecies": true,
+   "scientificName": "Phoenicopterus roseus",
+   "status": "LC",
+   "longestLifespan": null,
+   "gestation": null,
+   "adultWeight": null
+  },
+  "shoebill": {
+   "qid": "Q18700",
+   "lastrevid": 2554532488,
+   "modified": "2026-10-07T12:29:28Z",
+   "wikidataLabel": "Shoebill",
+   "wikipediaTitle": "Shoebill",
+   "rankIsSpecies": true,
+   "scientificName": "Balaeniceps rex",
+   "status": "VU",
+   "longestLifespan": null,
+   "gestation": null,
+   "adultWeight": null
+  },
+  "resplendent-quetzal": {
+   "qid": "Q459267",
+   "lastrevid": 2538983474,
+   "modified": "2026-09-01T08:17:06Z",
+   "wikidataLabel": "Resplendent Quetzal",
+   "wikipediaTitle": "Resplendent quetzal",
+   "rankIsSpecies": true,
+   "scientificName": "Pharomachrus mocinno",
+   "status": "NT",
+   "longestLifespan": null,
+   "gestation": null,
+   "adultWeight": null
+  },
+  "andean-condor": {
+   "qid": "Q170598",
+   "lastrevid": 2548336046,
+   "modified": "2026-09-22T08:02:15Z",
+   "wikidataLabel": "Andean Condor",
+   "wikipediaTitle": "Andean condor",
+   "rankIsSpecies": true,
+   "scientificName": "Vultur gryphus",
+   "status": "VU",
+   "longestLifespan": null,
+   "gestation": null,
+   "adultWeight": null
+  },
+  "green-sea-turtle": {
+   "qid": "Q199458",
+   "lastrevid": 2541632726,
+   "modified": "2026-09-07T10:20:47Z",
+   "wikidataLabel": "Chelonia mydas",
+   "wikipediaTitle": "Green sea turtle",
+   "rankIsSpecies": true,
+   "scientificName": "Chelonia mydas",
+   "status": "EN",
+   "longestLifespan": null,
+   "gestation": null,
+   "adultWeight": null
+  },
+  "leatherback-sea-turtle": {
+   "qid": "Q120043",
+   "lastrevid": 2541638742,
+   "modified": "2026-09-07T10:34:21Z",
+   "wikidataLabel": "leatherback sea turtle",
+   "wikipediaTitle": "Leatherback sea turtle",
+   "rankIsSpecies": true,
+   "scientificName": "Dermochelys coriacea",
+   "status": "VU",
+   "longestLifespan": null,
+   "gestation": null,
+   "adultWeight": null
+  },
+  "hawksbill-sea-turtle": {
+   "qid": "Q203538",
+   "lastrevid": 2555109332,
+   "modified": "2026-10-08T19:32:01Z",
+   "wikidataLabel": "hawksbill sea turtle",
+   "wikipediaTitle": "Hawksbill sea turtle",
+   "rankIsSpecies": true,
+   "scientificName": "Eretmochelys imbricata",
+   "status": "CR",
+   "longestLifespan": {
+    "amount": 20,
+    "unit": "year"
+   },
+   "gestation": null,
+   "adultWeight": null
+  },
+  "loggerhead-sea-turtle": {
+   "qid": "Q192095",
+   "lastrevid": 2534865839,
+   "modified": "2026-08-22T14:51:01Z",
+   "wikidataLabel": "loggerhead sea turtle",
+   "wikipediaTitle": "Loggerhead sea turtle",
+   "rankIsSpecies": true,
+   "scientificName": "Caretta caretta",
+   "status": "VU",
+   "longestLifespan": null,
+   "gestation": null,
+   "adultWeight": null
+  },
+  "komodo-dragon": {
+   "qid": "Q4504",
+   "lastrevid": 2530083297,
+   "modified": "2026-08-11T17:04:12Z",
+   "wikidataLabel": "Komodo dragon",
+   "wikipediaTitle": "Komodo dragon",
+   "rankIsSpecies": true,
+   "scientificName": "Varanus komodoensis",
+   "status": "EN",
+   "longestLifespan": null,
+   "gestation": null,
+   "adultWeight": {
+    "both": {
+     "amount": 70,
+     "unit": "kg"
+    }
+   }
+  },
+  "saltwater-crocodile": {
+   "qid": "Q182599",
+   "lastrevid": 2531930884,
+   "modified": "2026-08-16T09:59:52Z",
+   "wikidataLabel": "Crocodylus porosus",
+   "wikipediaTitle": "Saltwater crocodile",
+   "rankIsSpecies": true,
+   "scientificName": "Crocodylus porosus",
+   "status": "LC",
+   "longestLifespan": null,
+   "gestation": null,
+   "adultWeight": null
+  },
+  "nile-crocodile": {
+   "qid": "Q168745",
+   "lastrevid": 2554750571,
+   "modified": "2026-10-07T22:53:42Z",
+   "wikidataLabel": "Nile crocodile",
+   "wikipediaTitle": "Nile crocodile",
+   "rankIsSpecies": true,
+   "scientificName": "Crocodylus niloticus",
+   "status": "LC",
+   "longestLifespan": null,
+   "gestation": null,
+   "adultWeight": null
+  },
+  "gharial": {
+   "qid": "Q17134",
+   "lastrevid": 2543765864,
+   "modified": "2026-09-11T06:11:26Z",
+   "wikidataLabel": "Gharial",
+   "wikipediaTitle": "Gharial",
+   "rankIsSpecies": true,
+   "scientificName": "Gavialis gangeticus",
+   "status": "CR",
+   "longestLifespan": null,
+   "gestation": null,
+   "adultWeight": null
+  },
+  "axolotl": {
+   "qid": "Q22718",
+   "lastrevid": 2556945462,
+   "modified": "2026-10-14T14:44:39Z",
+   "wikidataLabel": "axolotl",
+   "wikipediaTitle": "Axolotl",
+   "rankIsSpecies": true,
+   "scientificName": "Ambystoma mexicanum",
+   "status": "CR",
+   "longestLifespan": null,
+   "gestation": null,
+   "adultWeight": {
+    "both": {
+     "amount": 8,
+     "unit": "oz"
+    }
+   }
+  },
+  "king-cobra": {
+   "qid": "Q48186",
+   "lastrevid": 2530321681,
+   "modified": "2026-08-12T08:01:38Z",
+   "wikidataLabel": "king cobra",
+   "wikipediaTitle": "King cobra",
+   "rankIsSpecies": true,
+   "scientificName": "Ophiophagus hannah",
+   "status": "VU",
+   "longestLifespan": null,
+   "gestation": null,
+   "adultWeight": null
+  },
+  "panamanian-golden-frog": {
+   "qid": "Q2048914",
+   "lastrevid": 2555587745,
+   "modified": "2026-10-10T12:16:21Z",
+   "wikidataLabel": "Panamanian golden frog",
+   "wikipediaTitle": "Panamanian golden frog",
+   "rankIsSpecies": true,
+   "scientificName": "Atelopus zeteki",
+   "status": "CR",
+   "longestLifespan": null,
+   "gestation": null,
+   "adultWeight": null
+  },
+  "whale-shark": {
+   "qid": "Q80378",
+   "lastrevid": 2557326315,
+   "modified": "2026-10-15T14:37:46Z",
+   "wikidataLabel": "whale shark",
+   "wikipediaTitle": "Whale shark",
+   "rankIsSpecies": true,
+   "scientificName": "Rhincodon typus",
+   "status": "EN",
+   "longestLifespan": null,
+   "gestation": null,
+   "adultWeight": {
+    "both": {
+     "amount": 12,
+     "unit": "tonne"
+    }
+   }
+  },
+  "great-white-shark": {
+   "qid": "Q129026",
+   "lastrevid": 2548106671,
+   "modified": "2026-09-21T10:09:48Z",
+   "wikidataLabel": "great white shark",
+   "wikipediaTitle": "Great white shark",
+   "rankIsSpecies": true,
+   "scientificName": "Carcharodon carcharias",
+   "status": "VU",
+   "longestLifespan": null,
+   "gestation": {
+    "amount": 18,
+    "unit": "month"
+   },
+   "adultWeight": {
+    "both": {
+     "amount": 2400,
+     "unit": "lb"
+    }
+   }
+  },
+  "great-hammerhead": {
+   "qid": "Q757353",
+   "lastrevid": 2473150055,
+   "modified": "2026-03-18T03:55:32Z",
+   "wikidataLabel": "great hammerhead",
+   "wikipediaTitle": "Great hammerhead",
+   "rankIsSpecies": true,
+   "scientificName": "Sphyrna mokarran",
+   "status": "CR",
+   "longestLifespan": null,
+   "gestation": null,
+   "adultWeight": null
+  },
+  "giant-manta-ray": {
+   "qid": "Q321976",
+   "lastrevid": 2519074950,
+   "modified": "2026-07-18T11:41:48Z",
+   "wikidataLabel": "Giant oceanic manta ray",
+   "wikipediaTitle": "Giant oceanic manta ray",
+   "rankIsSpecies": true,
+   "scientificName": "Mobula birostris",
+   "status": "EN",
+   "longestLifespan": null,
+   "gestation": null,
+   "adultWeight": null
+  },
+  "atlantic-salmon": {
+   "qid": "Q188879",
+   "lastrevid": 2531932606,
+   "modified": "2026-08-16T10:05:27Z",
+   "wikidataLabel": "Atlantic salmon",
+   "wikipediaTitle": "Atlantic salmon",
+   "rankIsSpecies": true,
+   "scientificName": "Salmo salar",
+   "status": "NT",
+   "longestLifespan": null,
+   "gestation": null,
+   "adultWeight": null
+  },
+  "chinook-salmon": {
+   "qid": "Q833503",
+   "lastrevid": 2548777070,
+   "modified": "2026-09-23T10:45:16Z",
+   "wikidataLabel": "Chinook salmon",
+   "wikipediaTitle": "Chinook salmon",
+   "rankIsSpecies": true,
+   "scientificName": "Oncorhynchus tshawytscha",
+   "status": null,
+   "longestLifespan": {
+    "amount": 9,
+    "unit": "year"
+   },
+   "gestation": null,
+   "adultWeight": {
+    "both": {
+     "amount": 61.4,
+     "unit": "kg"
+    }
+   }
+  },
+  "sockeye-salmon": {
+   "qid": "Q44064",
+   "lastrevid": 2517111895,
+   "modified": "2026-07-13T16:36:22Z",
+   "wikidataLabel": "sockeye salmon",
+   "wikipediaTitle": "Sockeye salmon",
+   "rankIsSpecies": true,
+   "scientificName": "Oncorhynchus nerka",
+   "status": "LC",
+   "longestLifespan": null,
+   "gestation": null,
+   "adultWeight": null
+  },
+  "atlantic-bluefin-tuna": {
+   "qid": "Q214415",
+   "lastrevid": 2548850462,
+   "modified": "2026-09-23T16:02:31Z",
+   "wikidataLabel": "Atlantic bluefin tuna",
+   "wikipediaTitle": "Atlantic bluefin tuna",
+   "rankIsSpecies": true,
+   "scientificName": "Thunnus thynnus",
+   "status": "LC",
+   "longestLifespan": null,
+   "gestation": null,
+   "adultWeight": null
+  },
+  "southern-bluefin-tuna": {
+   "qid": "Q1142258",
+   "lastrevid": 2493738160,
+   "modified": "2026-05-18T11:19:54Z",
+   "wikidataLabel": "Thunnus maccoyii",
+   "wikipediaTitle": "Southern bluefin tuna",
+   "rankIsSpecies": true,
+   "scientificName": "Thunnus maccoyii",
+   "status": "EN",
+   "longestLifespan": null,
+   "gestation": null,
+   "adultWeight": null
+  },
+  "european-eel": {
+   "qid": "Q26387",
+   "lastrevid": 2532255567,
+   "modified": "2026-08-17T09:01:29Z",
+   "wikidataLabel": "European eel",
+   "wikipediaTitle": "European eel",
+   "rankIsSpecies": true,
+   "scientificName": "Anguilla anguilla",
+   "status": "CR",
+   "longestLifespan": null,
+   "gestation": null,
+   "adultWeight": null
+  },
+  "giant-squid": {
+   "qid": "Q13537131",
+   "lastrevid": 2556941357,
+   "modified": "2026-10-14T14:22:48Z",
+   "wikidataLabel": "giant squid",
+   "wikipediaTitle": "Giant squid",
+   "rankIsSpecies": true,
+   "scientificName": "Architeuthis dux",
+   "status": "LC",
+   "longestLifespan": null,
+   "gestation": null,
+   "adultWeight": {
+    "both": {
+     "amount": 600,
+     "unit": "lb"
+    }
+   }
+  },
+  "coelacanth": {
+   "qid": "Q668921",
+   "lastrevid": 2531061934,
+   "modified": "2026-08-13T22:49:35Z",
+   "wikidataLabel": "West Indian Ocean coelacanth",
+   "wikipediaTitle": "West Indian Ocean coelacanth",
+   "rankIsSpecies": true,
+   "scientificName": "Latimeria chalumnae",
+   "status": "CR",
+   "longestLifespan": null,
+   "gestation": null,
+   "adultWeight": null
+  },
+  "monarch-butterfly": {
+   "qid": "Q212398",
+   "lastrevid": 2534962868,
+   "modified": "2026-08-22T18:18:08Z",
+   "wikidataLabel": "Danaus plexippus",
+   "wikipediaTitle": "Monarch butterfly",
+   "rankIsSpecies": true,
+   "scientificName": "Danaus plexippus",
+   "status": "LC",
+   "longestLifespan": null,
+   "gestation": null,
+   "adultWeight": null
+  },
+  "western-honey-bee": {
+   "qid": "Q30034",
+   "lastrevid": 2544721774,
+   "modified": "2026-09-12T20:45:29Z",
+   "wikidataLabel": "Apis mellifera",
+   "wikipediaTitle": "Western honey bee",
+   "rankIsSpecies": true,
+   "scientificName": "Apis mellifera",
+   "status": "DD",
+   "longestLifespan": {
+    "amount": 8,
+    "unit": "year"
+   },
+   "gestation": null,
+   "adultWeight": null
+  },
+  "coconut-crab": {
+   "qid": "Q206070",
+   "lastrevid": 2537893511,
+   "modified": "2026-08-29T21:22:15Z",
+   "wikidataLabel": "Coconut crab",
+   "wikipediaTitle": "Coconut crab",
+   "rankIsSpecies": true,
+   "scientificName": "Birgus latro",
+   "status": "VU",
+   "longestLifespan": null,
+   "gestation": null,
+   "adultWeight": null
+  },
+  "giant-otter": {
+   "qid": "Q83774",
+   "lastrevid": 2557114049,
+   "modified": "2026-10-15T02:07:55Z",
+   "wikidataLabel": "giant otter",
+   "wikipediaTitle": "Giant otter",
+   "rankIsSpecies": true,
+   "scientificName": "Pteronura brasiliensis",
+   "status": "EN",
+   "longestLifespan": {
+    "amount": 17.3,
+    "unit": "year"
+   },
+   "gestation": {
+    "amount": 67,
+    "unit": "day"
+   },
+   "adultWeight": {
+    "male": {
+     "amount": 29,
+     "unit": "kg"
+    },
+    "female": {
+     "amount": 24,
+     "unit": "kg"
+    }
+   }
+  }
+ }
+}
