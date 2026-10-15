@@ -3,7 +3,7 @@
  * - location tags, from the core `class_list` field ("location-south-africa" means the post carries a Location tag whose slug is south-africa);
  * - map coordinates, from a `coordinates` string such as "-23.03, 30.29".
  * Both are untrusted text. Only well-formed values are kept, and nothing is fetched here. Whether a card ever uses them is decided later
- * by server/publisher-place.ts and by the per-source switch, which is off.
+ * by server/publisher-place.ts and by the per-source switch, which only the main Mongabay source has on.
  */
 const SLUG = /^location-([a-z0-9]+(?:-[a-z0-9]+){0,5})$/;
 const COORDINATES = /^\s*(-?\d{1,3}(?:\.\d{1,15})?)\s*,\s*(-?\d{1,3}(?:\.\d{1,15})?)\s*$/;

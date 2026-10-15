@@ -38,7 +38,7 @@
       "lanes": [
         "publisher_feed"
       ],
-      "supplementalUrl": "https://news.mongabay.com/wp-json/wp/v2/posts?per_page=100&_fields=link,title,excerpt,date_gmt,byline",
+      "supplementalUrl": "https://news.mongabay.com/wp-json/wp/v2/posts?per_page=100&_fields=link,title,excerpt,date_gmt,byline,class_list,coordinates",
       "supplementalBylineUrl": "https://news.mongabay.com/wp-json/wp/v2/byline"
     },
     {
@@ -245,7 +245,8 @@
         ],
         "attribution": "Author, publisher, original article link and linked license shown with every card. Items missing an author are omitted.",
         "exceptions": "Photos credited to others are excluded from the license and are not imported. Descriptions are used only for private screening and are never stored or shown, because shortening them would be a modification under ND terms.",
-        "notes": "Retention 30 days (Alex, 2026-10-15) so older stories stay available behind the reader's Previous positive stories button; the license sets no time limit and only the headline, link, date and byline are stored. Feed fetched during preparation on 2026-10-14 (26 items visible, host news.mongabay.com only). robots.txt blocks nothing for *. Feed body exceeds 100 KB, so maxBytes is raised to the 2 MB fetcher cap. A bounded public WordPress metadata endpoint supplements RSS, with the original UTC publication date and publisher-supplied byline; no article body or photograph is imported. Byline taxonomy names are used; SEO authors and WordPress account names are not treated as article writers. GC reviewed 2026-10-15: location tags and coordinates are facts used only for pin placement, not a modification under CC BY-ND 4.0. Place tags are read from the same WordPress response without a new request once switched on; they are not requested yet and the switch is off.",
+        "notes": "Retention 30 days (Alex, 2026-10-15) so older stories stay available behind the reader's Previous positive stories button; the license sets no time limit and only the headline, link, date and byline are stored. Feed fetched during preparation on 2026-10-14 (26 items visible, host news.mongabay.com only). robots.txt blocks nothing for *. Feed body exceeds 100 KB, so maxBytes is raised to the 2 MB fetcher cap. A bounded public WordPress metadata endpoint supplements RSS, with the original UTC publication date and publisher-supplied byline; no article body or photograph is imported. Byline taxonomy names are used; SEO authors and WordPress account names are not treated as article writers. GC reviewed 2026-10-15: location tags and coordinates are facts used only for pin placement, not a modification under CC BY-ND 4.0. Switched on 2026-10-15 after General Counsel approval: the same WordPress request now also asks for class_list (only its location-* entries are kept) and coordinates, about 67 KB for 100 posts, with no extra request. They are used only to place a pin: the publisher's point if it falls inside a tagged country (rounded to about 11 km), else a single tagged country's centre, else no pin. A story also listed in the Happy-Upbeat feed may keep the Upbeat copy, which has no tags yet.",
+        "placeFromPublisherTags": true,
         "requiresAuthor": true,
         "license": {
           "name": "CC BY-ND 4.0",

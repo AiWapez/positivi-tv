@@ -6,7 +6,7 @@ import { countryBySlug } from './publisher-location.ts';
  *
  * Inputs (see server/publisher-place-tags.mjs): the location tags the publisher put on a post (slugs such as "south-africa") and,
  * sometimes, map coordinates the publisher chose for the story. Nothing here fetches anything, and a source only reaches this code when its
- * `placeFromPublisherTags` switch is on. No source has that switch on today.
+ * `placeFromPublisherTags` switch is on. Only the main Mongabay source has it on (General Counsel cleared the tags on 2026-10-15).
  *
  * Order of trust, most precise first:
  *   1. The publisher's coordinates, but only if they fall inside (the padded outline of) a country the same post is tagged with. They are
