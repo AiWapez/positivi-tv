@@ -13,9 +13,11 @@ export type Provenance = 'reviewed' | 'publisher_feed' | 'sample';
  * - event_date_unconfirmed: only the publication date is known; the event may be older.
  * - country_from_headline: the pin is an approximate country centre taken from the headline wording.
  * - country_from_publisher: the headline names no place, so the pin is the country the publisher reports on (for example Mongabay India).
+ * - country_from_publisher_tag: the publisher tags this story with exactly one country, so the pin is that country's centre.
+ * - area_from_publisher: the publisher gave map coordinates for this story, checked to sit inside a country it tagged; shown rounded to about 11 km.
  */
-export type StoryLabel = 'research_finding' | 'event_date_unconfirmed' | 'country_from_headline' | 'country_from_publisher' | 'area_from_feed';
-export const STORY_LABELS: readonly StoryLabel[] = ['research_finding', 'event_date_unconfirmed', 'country_from_headline', 'country_from_publisher', 'area_from_feed'];
+export type StoryLabel = 'research_finding' | 'event_date_unconfirmed' | 'country_from_headline' | 'country_from_publisher' | 'country_from_publisher_tag' | 'area_from_feed' | 'area_from_publisher';
+export const STORY_LABELS: readonly StoryLabel[] = ['research_finding', 'event_date_unconfirmed', 'country_from_headline', 'country_from_publisher', 'country_from_publisher_tag', 'area_from_feed', 'area_from_publisher'];
 export interface Story {
   id: string; version: number; title: string; summary: string | null; category: Category;
   location: string; lat: number | null; lng: number | null;

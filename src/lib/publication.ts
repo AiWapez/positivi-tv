@@ -17,6 +17,18 @@ function validLabels(labels: unknown): labels is StoryLabel[] {
   return Array.isArray(labels) && labels.length <= STORY_LABELS.length && new Set(labels).size === labels.length
     && labels.every(l => (STORY_LABELS as readonly unknown[]).includes(l));
 }
+/** Labels that explain where a pin came from. A pinned card carries exactly one; an unpinned card carries none. */
+const PLACE_LABELS: readonly StoryLabel[] = ['country_from_headline', 'country_from_publisher', 'country_from_publisher_tag', 'area_from_feed', 'area_from_publisher'];
+const placeLabels = (s: PublishedStory) => PLACE_LABELS.filter(l => s.labels.includes(l));
+function validPlacement(s: PublishedStory): boolean {
+  const [label, ...more] = placeLabels(s);
+  if (s.locationPrecision === 'unknown') return s.lat === null && s.mapArea === undefined && !label;
+  if (!label || more.length || s.lat === null) return false;
+  if (s.locationPrecision === 'country') return s.mapArea === undefined && ['country_from_headline', 'country_from_publisher', 'country_from_publisher_tag'].includes(label);
+  if (s.locationPrecision === 'region')
+    return label === 'area_from_feed' ? validMapArea(s.mapArea, s.lat, s.lng, s.location) : label === 'area_from_publisher' && s.mapArea === undefined;
+  return false;
+}
 function validCommon(s: PublishedStory): boolean {
   return typeof s.id === 'string' && !!s.id.trim() && Number.isInteger(s.version) && s.version > 0
     && typeof s.title === 'string' && !!s.title.trim() && (s.summary === null || typeof s.summary === 'string')
@@ -48,16 +60,12 @@ export function validPublicStory(value: unknown): value is PublishedStory {
   const s = value as PublishedStory;
   if (!validCommon(s)) return false;
   if (s.provenance === 'reviewed')
-    return !s.labels.includes('event_date_unconfirmed') && !s.labels.includes('country_from_headline') && !s.labels.includes('country_from_publisher') && !s.labels.includes('area_from_feed') && s.mapArea === undefined
+    return !s.labels.includes('event_date_unconfirmed') && placeLabels(s).length === 0 && s.mapArea === undefined
       && !!dateBounds({ value: s.eventDate!, precision: s.datePrecision!, basis: 'reviewer' });
   if (s.provenance === 'publisher_feed')
     return s.eventDate === null && s.datePrecision === null && s.archive === false && s.category !== 'Health'
       && s.labels.includes('event_date_unconfirmed')
-      && (s.locationPrecision === 'region'
-        ? s.labels.includes('area_from_feed') && !s.labels.includes('country_from_headline') && !s.labels.includes('country_from_publisher') && validMapArea(s.mapArea, s.lat, s.lng, s.location)
-        : s.mapArea === undefined && !s.labels.includes('area_from_feed') && (s.locationPrecision === 'country'
-          ? s.lat !== null && (s.labels.includes('country_from_headline') !== s.labels.includes('country_from_publisher'))
-          : s.locationPrecision === 'unknown' && s.lat === null && !s.labels.includes('country_from_headline') && !s.labels.includes('country_from_publisher')));
+      && validPlacement(s);
   return false;
 }
 /** A card's provenance must match its manifest status: editorial approval and automatic listing never stand in for each other. */

@@ -4,6 +4,7 @@ import robotsParser from 'robots-parser';
 import { decodeHTML } from 'entities';
 import { safeFetch } from '../src/goodsignal/safe-fetch.node.mjs';
 import { canonicalUrl } from '../src/goodsignal/url.mjs';
+import { placeTagsFromPost } from './publisher-place-tags.mjs';
 const agent = 'PositiviTV-GoodSignal';
 export function plainText(value) {
   const text = typeof value === 'string' ? value : value?.['#text'] ?? '';
@@ -21,7 +22,8 @@ export function parseFeed(xml, config, now, limit = 10) {
     if (!Array.isArray(posts) || posts.length > 500) throw new Error('Invalid publisher metadata');
     raw = posts.map(p => ({ title: p?.title?.rendered, link: p?.link,
       pubDate: typeof p?.date_gmt === 'string' && /^\d{4}-\d\d-\d\dT\d\d:\d\d:\d\d$/.test(p.date_gmt) ? p.date_gmt + 'Z' : '',
-      description: p?.excerpt?.rendered, 'dc:creator': Array.isArray(p?.byline) && p.byline.length && p.byline.every(id => typeof config.bylineNames?.[id] === 'string') ? p.byline.map(id => config.bylineNames[id]).join(', ') : '', rights: p?.rights ?? '' }));
+      description: p?.excerpt?.rendered, 'dc:creator': Array.isArray(p?.byline) && p.byline.length && p.byline.every(id => typeof config.bylineNames?.[id] === 'string') ? p.byline.map(id => config.bylineNames[id]).join(', ') : '', rights: p?.rights ?? '',
+      placeTags: placeTagsFromPost(p) }));
   } else {
     const parsed = new XMLParser({ ignoreAttributes: false, processEntities: false }).parse(xml);
     raw = parsed.rss?.channel?.item ?? parsed.feed?.entry ?? [];
@@ -45,7 +47,8 @@ export function parseFeed(xml, config, now, limit = 10) {
       topics: [config.topic], stage: 'none', frame: 'other', researchStage: 'none', eventDate: null, originDate: null,
       outcomeQuote: null, quantities: [], evidence: { level: 0, checkedBy: null, links: [url], note: '' },
       location: { kind: 'unknown', points: [] }, entities: [], humanStory: false, impact: 0, status: 'pending',
-      dateSource: published !== undefined ? 'published' : 'updated', titleTruncated: fullTitle.length > 300, author, rights });
+      dateSource: published !== undefined ? 'published' : 'updated', titleTruncated: fullTitle.length > 300, author, rights,
+      ...(item.placeTags ? { placeTags: item.placeTags } : {}) });
   }
   return candidates.sort((a,b) => Date.parse(b.publishedAt) - Date.parse(a.publishedAt) || a.id.localeCompare(b.id)).slice(0, limit);
 }
