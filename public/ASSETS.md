@@ -24,6 +24,10 @@ Earth source context (replaced October 15, 2026): the earlier `earth.jpg` came f
 - What was not verified: NASA's own download site is blocked from the build workspace, so this copy could not be compared byte for byte with NASA's original. Its identity rests on its filename, its package, and its look, which is the well-known NASA picture. If a byte-for-byte check or a higher resolution is wanted later, download NASA's 5400 x 2700 file from the page above.
 - NASA's marks (insignia, logotype) are not in the public domain and are not used. No NASA endorsement is claimed.
 
+## Country facts source (checked 15 October 2026)
+
+The country facts come from the frozen public archive github.com/factbook/factbook.json, pinned to commit `144d6977b2b01ac1cbd220de754c0a005616760b`. The LICENSE.md file at that commit is the full text of CC0 1.0 Universal, so the archive's data is dedicated to the public domain. The Factbook itself is a US government publication. The CIA closed the Factbook in February 2026 (reported by WTOP on February 4, 2026). No CIA endorsement is claimed.
+
 ## Country borders (checked 15 October 2026)
 
 `borders.json` holds only the lines that two countries share (coastlines are left out because the Earth picture already shows them). It is generated, not hand edited: `npm run borders:build` rewrites it and `npm run borders:check` (also part of the test suite) fails if the committed file differs from what the script produces. The data comes from Natural Earth, which states that "All versions of Natural Earth raster + vector map data found on this website are in the public domain" and that crediting the authors is unnecessary (https://www.naturalearthdata.com/about/terms-of-use/, read October 15, 2026). The app credits it anyway in the About panel. The packages `world-atlas` (ISC) and `topojson-client` (ISC) are development tools only; nothing from them ships to phones except the finished file.
