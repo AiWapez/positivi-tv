@@ -1,13 +1,13 @@
 import { useEffect, useRef, useState, forwardRef, useImperativeHandle } from 'react';
 import type { Story } from '../types';
-export interface GlobeControls { zoom: (factor: number) => void; reset: () => void; flyTo: (lat: number, lng: number) => void; redraw: () => void }
+export interface GlobeControls { zoom: (factor: number) => void; reset: () => void; flyTo: (lat: number, lng: number, distance?: number) => void; redraw: () => void }
 interface Props { stories: Story[]; read: Record<string, string>; selected: string | null; mode: 'globe' | 'list'; onSelect: (id: string) => void; onReady: (ready: boolean) => void; onError: () => void }
 const GlobeScene = forwardRef<GlobeControls, Props>(function GlobeScene(props, ref) {
   const stage = useRef<HTMLDivElement>(null), host = useRef<HTMLDivElement>(null), markers = useRef<HTMLDivElement>(null), touch = useRef<HTMLDivElement>(null);
   const controller = useRef<(GlobeControls & { update: (items: Story[], selected: string | null, read: Record<string, string>) => void; dispose: () => void }) | null>(null);
   const latest = useRef(props); latest.current = props;
   const [ready, setReady] = useState(false);
-  useImperativeHandle(ref, () => ({ zoom: factor => controller.current?.zoom(factor), reset: () => controller.current?.reset(), flyTo: (lat,lng) => controller.current?.flyTo(lat,lng), redraw: () => controller.current?.redraw() }), []);
+  useImperativeHandle(ref, () => ({ zoom: factor => controller.current?.zoom(factor), reset: () => controller.current?.reset(), flyTo: (lat, lng, distance) => controller.current?.flyTo(lat, lng, distance), redraw: () => controller.current?.redraw() }), []);
   useEffect(() => {
     let cancelled = false;
     import('../lib/globe.js').then(({ createGlobe }) => createGlobe({ host: host.current!, stage: stage.current!, markerHost: markers.current!, touchHost: touch.current!, getMode: () => latest.current.mode,

@@ -9,6 +9,7 @@ import { useSavedStories } from './hooks/useSavedStories';
 import { useStoryFeed } from './hooks/useStoryFeed';
 import { useReadStories } from './hooks/useReadStories';
 import { feedUpdatedAt, globeStories, isRecent, unreadFirst } from './lib/reading';
+import { isSpaceStory, skyView, spaceButtonLabel, spaceStories, storyPlace } from './lib/space-stories';
 import { CATEGORY_COLORS } from './types';
 import type { Story, Filters, CategoryFilter } from './types';
 import { filterStories, nextStory, dateLabel } from './lib/story-utils';
@@ -42,6 +43,7 @@ export default function App() {
   const olderCount = filters.savedOnly ? 0 : visible.length - recent.length;
   const listed = demo ? view : unreadFirst(view, Object.fromEntries(Object.entries(read).filter(([, at]) => Date.parse(at) < visitStart)));
   const pins = demo ? view : globeStories(view, read, feedUpdatedAt(feed), selectedId);
+  const spaceInView = spaceStories(pins);
   const unreadCount = view.filter(s => !read[s.id]).length;
   const selected = view.find(s => s.id === selectedId) ?? null;
   // Swiping the card moves through the stories that have a pin, in the same order as the Stories list.
@@ -68,6 +70,7 @@ export default function App() {
   useEffect(() => {
     if (!globeReady || !selected) return;
     if (selected.lat !== null && selected.lng !== null) globe.current?.flyTo(selected.lat, selected.lng);
+    else if (isSpaceStory(selected)) { const view = skyView(selected.id); globe.current?.flyTo(view.lat, view.lng, view.distance); }
     else globe.current?.reset();
   }, [globeReady, selected?.id, selected?.version]);
   function reset() { setFilters({ category: 'All', query: '', period: '30', savedOnly: false }); setShowPrevious(false); setMessage('Filters reset.'); }
@@ -76,7 +79,7 @@ export default function App() {
     const s = view.find(s => s.id === id); if (!s) return;
     if (!s.isDemo && !await confirm(s)) { setMessage('That story is no longer available in the current edition.'); return; }
     setSelected(id); setMode('globe'); setEnterFrom(options.from ?? null); if (!s.isDemo) markRead(id);
-    setMessage(`Selected ${s.title}, ${s.location}.${s.isDemo ? ' Design sample.' : ''}`);
+    setMessage(`Selected ${s.title}, ${storyPlace(s)}.${s.isDemo ? ' Design sample.' : ''}`);
     if (options.scroll !== false && matchMedia('(max-width: 767px)').matches) explorer.current?.scrollIntoView({ behavior: 'auto', block: 'start' });
   }
   function discover(random = false) {
@@ -144,7 +147,7 @@ export default function App() {
         {mode === 'globe' && summaryVisible && !!view.length && <div className="map-summary" role="status"><button className="summary-text" onClick={() => setSummaryVisible(false)} aria-label={`New update, ${pins.filter(s => s.lat !== null).length} on the globe. Tap to dismiss.`}>New update · {pins.filter(s => s.lat !== null).length} on the globe</button>{view.some(s => s.lat === null) && <button onClick={() => { setSummaryVisible(false); setMode('list'); }}>{view.filter(s => s.lat === null).length} more in list <Icon name="arrow" /></button>}</div>}
         <GlobeScene ref={globe} stories={pins} read={demo ? {} : read} selected={selected?.id ?? null} mode={mode} onSelect={select} onReady={setGlobeReady} onError={() => setGlobeFailed(true)} />
         {mode === 'globe' && (!globeReady || !view.length) && <div className="globe-status" role="status">{globeFailed ? <>The globe couldn’t load. Every story is still available in the list.<button className="primary" onClick={() => setMode('list')}>Browse stories <Icon name="arrow" /></button></> : !globeReady ? 'Loading our world…' : loading && !demo ? 'Checking the latest stories…' : empty}</div>}
-        <div className="map-controls" role="group" aria-label="Globe controls" hidden={mode === 'list'}><button aria-label="Zoom in" disabled={!globeReady} onClick={() => globe.current?.zoom(.85)}><Icon name="plus" /></button><button aria-label="Zoom out" disabled={!globeReady} onClick={() => globe.current?.zoom(1/.85)}><Icon name="minus" /></button><button aria-label="Reset globe orientation" disabled={!globeReady} onClick={() => globe.current?.reset()}><Icon name="compass" /></button><button aria-label={expanded ? 'Exit expanded globe' : 'Expand globe'} onClick={() => void expand()}><Icon name="expand" /></button></div>
+        <div className="map-controls" role="group" aria-label="Globe controls" hidden={mode === 'list'}><button aria-label="Zoom in" disabled={!globeReady} onClick={() => globe.current?.zoom(.85)}><Icon name="plus" /></button><button aria-label="Zoom out" disabled={!globeReady} onClick={() => globe.current?.zoom(1/.85)}><Icon name="minus" /></button><button aria-label="Reset globe orientation" disabled={!globeReady} onClick={() => globe.current?.reset()}><Icon name="compass" /></button><button aria-label={expanded ? 'Exit expanded globe' : 'Expand globe'} onClick={() => void expand()}><Icon name="expand" /></button>{!!spaceInView.length && <button className="sky-button" aria-label={spaceButtonLabel(spaceInView.length)} title={spaceButtonLabel(spaceInView.length)} disabled={!globeReady} onClick={() => void select((spaceInView.find(s => !read[s.id]) ?? spaceInView[0]).id)}><Icon name="star" /><span className="sky-count" aria-hidden="true">{spaceInView.length}</span></button>}</div>
         <div className="list-view" hidden={mode !== 'list'}><div className="list-view-heading"><div><p className="eyebrow">A little perspective</p><h2>Good news, wherever you look.</h2></div><span className="meta">{heading} · {view.length}{unreadNote}{demo ? ' · Design samples' : ''}</span></div>{!quietWeek && previousToggle}<div id="list-grid">{view.length ? listed.map(s => <StoryButton key={s.id} story={s} read={!!read[s.id]} selected={selected?.id === s.id} onSelect={select} />) : empty}</div></div>
         {selected && mode === 'globe' && <SelectedStoryCard key={selected.id} story={selected} saved={saved.has(selected.id)} position={position} enterFrom={enterFrom} onSave={() => toggleSave(selected)} onClose={() => { setSelected(null); discovery.current?.focus(); }} onStep={direction => void step(direction)} onReadSample={() => setDialog('sample')} />}
         <div className="globe-footer"><span className="hint"><Icon name="mouse" />Drag to rotate · Scroll to zoom · Select a pin</span><button className="surprise" ref={discovery} disabled={!view.length} onClick={() => discover(true)}><Icon name="shuffle" />Take me somewhere good</button></div><a className="credit" href="https://science.nasa.gov/earth/earth-observatory/blue-marble-next-generation/" target="_blank" rel="noopener noreferrer">Earth imagery: NASA / Blue Marble</a>

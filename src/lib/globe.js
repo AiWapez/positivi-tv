@@ -5,6 +5,7 @@ import { GLOBE_FOV_DEGREES, START_DISTANCE, touchWindowDiameter } from './globe-
 import { BASE_EARTH_URL, MAX_ZOOM_DISTANCE, MIN_ZOOM_DISTANCE, SHARP_EARTH_URL, bordersOpacity, shouldLoadBorders, shouldLoadSharpEarth } from './globe-detail.ts';
 import { BORDERS_URL, borderSegments, decodeBorders } from './borders.ts';
 import { buildStarLayers } from './stars.ts';
+import { SKY_STAR_RADIUS, hiddenByEarth, isSpaceStory, skyPosition, storyPlace } from './space-stories.ts';
 import { CITY_FONT_PX, COUNTRY_FONT_PX, PLACES_URL, chooseLabels, decodePlaces, facingOpacity, labelBox, labelWidth, nameOpacity, shouldLoadPlaces } from './places.ts';
 
 const point = (lat, lng, r = 1) => {
@@ -148,7 +149,9 @@ export async function createGlobe({ host, stage, markerHost, touchHost, getMode,
       const obstacles = [...covered];
       for (const marker of markers.values()) {
         const normal = marker.p.clone().normalize(), view = camera.position.clone().sub(marker.p).normalize(), screen = marker.p.clone().project(camera);
-        const visible = normal.dot(view) > .025 && Math.abs(screen.x) < 1 && Math.abs(screen.y) < 1 && screen.z < 1;
+        // A space star floats above the globe, so it is hidden only when the Earth is in the way; a pin sits on the surface and is hidden past the horizon.
+        const facing = marker.sky ? !hiddenByEarth(camera.position.toArray(), marker.p.toArray()) : normal.dot(view) > .025;
+        const visible = facing && Math.abs(screen.x) < 1 && Math.abs(screen.y) < 1 && screen.z < 1;
         marker.el.hidden = !visible;
         if (visible) {
           const x = (screen.x * .5 + .5) * stage.clientWidth, y = (-screen.y * .5 + .5) * stage.clientHeight;
@@ -163,25 +166,27 @@ export async function createGlobe({ host, stage, markerHost, touchHost, getMode,
     frameId = requestAnimationFrame(frame);
     return {
       update(items, selected, read = {}) {
-        const located = items.filter(s => Number.isFinite(s.lat) && s.lat >= -90 && s.lat <= 90 && Number.isFinite(s.lng) && s.lng >= -180 && s.lng <= 180);
+        // Stories with a place on Earth get a pin; NASA stories about space, which have no place, get a star floating above the globe.
+        const located = [...items.filter(s => Number.isFinite(s.lat) && s.lat >= -90 && s.lat <= 90 && Number.isFinite(s.lng) && s.lng >= -180 && s.lng <= 180), ...items.filter(isSpaceStory)];
         const ids = new Set(located.map(s => s.id));
         for (const [id, marker] of markers) if (!ids.has(id)) { marker.el.remove(); markers.delete(id); }
         for (const s of located) {
           let marker = markers.get(s.id);
+          const star = isSpaceStory(s), place = storyPlace(s), spot = star ? skyPosition(s.id) : s, radius = star ? SKY_STAR_RADIUS : 1.015;
           if (!marker) {
-            const el = document.createElement('button'); el.className = 'pin'; el.dataset.story = s.id; el.hidden = true;
-            const dot = document.createElement('span'); dot.className = 'pin-dot'; const label = document.createElement('span'); label.className = 'pin-label'; label.textContent = s.location;
-            el.append(dot, label); el.onclick = () => onSelect(s.id); markerHost.appendChild(el); marker = { el, p: point(s.lat, s.lng, 1.015), location: s.location }; markers.set(s.id, marker);
+            const el = document.createElement('button'); el.className = star ? 'pin pin-star' : 'pin'; el.dataset.story = s.id; el.hidden = true;
+            const dot = document.createElement('span'); dot.className = 'pin-dot'; const label = document.createElement('span'); label.className = 'pin-label'; label.textContent = place;
+            el.append(dot, label); el.onclick = () => onSelect(s.id); markerHost.appendChild(el); marker = { el, p: point(spot.lat, spot.lng, radius), location: place, sky: star }; markers.set(s.id, marker);
           }
           // A new story version can move or rename its pin; keep the marker in step with the current data.
-          marker.p = point(s.lat, s.lng, 1.015); marker.location = s.location; marker.el.querySelector('.pin-label').textContent = s.location;
-          marker.el.style.setProperty('--pin-color', categories[s.category]); marker.el.setAttribute('aria-label', `${s.location}: ${s.title}${s.isDemo ? '. Design sample.' : s.provenance === 'publisher_feed' ? '. Approximate area, not an exact event site.' : ''}${read[s.id] ? ' Read.' : ''}`); marker.el.setAttribute('aria-pressed', String(selected === s.id));
+          marker.p = point(spot.lat, spot.lng, radius); marker.location = place; marker.sky = star; marker.el.classList.toggle('pin-star', star); marker.el.querySelector('.pin-label').textContent = place;
+          marker.el.style.setProperty('--pin-color', categories[s.category]); marker.el.setAttribute('aria-label', `${place}: ${s.title}${s.isDemo ? '. Design sample.' : star ? '. A space story, shown as a star above the globe.' : s.provenance === 'publisher_feed' ? '. Approximate area, not an exact event site.' : ''}${read[s.id] ? ' Read.' : ''}`); marker.el.setAttribute('aria-pressed', String(selected === s.id));
           // Opened stories dim until the next daily update removes them.
           marker.el.classList.toggle('read', !!read[s.id]);
         }
         resize(); dirty = true;
       },
-      flyTo(lat, lng) { if (!Number.isFinite(lat) || !Number.isFinite(lng)) return; flight = { start: performance.now(), from: camera.position.clone(), to: point(lat, lng, 3.05), duration: reduced.matches ? 0 : 1050 }; dirty = true; },
+      flyTo(lat, lng, distance = 3.05) { if (!Number.isFinite(lat) || !Number.isFinite(lng) || !Number.isFinite(distance)) return; flight = { start: performance.now(), from: camera.position.clone(), to: point(lat, lng, distance), duration: reduced.matches ? 0 : 1050 }; dirty = true; },
       zoom(factor) { flight = null; camera.position.setLength(THREE.MathUtils.clamp(camera.position.length() * factor, controls.minDistance, controls.maxDistance)); controls.update(); dirty = true; },
       reset() { flight = null; controls.reset(); dirty = true; }, redraw: markDirty, dispose,
     };
