@@ -40,3 +40,9 @@ html{scroll-behavior:auto}body{overflow-x:hidden}svg{display:block;width:20px;he
 .map-summary{animation:summary-fade 7s ease forwards}.map-summary .summary-text{color:var(--muted)}
 @keyframes summary-fade{0%{opacity:0;transform:translateY(-4px)}6%{opacity:1;transform:none}85%{opacity:1}100%{opacity:0}}
 @media(prefers-reduced-motion:reduce){.map-summary{animation:none}}
+/* Categories: under search only while it is in use, plus an always-visible scrolling dock at the bottom. Footer credit below the links. */
+.categories-top{margin:10px 0 4px}
+.category-dock{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;padding:10px 28px;border-top:1px solid var(--border)}.category-dock::-webkit-scrollbar{display:none}.category-dock .chip{flex-shrink:0}
+@media(max-width:767px){.category-dock{position:fixed;left:0;right:0;bottom:calc(66px + env(safe-area-inset-bottom));z-index:19;padding:8px 16px;background:#0B1929f0;backdrop-filter:blur(18px);border-top:1px solid #2B4358}.app{padding-bottom:calc(126px + env(safe-area-inset-bottom))}}
+.reader-footer{flex-direction:column;align-items:flex-start}.reader-footer>div{margin-left:-10px}.builder-credit{margin:2px 0 0;font-size:11px;color:var(--muted)}
+.about-tagline{color:var(--yellow)!important;font-weight:600;margin:-4px 0 8px}
