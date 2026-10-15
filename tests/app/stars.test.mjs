@@ -1,15 +1,59 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
-import { buildStarLayers, seededRandom, STAR_COUNTS, STAR_RADIUS, STAR_SIZES, STAR_OPACITY } from '../../src/lib/stars.ts';
+import { buildStarLayers, beltDirections, seededRandom, STAR_COUNTS, STAR_RADIUS, STAR_SIZES, STAR_OPACITY, BRILLIANT_COUNT, BELT_SCALE, BELT_APPEARANCE, ORION_BELT } from '../../src/lib/stars.ts';
 import { MAX_ZOOM_DISTANCE } from '../../src/lib/globe-detail.ts';
 
-test('the sky has three layers with the promised star counts, faintest first', () => {
+const FORWARD = (() => { const phi = 70 * Math.PI / 180, theta = 185 * Math.PI / 180, v = [-Math.sin(phi) * Math.cos(theta), Math.cos(phi), Math.sin(phi) * Math.sin(theta)]; return v.map(x => -x); })();
+const VIEW = { direction: FORWARD, up: [0, 1, 0] };
+const angleBetween = (a, b) => Math.acos(Math.max(-1, Math.min(1, a[0] * b[0] + a[1] * b[1] + a[2] * b[2]))) * 180 / Math.PI;
+
+test('the sky has four layers with the promised star counts, faintest first, and a few brilliant stars', () => {
   const layers = buildStarLayers();
-  assert.deepEqual(layers.map(l => l.positions.length / 3), [STAR_COUNTS.faint, STAR_COUNTS.medium, STAR_COUNTS.bright]);
-  assert.deepEqual(layers.map(l => l.size), [STAR_SIZES.faint, STAR_SIZES.medium, STAR_SIZES.bright]);
-  assert.deepEqual(layers.map(l => l.opacity), [STAR_OPACITY.faint, STAR_OPACITY.medium, STAR_OPACITY.bright]);
-  assert.ok(layers[0].size < layers[1].size && layers[1].size < layers[2].size, 'brighter layers have bigger stars');
+  assert.deepEqual(layers.map(l => l.positions.length / 3), [STAR_COUNTS.faint, STAR_COUNTS.medium, STAR_COUNTS.bright, BRILLIANT_COUNT]);
+  assert.deepEqual(layers.map(l => l.size), [STAR_SIZES.faint, STAR_SIZES.medium, STAR_SIZES.bright, STAR_SIZES.brilliant]);
+  assert.deepEqual(layers.map(l => l.opacity), [STAR_OPACITY.faint, STAR_OPACITY.medium, STAR_OPACITY.bright, STAR_OPACITY.brilliant]);
+  assert.ok(layers[0].size < layers[1].size && layers[1].size < layers[2].size && layers[2].size < layers[3].size, 'brighter layers have bigger stars');
+  assert.ok(BRILLIANT_COUNT <= 40, 'brilliant stars stay rare');
+});
+
+test("Orion's belt is its own layer of three stars, the biggest in the sky, only when an opening view is given", () => {
+  assert.equal(buildStarLayers(31).length, 4);
+  const layers = buildStarLayers(31, VIEW);
+  assert.equal(layers.length, 5);
+  assert.equal(layers[4].positions.length / 3, 3);
+  assert.equal(layers[4].size, STAR_SIZES.belt);
+  assert.ok(STAR_SIZES.belt > STAR_SIZES.brilliant);
+});
+
+test("Orion's belt keeps the real shape: three stars in an even line, about 3 times wider than life", () => {
+  const [a, b, c] = beltDirections(VIEW);
+  const realAB = Math.hypot(ORION_BELT[0].ra - ORION_BELT[1].ra, ORION_BELT[0].dec - ORION_BELT[1].dec); // roughly 1.3 degrees on the sky
+  const ab = angleBetween(a, b), bc = angleBetween(b, c), ac = angleBetween(a, c);
+  assert.ok(Math.abs(ab - 1.35 * BELT_SCALE) < 0.35, `Alnitak to Alnilam ${ab}`);
+  assert.ok(Math.abs(bc - 1.42 * BELT_SCALE) < 0.35, `Alnilam to Mintaka ${bc}`);
+  assert.ok(Math.abs(ab + bc - ac) < 0.1, 'the three stars lie on one line');
+  assert.ok(realAB > 0);
+});
+
+test("Orion's belt shows in the upper left, beside the globe of the opening view, outside the globe's disc, on the sky sphere", () => {
+  const forward = FORWARD, camera = forward.map(x => -x * 3.45), upHint = [0, 1, 0];
+  const cross = (p, q) => [p[1] * q[2] - p[2] * q[1], p[2] * q[0] - p[0] * q[2], p[0] * q[1] - p[1] * q[0]], norm = v => { const l = Math.hypot(...v); return v.map(x => x / l); };
+  const right = norm(cross(forward, upHint)), up = cross(right, forward);
+  const stars = beltDirections(VIEW).map(v => v.map(x => x * STAR_RADIUS));
+  let sumX = 0, sumY = 0;
+  for (const star of stars) {
+    const toStar = star.map((x, i) => x - camera[i]), depth = toStar[0] * forward[0] + toStar[1] * forward[1] + toStar[2] * forward[2];
+    sumX += Math.atan2(toStar[0] * right[0] + toStar[1] * right[1] + toStar[2] * right[2], depth) * 180 / Math.PI;
+    sumY += Math.atan2(toStar[0] * up[0] + toStar[1] * up[1] + toStar[2] * up[2], depth) * 180 / Math.PI;
+    assert.ok(Math.abs(Math.hypot(...star) - STAR_RADIUS) < 1e-3);
+    const ax = Math.atan2(toStar[0] * right[0] + toStar[1] * right[1] + toStar[2] * right[2], depth) * 180 / Math.PI, ay = Math.atan2(toStar[0] * up[0] + toStar[1] * up[1] + toStar[2] * up[2], depth) * 180 / Math.PI;
+    assert.ok(Math.hypot(ax, ay) > Math.asin(1 / 3.45) * 180 / Math.PI + 1.5, `a belt star is ${Math.hypot(ax, ay)} degrees from the centre, too close to the globe`);
+    assert.ok(Math.abs(ax) < 19.5 && Math.abs(ay) < 19.5, 'every belt star is inside the view, even on a phone');
+  }
+  assert.ok(Math.abs(sumX / 3 - BELT_APPEARANCE.right) < 1.5, `across ${sumX / 3}`);
+  assert.ok(Math.abs(sumY / 3 - BELT_APPEARANCE.up) < 1.5, `up ${sumY / 3}`);
+  assert.ok(Math.hypot(BELT_APPEARANCE.right, BELT_APPEARANCE.up) > Math.asin(1 / 3.45) * 180 / Math.PI + 1, 'clear of the globe');
 });
 
 test('every star sits on the sky sphere, far behind the camera at its furthest zoom', () => {
@@ -54,6 +98,6 @@ test('the random generator stays between 0 and 1 and handles odd seeds', () => {
 
 test('the globe builds its sky from these layers, with no animation and no new network origin', () => {
   const globe = readFileSync(new URL('../../src/lib/globe.js', import.meta.url), 'utf8');
-  assert.match(globe, /buildStarLayers\(\)/);
+  assert.match(globe, /buildStarLayers\(31,/);
   assert.doesNotMatch(globe, /new THREE\.Vector3\(random\(\) - \.5/, 'the old 550-star scatter is gone');
 });

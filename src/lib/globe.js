@@ -117,7 +117,9 @@ export async function createGlobe({ host, stage, markerHost, touchHost, getMode,
       uniforms: { glowColor: { value: new THREE.Color('#339FFF') } },
       vertexShader: 'varying vec3 n; varying vec3 eye; void main(){vec4 p=modelViewMatrix*vec4(position,1.0);n=normalize(normalMatrix*normal);eye=normalize(-p.xyz);gl_Position=projectionMatrix*p;}',
       fragmentShader: 'uniform vec3 glowColor; varying vec3 n; varying vec3 eye; void main(){float rim=pow(1.0-max(dot(normalize(n),normalize(eye)),0.0),3.5);gl_FragColor=vec4(glowColor,rim*0.65);}' })));
-    for (const sky of buildStarLayers()) {
+    // The opening view looks at the middle of the globe from above Africa (see the camera set-up above); Orion's belt is placed to be seen from there.
+    const openingView = point(20, 5).negate().normalize();
+    for (const sky of buildStarLayers(31, { direction: [openingView.x, openingView.y, openingView.z], up: [0, 1, 0] })) {
       const starGeometry = new THREE.BufferGeometry();
       starGeometry.setAttribute('position', new THREE.BufferAttribute(sky.positions, 3)); starGeometry.setAttribute('color', new THREE.BufferAttribute(sky.colors, 3));
       scene.add(new THREE.Points(starGeometry, new THREE.PointsMaterial({ vertexColors: true, size: sky.size, transparent: true, opacity: sky.opacity, depthWrite: false })));
