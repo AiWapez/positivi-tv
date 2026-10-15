@@ -287,7 +287,8 @@ test('the page styles use the same label sizes the layout rules assume', () => {
 
 test('the About panel and the asset notes credit and describe the names data', () => {
   const app = readFileSync(new URL('../../src/App.tsx', import.meta.url), 'utf8');
-  assert.match(app, /Country borders and place names: Natural Earth/); assert.match(app, /boundaries and names are approximate/);
+  assert.match(app, /Country borders and place names: Natural Earth/); assert.match(app, /Borders and names are approximate and don't express any view by PositiviTV about disputed places/);
+  assert.match(app, /Country facts: CIA World Factbook, frozen public archive, public domain/); assert.match(app, /NASA, NOAA, the CIA and the publishers we link to don't endorse PositiviTV/);
   const notes = readFileSync(new URL('../../public/ASSETS.md', import.meta.url), 'utf8');
   assert.match(notes, /places\.json/); assert.match(notes, /Natural Earth/); assert.match(notes, /ISO 3166-1/);
   const docs = readFileSync(new URL('../../docs/globe-detail.md', import.meta.url), 'utf8');
