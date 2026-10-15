@@ -1,5 +1,6 @@
 import { useRef, useState } from 'react';
 import { storyPhoto } from '../lib/story-images';
+import { storyPlace } from '../lib/space-stories';
 import { swipeIntent } from '../lib/story-swipe';
 import Icon from './Icon';
 import { CATEGORY_COLORS } from '../types';
@@ -16,7 +17,7 @@ export function StoryImageCredit({ story, compact = false }: { story: Story; com
 }
 export function StoryButton({ story, selected, onSelect, read = false }: { story: Story; selected: boolean; onSelect: (id: string) => void; read?: boolean }) {
   return <div className={`story-entry${read ? ' is-read' : ''}`}><button className="story" aria-pressed={selected} onClick={() => onSelect(story.id)}>
-    <StoryArt story={story} decorative /><span className="story-copy"><span className="eyebrow"><i className="dot" style={{ background: CATEGORY_COLORS[story.category] }} />{story.location}</span>{story.provenance === 'publisher_feed' && story.lat !== null && <span className="meta">Approximate area</span>}{story.attribution && <span className="meta">By {story.attribution.author} · {story.sourceName}</span>}<strong>{story.title}</strong><span className="meta">{dateLabel(story)}{story.isDemo ? '' : ` · ${provenanceLabel(story)}`}{read ? ' · Read' : ''}</span></span><span className="card-arrow" aria-hidden="true"><Icon name="arrow" /></span>
+    <StoryArt story={story} decorative /><span className="story-copy"><span className="eyebrow"><i className="dot" style={{ background: CATEGORY_COLORS[story.category] }} />{storyPlace(story)}</span>{story.provenance === 'publisher_feed' && story.lat !== null && <span className="meta">Approximate area</span>}{story.attribution && <span className="meta">By {story.attribution.author} · {story.sourceName}</span>}<strong>{story.title}</strong><span className="meta">{dateLabel(story)}{story.isDemo ? '' : ` · ${provenanceLabel(story)}`}{read ? ' · Read' : ''}</span></span><span className="card-arrow" aria-hidden="true"><Icon name="arrow" /></span>
   </button><StoryImageCredit story={story} compact />{story.attribution && <div className="story-attribution"><a href={story.sourceUrl!} target="_blank" rel="noopener noreferrer">Original article</a><span> · </span><a href={story.attribution.licenseUrl} target="_blank" rel="license noopener noreferrer">{story.attribution.licenseName}</a><span> · Headline unchanged</span></div>}</div>;
 }
 /** Under the card on phones: one dot per story (or a count when there are many), so the swipe is easy to discover. */
@@ -49,7 +50,7 @@ export default function SelectedStoryCard({ story, saved, position, enterFrom, o
     <button className="card-tab" onClick={() => setOpen(value => !value)} aria-expanded={open} aria-controls="selected-more">{open ? 'Hide details' : 'Show details'}</button>
     <button className="save-toggle" onClick={onSave} aria-label={saved ? 'Remove from saved' : 'Save story'} aria-pressed={saved}><Icon name="bookmark" /></button>
     <button className="close" onClick={onClose} aria-label="Close selected story"><Icon name="close" /></button>
-    <StoryArt story={story} /><div className="selected-body"><div className="eyebrow"><i className="dot" style={{ background: CATEGORY_COLORS[story.category] }} />{story.location} · {story.category}</div>{story.attribution && <div className="meta">By {story.attribution.author} · {story.sourceName}</div>}<h2>{story.title}</h2><div className="meta">{dateLabel(story)}</div>
+    <StoryArt story={story} /><div className="selected-body"><div className="eyebrow"><i className="dot" style={{ background: CATEGORY_COLORS[story.category] }} />{storyPlace(story)} · {story.category}</div>{story.attribution && <div className="meta">By {story.attribution.author} · {story.sourceName}</div>}<h2>{story.title}</h2><div className="meta">{dateLabel(story)}</div>
       {story.attribution && <div className="story-attribution"><a href={story.attribution.licenseUrl} target="_blank" rel="license noopener noreferrer">{story.attribution.licenseName}</a> · Headline unchanged</div>}
       <div id="selected-more" className="card-more">
         {!story.isDemo && <div className="event-meta">{provenanceLabel(story)}</div>}
