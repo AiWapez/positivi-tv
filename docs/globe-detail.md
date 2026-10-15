@@ -32,6 +32,10 @@ Names are small pieces of text (not part of the picture), so they stay sharp at 
 - **Data:** `scripts/build-places.mjs` builds `public/assets/places.json` from two Natural Earth 5.1.2 files (public domain), each checked against a SHA-256 recorded in the script. Rebuild with `npm run places:build` (it downloads the files); `npm run places:check` fails if the committed file differs. The rules for what gets a name (only places with an ISO 3166-1 country code; national capitals plus cities of 2 million or more; a short table of shortened or corrected names) are in the header of the script and in `public/ASSETS.md`, and General Counsel should confirm them.
 - **Failure:** a failed or damaged names file simply shows no names and is not retried.
 
+## The night sky
+
+The stars behind the globe are decorative: a made-up scatter, not a map of the real sky. `src/lib/stars.ts` builds three layers from a fixed seed (so everyone sees the same sky): 5,000 faint stars, 1,200 medium ones and 220 bright ones, all on a sphere of radius 18 behind the camera (the camera never goes past 5). About 40% of the faint stars are pulled into a soft band tilted 62 degrees, like a galaxy seen edge on, and each star has a pale blue, white or warm tint. Only a small slice of the sky is in view at once (the camera sees about 40 degrees), which is why there are thousands. Nothing moves, so the sky costs nothing while the globe is still and needs no reduced-motion handling. No data is fetched.
+
 ## Limits worth knowing
 
 - A picture of the whole planet runs out of detail up close. The sharp Earth is about twice as crisp as the light one at the closest zoom and still soft. Street-level detail needs map tiles, which would mean phones contacting a tile service (a Content Security Policy change that goes through General Counsel first) or tiles built from NASA's 21600 x 10800 file.
