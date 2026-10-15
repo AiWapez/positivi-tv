@@ -4,6 +4,7 @@ import { CATEGORY_COLORS as categories } from '../types/index.ts';
 import { GLOBE_FOV_DEGREES, START_DISTANCE, touchWindowDiameter } from './globe-touch.ts';
 import { BASE_EARTH_URL, MAX_ZOOM_DISTANCE, MIN_ZOOM_DISTANCE, SHARP_EARTH_URL, bordersOpacity, shouldLoadBorders, shouldLoadSharpEarth } from './globe-detail.ts';
 import { BORDERS_URL, borderSegments, decodeBorders } from './borders.ts';
+import { buildStarLayers } from './stars.ts';
 import { CITY_FONT_PX, COUNTRY_FONT_PX, PLACES_URL, chooseLabels, decodePlaces, facingOpacity, labelBox, labelWidth, nameOpacity, shouldLoadPlaces } from './places.ts';
 
 const point = (lat, lng, r = 1) => {
@@ -116,10 +117,13 @@ export async function createGlobe({ host, stage, markerHost, touchHost, getMode,
       uniforms: { glowColor: { value: new THREE.Color('#339FFF') } },
       vertexShader: 'varying vec3 n; varying vec3 eye; void main(){vec4 p=modelViewMatrix*vec4(position,1.0);n=normalize(normalMatrix*normal);eye=normalize(-p.xyz);gl_Position=projectionMatrix*p;}',
       fragmentShader: 'uniform vec3 glowColor; varying vec3 n; varying vec3 eye; void main(){float rim=pow(1.0-max(dot(normalize(n),normalize(eye)),0.0),3.5);gl_FragColor=vec4(glowColor,rim*0.65);}' })));
-    const stars = []; let seed = 31; const random = () => { seed = seed * 16807 % 2147483647; return (seed - 1) / 2147483646; };
-    for (let i = 0; i < 550; i++) { const v = new THREE.Vector3(random() - .5, random() - .5, random() - .5).normalize().multiplyScalar(18); stars.push(v.x, v.y, v.z); }
-    const starGeometry = new THREE.BufferGeometry(); starGeometry.setAttribute('position', new THREE.Float32BufferAttribute(stars, 3));
-    scene.add(new THREE.Points(starGeometry, new THREE.PointsMaterial({ color: 0xa8c8ec, size: .021, transparent: true, opacity: .48, depthWrite: false })));
+    // The opening view looks at the middle of the globe from above Africa (see the camera set-up above); Orion's belt is placed to be seen from there.
+    const openingView = point(20, 5).negate().normalize();
+    for (const sky of buildStarLayers(31, { direction: [openingView.x, openingView.y, openingView.z], up: [0, 1, 0] })) {
+      const starGeometry = new THREE.BufferGeometry();
+      starGeometry.setAttribute('position', new THREE.BufferAttribute(sky.positions, 3)); starGeometry.setAttribute('color', new THREE.BufferAttribute(sky.colors, 3));
+      scene.add(new THREE.Points(starGeometry, new THREE.PointsMaterial({ vertexColors: true, size: sky.size, transparent: true, opacity: sky.opacity, depthWrite: false })));
+    }
     controls.addEventListener('start', cancelTravel); controls.addEventListener('change', markDirty);
     const resize = () => { const w = host.clientWidth, h = host.clientHeight; if (!w || !h || disposed) return; renderer.setSize(w, h, false); camera.aspect = w / h; camera.updateProjectionMatrix(); fitTouch(); dirty = true; };
     observer = new ResizeObserver(resize); observer.observe(host); resize();
