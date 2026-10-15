@@ -175,10 +175,32 @@ test('the collector reads tags from a WordPress post and keeps them on the RSS r
   assert.deepEqual(result.candidates[0].placeTags.slugs, ['africa', 'south-africa']);
 });
 
-test('no source uses the publisher place switch yet, and the metadata request does not ask for place fields', () => {
+test('place tags are on for the main Mongabay feed only, which asks for exactly the two cleared extra fields', () => {
   const config = JSON.parse(readFileSync(new URL('../../config/feeds.json', import.meta.url), 'utf8'));
-  for (const [id, source] of Object.entries(config.sources)) assert.notEqual(source.publisherFeed?.placeFromPublisherTags, true, id);
-  for (const feed of config.feeds) if (feed.supplementalUrl) assert(!/class_list|coordinates|location/.test(feed.supplementalUrl), feed.id);
+  const on = Object.entries(config.sources).filter(([, source]) => source.publisherFeed?.placeFromPublisherTags === true).map(([id]) => id);
+  assert.deepEqual(on, ['mongabay'], 'General Counsel cleared the Mongabay tags; Upbeat needs its own metadata request first and India stays on hold');
+  for (const feed of config.feeds) {
+    if (!feed.supplementalUrl) continue;
+    const fields = new URL(feed.supplementalUrl).searchParams.get('_fields').split(',');
+    if (feed.id === 'mongabay') assert.deepEqual(fields, ['link', 'title', 'excerpt', 'date_gmt', 'byline', 'class_list', 'coordinates']);
+    else assert(!fields.some(f => /class_list|coordinates|location/.test(f)), feed.id);
+  }
+  assert.equal(config.feeds.find(f => f.id === 'mongabay-upbeat').supplementalUrl, undefined);
+});
+
+test('with the real Mongabay terms record, tags give labelled pins and a curated headline area still wins', () => {
+  const config = JSON.parse(readFileSync(new URL('../../config/feeds.json', import.meta.url), 'utf8'));
+  const src = { mongabay: config.sources.mongabay };
+  const cand = (id, title, tags) => ({ ...candidate('mongabay', id, title), url: 'https://news.mongabay.com/2026/10/' + id + '/', author: 'Test Writer', placeTags: tags });
+  const snap = buildSnapshot(null, [{ sourceId: 'mongabay', ok: true, candidates: [
+    cand('uganda', 'Pastoralists turn to wild plants as food shortages ease, study finds', tagsOf(['africa', 'east-africa', 'uganda'])),
+    cand('thai', 'Thai rescue centre releases leopard cats back into the wild', tagsOf(['asia', 'thailand'], '16.759689498485617, 101.96884997684533')),
+    cand('global', PLAIN, tagsOf(['global'])),
+  ] }], src, control({ locationResolver: 'supported_feed', windowDays: 30 }), NOW);
+  const by = id => snap.items.find(i => i.id === 'mongabay-' + id);
+  assert.deepEqual([by('uganda')?.location, by('uganda')?.labels.filter(l => l.includes('publisher'))], ['Uganda', ['country_from_publisher_tag']]);
+  assert.deepEqual([by('thai')?.locationPrecision, by('thai')?.labels.filter(l => l.includes('publisher'))], ['region', ['area_from_publisher']]);
+  assert.deepEqual([by('global')?.locationPrecision, by('global')?.lat], ['unknown', null]);
 });
 
 test('taggedCountries ignores regions and duplicates', () => {
