@@ -41,23 +41,23 @@ function validCommon(s: PublishedStory): boolean {
  * Public card contract. Two lanes, never conflated:
  * - reviewed rows need a recorded human approval upstream and a supported event date.
  * - publisher_feed rows were selected automatically. They carry no event date, must say so with a
- *   visible label, may only use a country pin that is labelled as headline-derived, and never use Health.
+ *   visible label, may only use a country pin that is labelled as headline-derived or publisher-derived, and never use Health.
  */
 export function validPublicStory(value: unknown): value is PublishedStory {
   if (!value || typeof value !== 'object') return false;
   const s = value as PublishedStory;
   if (!validCommon(s)) return false;
   if (s.provenance === 'reviewed')
-    return !s.labels.includes('event_date_unconfirmed') && !s.labels.includes('country_from_headline') && !s.labels.includes('area_from_feed') && s.mapArea === undefined
+    return !s.labels.includes('event_date_unconfirmed') && !s.labels.includes('country_from_headline') && !s.labels.includes('country_from_publisher') && !s.labels.includes('area_from_feed') && s.mapArea === undefined
       && !!dateBounds({ value: s.eventDate!, precision: s.datePrecision!, basis: 'reviewer' });
   if (s.provenance === 'publisher_feed')
     return s.eventDate === null && s.datePrecision === null && s.archive === false && s.category !== 'Health'
       && s.labels.includes('event_date_unconfirmed')
       && (s.locationPrecision === 'region'
-        ? s.labels.includes('area_from_feed') && !s.labels.includes('country_from_headline') && validMapArea(s.mapArea, s.lat, s.lng, s.location)
+        ? s.labels.includes('area_from_feed') && !s.labels.includes('country_from_headline') && !s.labels.includes('country_from_publisher') && validMapArea(s.mapArea, s.lat, s.lng, s.location)
         : s.mapArea === undefined && !s.labels.includes('area_from_feed') && (s.locationPrecision === 'country'
-          ? s.lat !== null && s.labels.includes('country_from_headline')
-          : s.locationPrecision === 'unknown' && s.lat === null && !s.labels.includes('country_from_headline')));
+          ? s.lat !== null && (s.labels.includes('country_from_headline') !== s.labels.includes('country_from_publisher'))
+          : s.locationPrecision === 'unknown' && s.lat === null && !s.labels.includes('country_from_headline') && !s.labels.includes('country_from_publisher')));
   return false;
 }
 /** A card's provenance must match its manifest status: editorial approval and automatic listing never stand in for each other. */

@@ -34,8 +34,10 @@ const LABEL_TEXT: Record<StoryLabel, string | null> = {
   // Shown through eventLabel, so it is not repeated here.
   event_date_unconfirmed: null,
   country_from_headline: 'Pin: approximate country centre from the headline',
+  // Worded per General Counsel (2026-10-15); the country name is filled in by qualifierLabels.
+  country_from_publisher: 'Approximate pin: placed in {country} because this publisher covers {country}. The headline doesn\'t name a place.',
   area_from_feed: 'Approximate area identified in publisher text; not an exact event site',
 };
 export function qualifierLabels(s: Story): string[] {
-  return (s.labels ?? []).map(l => LABEL_TEXT[l]).filter((x): x is string => !!x);
+  return (s.labels ?? []).map(l => LABEL_TEXT[l]?.split('{country}').join(s.location) ?? null).filter((x): x is string => !!x);
 }

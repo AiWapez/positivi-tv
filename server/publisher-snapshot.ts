@@ -1,6 +1,6 @@
 import { createHash } from 'node:crypto';
 import { screenHeadline } from './publisher-screen.ts';
-import { countryFromHeadline } from './publisher-location.ts';
+import { countryByName, countryFromHeadline } from './publisher-location.ts';
 import { locateFeedOutcome } from './feed-location.ts';
 import { canonicalUrl } from '../src/goodsignal/util.ts';
 import { PUBLISHER_FEED_POLICY } from '../src/lib/publisher-feed.ts';
@@ -87,12 +87,16 @@ export function buildSnapshot(previous: PublisherSnapshot | null, results: Sourc
         if (/all rights reserved|permission required|not for republication/i.test(c.rights ?? '')) { count('ITEM_RIGHTS_RESTRICTED'); continue; }
         const screen = screenHeadline({ title: c.title, description: c.body ?? '', defaultCategory: permission.category, now });
         if (screen.decision === 'exclude') { for (const r of screen.reasons) count(r); continue; }
-        const place = control.locationResolver === 'supported_feed' ? locateFeedOutcome(c.title, c.body ?? '')
+        const headlinePlace = control.locationResolver === 'supported_feed' ? locateFeedOutcome(c.title, c.body ?? '')
           : control.locationResolver === 'headline_country' ? (() => { const p = countryFromHeadline(c.title); return p ? { ...p, precision: 'country' as const } : null; })() : null;
+        // A publisher with one home country (Mongabay India) gets that country's pin when the headline names no place, with its own label.
+        const home = !headlinePlace && control.locationResolver !== 'off' && permission.defaultCountry ? countryByName(permission.defaultCountry) : null;
+        const place = headlinePlace ?? (home ? { ...home, precision: 'country' as const } : null);
+        const placeLabel = headlinePlace ? (headlinePlace.precision === 'region' ? 'area_from_feed' : 'country_from_headline') : 'country_from_publisher';
         const draft: PublisherItem = {
           id: c.id, version: 1, sourceId, url, title: c.title, summary: permission.summary ? shortSummary(c.body ?? '') : null,
           category: screen.category!, publishedAt: new Date(Date.parse(c.publishedAt)).toISOString(), fetchedAt: now, lastSeenAt: now,
-          labels: place ? [...screen.labels, place.precision === 'region' ? 'area_from_feed' : 'country_from_headline'] : screen.labels,
+          labels: place ? [...screen.labels, placeLabel] : screen.labels,
           location: place?.name ?? 'Location not specified', lat: place?.lat ?? null, lng: place?.lng ?? null,
           locationPrecision: place?.precision ?? 'unknown',
           ...(place && 'mapArea' in place && place.mapArea ? { mapArea: place.mapArea } : {}),

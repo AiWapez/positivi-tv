@@ -19,7 +19,7 @@ What it does not promise: accuracy of the underlying reporting, that every liste
 
 ## 2. What a visitor sees
 
-Each automatic card shows the source name, "Published <date>", "From publisher feeds", "Event date not confirmed; this is recently published reporting.", and, where applicable, "Research finding, not yet an outcome in use" or "Pin: approximate country centre from the headline". The headline is unmodified. Images are never imported; the existing category artwork is used. The About dialog and the Terms panel explain both lanes.
+Each automatic card shows the source name, "Published <date>", "From publisher feeds", "Event date not confirmed; this is recently published reporting.", and, where applicable, "Research finding, not yet an outcome in use" or "Pin: approximate country centre from the headline" (or, for a publisher with one home country, "Pin: approximate country centre; this publisher reports on this country, and the headline names no place"). The headline is unmodified. Images are never imported; the existing category artwork is used. The About dialog and the Terms panel explain both lanes.
 
 ## 3. Dates (decision: show as recently published reporting)
 
@@ -73,6 +73,18 @@ Full records live in `config/feeds.json` under `sources.<id>.publisherFeed`. A r
 | ScienceDaily | not configured | | https://www.sciencedaily.com/terms.htm | none | Disabled: terms forbid altering or omitting feed content and storing it in a database without consent |
 | Positive News, Good News Network | not configured | | not verified for this use | none | Disabled: restrictive general reuse terms reported |
 | Reasons to be Cheerful, Optimist Daily, Good Good Good, Upworthy, The Better India | not configured | | not verified | none | Disabled until verified |
+
+### Terms records (General Counsel review, 15 October 2026; draft pending licensed attorney review)
+
+These are the written records General Counsel asked for. They describe what the code does today.
+
+- **Global Voices** (globalvoices.org/feed/), CC BY 3.0 per the Global Voices attribution policy, read 2026-10-15. Commercial use is allowed. Fields: title, link, publication date, author, license link. The headline is unchanged, and author, publisher, original link and license link show on every card. Third-party images and media are excluded and not imported. Items credited as republished from partners are blocked. robots.txt Crawl-delay 10 is honored, with one request per feed per run. GC reviewed 2026-10-15: cleared.
+- **NOAA** (www.noaa.gov/rss.xml, enabled). U.S. federal government works are not under U.S. copyright. The NOAA National Ocean Service FAQ says most NOAA information is public domain unless a credit says otherwise, asks for credit to NOAA, and forbids implying endorsement or presenting modified content as official. Fields: title, link, publication date, shortened plain-text description. Third-party material and images are excluded, and NOAA logos are not used. robots.txt does not disallow /rss.xml (confirm with the fetcher's own check). A separate link to a NOAA river reference page (cnrfc.noaa.gov, KLMC1) supports the Klamath River map area and needs nothing more. GC reviewed 2026-10-15: cleared.
+- **Mongabay India** (india.mongabay.com/feed/), believed CC BY-ND 4.0 as on news.mongabay.com, coverage unconfirmed. Fields: title, link, publication date, author, license link. Headline unchanged, no descriptions shown, no photos. robots.txt allows all with Crawl-delay 10. GC reviewed 2026-10-15: ON HOLD pending byline verification against five live article pages and written confirmation from Mongabay (rights@mongabay.com). The source is switched off until then.
+
+Correction recorded 2026-10-15: NASA, NSF and NOAA items also keep a shortened plain-text description, so "headline, link, date, author and license only" is true for Mongabay and Global Voices only. The description is stored and served in the story data, but the app's cards do not display it today (check made on `src/components/StoryCard.tsx`). If a card ever shows it, add a plain "Summary shortened" label first.
+
+Home-country pin (built, switched off): a source may set `defaultCountry` in its `publisherFeed` record. When the headline names no place, the card then gets that country's approximate centre pin with the label `country_from_publisher`: "Approximate pin: placed in <country> because this publisher covers <country>. The headline doesn't name a place." (wording approved by General Counsel on 2026-10-15). A place the headline does name always wins, and nothing happens for a source without the setting, with an unknown country name, or when the location switch is off. No source uses it today: General Counsel held the Mongabay India use (the India pin) until Mongabay India clears its own terms check.
 
 Rules that apply to every source: only the configured feed URL and its robots.txt are fetched; article links are validated against the source's domains and are never fetched or added to the allowlist; headlines are not edited (a headline longer than 300 characters is excluded rather than shortened); descriptions from no-derivatives sources are used only for private screening and are never stored or shown; feed images and third-party media are never imported; no endorsement is implied. Exceptions noted in the records: NASA insignia and third-party material, NSF visual media, CC-excluded photos at Mongabay and Global Voices.
 

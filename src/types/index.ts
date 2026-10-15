@@ -12,9 +12,10 @@ export type Provenance = 'reviewed' | 'publisher_feed' | 'sample';
  * - research_finding: the headline reports a study, discovery or observation, not an outcome in use.
  * - event_date_unconfirmed: only the publication date is known; the event may be older.
  * - country_from_headline: the pin is an approximate country centre taken from the headline wording.
+ * - country_from_publisher: the headline names no place, so the pin is the country the publisher reports on (for example Mongabay India).
  */
-export type StoryLabel = 'research_finding' | 'event_date_unconfirmed' | 'country_from_headline' | 'area_from_feed';
-export const STORY_LABELS: readonly StoryLabel[] = ['research_finding', 'event_date_unconfirmed', 'country_from_headline', 'area_from_feed'];
+export type StoryLabel = 'research_finding' | 'event_date_unconfirmed' | 'country_from_headline' | 'country_from_publisher' | 'area_from_feed';
+export const STORY_LABELS: readonly StoryLabel[] = ['research_finding', 'event_date_unconfirmed', 'country_from_headline', 'country_from_publisher', 'area_from_feed'];
 export interface Story {
   id: string; version: number; title: string; summary: string | null; category: Category;
   location: string; lat: number | null; lng: number | null;
