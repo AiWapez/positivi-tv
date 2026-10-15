@@ -16,6 +16,14 @@ export const SHARP_EARTH_DISTANCE = 2.7;
 /** The sharp picture is this many pixels wide; a graphics card must be able to hold a texture that large. */
 export const SHARP_EARTH_WIDTH = 4096;
 
+/** Country borders are fetched the first time the camera comes this close (the flight to a story ends at 3.05, so it does not trigger them). */
+export const BORDERS_LOAD_DISTANCE = 2.95;
+/** Borders start to appear at this distance and are fully shown at BORDERS_FULL_DISTANCE. */
+export const BORDERS_FADE_START = 2.9;
+export const BORDERS_FULL_DISTANCE = 2.3;
+/** Borders are a hint, not a grid: never fully opaque. */
+export const BORDERS_MAX_OPACITY = 0.6;
+
 export const BASE_EARTH_URL = '/assets/earth.jpg';
 export const SHARP_EARTH_URL = '/assets/earth-sharp.jpg';
 
@@ -36,4 +44,16 @@ export function shouldLoadSharpEarth({ distance, saveData = false, maxTextureSiz
   if (!Number.isFinite(distance) || !Number.isFinite(maxTextureSize)) return false;
   if (maxTextureSize < SHARP_EARTH_WIDTH) return false;
   return distance <= SHARP_EARTH_DISTANCE;
+}
+
+/** True once the reader has zoomed in far enough to want country borders and they have not been requested yet. */
+export function shouldLoadBorders({ distance, requested }: { distance: number; requested: boolean }): boolean {
+  return !requested && Number.isFinite(distance) && distance <= BORDERS_LOAD_DISTANCE;
+}
+
+/** How visible the borders are at a camera distance: none from far away, fading in as the reader zooms, steady when close. */
+export function bordersOpacity(distance: number): number {
+  if (!Number.isFinite(distance) || distance >= BORDERS_FADE_START) return 0;
+  if (distance <= BORDERS_FULL_DISTANCE) return BORDERS_MAX_OPACITY;
+  return BORDERS_MAX_OPACITY * (BORDERS_FADE_START - distance) / (BORDERS_FADE_START - BORDERS_FULL_DISTANCE);
 }

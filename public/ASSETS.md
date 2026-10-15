@@ -6,6 +6,7 @@ Downloaded October 14, 2026. These are illustrative assets, not evidence for any
 |---|---|
 | earth.jpg | Lighter Earth picture (2048 x 1024, about 340 KB) that every visitor loads first. A LANCZOS downscale of `earth-sharp.jpg`, so both pictures show exactly the same Earth. |
 | earth-sharp.jpg | Sharp Earth picture (4096 x 2048, about 1.4 MB), fetched only once someone zooms in close. See "Earth imagery" below. |
+| borders.json | Country borders (about 105 KB, about 33 KB compressed), built by `scripts/build-borders.mjs` from Natural Earth 4.1.0 at 1:50m via the npm package `world-atlas@2.0.2`. See "Country borders" below. |
 | coast.jpg | https://images.unsplash.com/photo-1510414842594-a61c69b5ae57?w=700&q=85&fit=crop |
 | wind.jpg | https://images.unsplash.com/photo-1466611653911-95081537e5b7?w=700&q=85&fit=crop |
 | city.jpg | https://images.unsplash.com/photo-1518391846015-55a9cc003b25?w=700&q=85&fit=crop |
@@ -21,6 +22,12 @@ Earth source context (replaced October 15, 2026): the earlier `earth.jpg` came f
 - NASA's usage page (https://www.nasa.gov/nasa-brand-center/images-and-media/, read October 15, 2026) says NASA content is generally not subject to copyright in the United States and asks that NASA is acknowledged as the source. The app credits "NASA / Blue Marble" under the globe and in the About panel.
 - What was not verified: NASA's own download site is blocked from the build workspace, so this copy could not be compared byte for byte with NASA's original. Its identity rests on its filename, its package, and its look, which is the well-known NASA picture. If a byte-for-byte check or a higher resolution is wanted later, download NASA's 5400 x 2700 file from the page above.
 - NASA's marks (insignia, logotype) are not in the public domain and are not used. No NASA endorsement is claimed.
+
+## Country borders (checked 15 October 2026)
+
+`borders.json` holds only the lines that two countries share (coastlines are left out because the Earth picture already shows them). It is generated, not hand edited: `npm run borders:build` rewrites it and `npm run borders:check` (also part of the test suite) fails if the committed file differs from what the script produces. The data comes from Natural Earth, which states that "All versions of Natural Earth raster + vector map data found on this website are in the public domain" and that crediting the authors is unnecessary (https://www.naturalearthdata.com/about/terms-of-use/, read October 15, 2026). The app credits it anyway in the About panel. The packages `world-atlas` (ISC) and `topojson-client` (ISC) are development tools only; nothing from them ships to phones except the finished file.
+
+Natural Earth shows boundaries as they are on the ground today and says it is not responsible for accuracy. Some borders are disputed, and the About panel says boundaries are approximate. If General Counsel wants different wording or a map-disclaimer, that is a copy change in `src/App.tsx`.
 
 Keep appropriate imagery credits in the final product. The Three.js MIT license covers its code; it does not automatically license every third-party image. Review each asset's original usage terms before redistribution or public launch, and replace illustrative images with licensed article-specific imagery. Unsplash usage terms: https://unsplash.com/license. No third-party publisher endorsement is claimed.
 

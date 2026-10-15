@@ -13,7 +13,9 @@
     "test:app": "node --test tests/app/*.test.mjs",
     "editor": "node scripts/editor.mjs",
     "release:check": "node scripts/release-check.mjs",
-    "feeds:local": "node scripts/sync-local-feeds.mjs"
+    "feeds:local": "node scripts/sync-local-feeds.mjs",
+    "borders:build": "node scripts/build-borders.mjs",
+    "borders:check": "node scripts/build-borders.mjs --check"
   },
   "dependencies": {
     "@vercel/blob": "2.8.2",
@@ -32,8 +34,10 @@
     "autoprefixer": "^10.4.20",
     "postcss": "^8.4.49",
     "tailwindcss": "^3.4.17",
+    "topojson-client": "3.1.0",
     "typescript": "5.9.3",
-    "vite": "^6.0.5"
+    "vite": "^6.0.5",
+    "world-atlas": "2.0.2"
   },
   "engines": {
     "node": "24.x"
