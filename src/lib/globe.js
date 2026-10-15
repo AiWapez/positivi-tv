@@ -2,6 +2,7 @@ import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { CATEGORY_COLORS as categories } from '../types/index.ts';
 import { GLOBE_FOV_DEGREES, START_DISTANCE, touchWindowDiameter } from './globe-touch.ts';
+import { BASE_EARTH_URL, MAX_ZOOM_DISTANCE, MIN_ZOOM_DISTANCE, SHARP_EARTH_URL, shouldLoadSharpEarth } from './globe-detail.ts';
 
 const point = (lat, lng, r = 1) => {
   const phi = (90 - lat) * Math.PI / 180, theta = (lng + 180) * Math.PI / 180;
@@ -33,10 +34,21 @@ export async function createGlobe({ host, stage, markerHost, touchHost, getMode,
     host.appendChild(renderer.domElement); camera.position.copy(point(20, 5, matchMedia('(max-width: 767px)').matches ? START_DISTANCE.phone : START_DISTANCE.default));
     controls = new OrbitControls(camera, touchHost ?? renderer.domElement);
     controls.enablePan = false; controls.enableDamping = true; controls.dampingFactor = .07; controls.rotateSpeed = .55; controls.zoomSpeed = .65;
-    controls.minDistance = 1.65; controls.maxDistance = 5; controls.minPolarAngle = .05; controls.maxPolarAngle = Math.PI - .05; controls.update(); controls.saveState();
-    const texture = await new THREE.TextureLoader().loadAsync('/assets/earth.jpg');
-    texture.colorSpace = THREE.SRGBColorSpace; texture.anisotropy = Math.min(8, renderer.capabilities.getMaxAnisotropy());
-    scene.add(new THREE.Mesh(new THREE.SphereGeometry(1, 96, 64), new THREE.MeshPhongMaterial({ map: texture, shininess: 5, specular: 0x223344 })));
+    controls.minDistance = MIN_ZOOM_DISTANCE; controls.maxDistance = MAX_ZOOM_DISTANCE; controls.minPolarAngle = .05; controls.maxPolarAngle = Math.PI - .05; controls.update(); controls.saveState();
+    const prepare = picture => { picture.colorSpace = THREE.SRGBColorSpace; picture.anisotropy = Math.min(8, renderer.capabilities.getMaxAnisotropy()); return picture; };
+    const earth = new THREE.MeshPhongMaterial({ map: prepare(await new THREE.TextureLoader().loadAsync(BASE_EARTH_URL)), shininess: 5, specular: 0x223344 });
+    scene.add(new THREE.Mesh(new THREE.SphereGeometry(1, 96, 64), earth));
+    // The sharp picture is fetched once, the first time the reader zooms in close. Any failure keeps the lighter picture and is not retried.
+    let sharp = 'base'; host.dataset.earthDetail = sharp;
+    const setSharp = state => { sharp = state; host.dataset.earthDetail = state; };
+    const upgradeEarth = () => {
+      if (!shouldLoadSharpEarth({ distance: camera.position.length(), saveData: !!navigator.connection?.saveData, maxTextureSize: renderer.capabilities.maxTextureSize, requested: sharp !== 'base' })) return;
+      setSharp('loading');
+      new THREE.TextureLoader().loadAsync(SHARP_EARTH_URL).then(picture => {
+        if (disposed) { picture.dispose(); return; }
+        const lighter = earth.map; earth.map = prepare(picture); lighter?.dispose(); setSharp('sharp'); dirty = true;
+      }).catch(() => { if (!disposed) setSharp('failed'); });
+    };
     scene.add(new THREE.AmbientLight(0xffffff, 2.1)); const sunlight = new THREE.DirectionalLight(0xdcefff, 2); scene.add(sunlight);
     scene.add(new THREE.Mesh(new THREE.SphereGeometry(1.025, 64, 48), new THREE.ShaderMaterial({ transparent: true, depthWrite: false, blending: THREE.AdditiveBlending,
       uniforms: { glowColor: { value: new THREE.Color('#339FFF') } },
@@ -60,7 +72,7 @@ export async function createGlobe({ host, stage, markerHost, touchHost, getMode,
         camera.position.copy(from.applyQuaternion(new THREE.Quaternion().slerp(q, ease)).multiplyScalar(THREE.MathUtils.lerp(flight.from.length(), flight.to.length(), ease)));
         if (t === 1) flight = null; dirty = true;
       }
-      controls.update(); if (!dirty) return; dirty = false;
+      controls.update(); upgradeEarth(); if (!dirty) return; dirty = false;
       sunlight.position.copy(camera.position).add(new THREE.Vector3(-2, 2, 1)); camera.updateMatrixWorld(); renderer.render(scene, camera); fitTouch();
       for (const marker of markers.values()) {
         const normal = marker.p.clone().normalize(), view = camera.position.clone().sub(marker.p).normalize(), screen = marker.p.clone().project(camera);
