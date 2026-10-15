@@ -34,6 +34,7 @@ const LABEL_TEXT: Record<StoryLabel, string | null> = {
   // Shown through eventLabel, so it is not repeated here.
   event_date_unconfirmed: null,
   country_from_headline: 'Pin: approximate country centre from the headline',
+  country_from_publisher: 'Pin: approximate country centre; this publisher reports on this country, and the headline names no place',
   area_from_feed: 'Approximate area identified in publisher text; not an exact event site',
 };
 export function qualifierLabels(s: Story): string[] {

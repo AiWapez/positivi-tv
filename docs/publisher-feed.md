@@ -19,7 +19,7 @@ What it does not promise: accuracy of the underlying reporting, that every liste
 
 ## 2. What a visitor sees
 
-Each automatic card shows the source name, "Published <date>", "From publisher feeds", "Event date not confirmed; this is recently published reporting.", and, where applicable, "Research finding, not yet an outcome in use" or "Pin: approximate country centre from the headline". The headline is unmodified. Images are never imported; the existing category artwork is used. The About dialog and the Terms panel explain both lanes.
+Each automatic card shows the source name, "Published <date>", "From publisher feeds", "Event date not confirmed; this is recently published reporting.", and, where applicable, "Research finding, not yet an outcome in use" or "Pin: approximate country centre from the headline" (or, for a publisher with one home country, "Pin: approximate country centre; this publisher reports on this country, and the headline names no place"). The headline is unmodified. Images are never imported; the existing category artwork is used. The About dialog and the Terms panel explain both lanes.
 
 ## 3. Dates (decision: show as recently published reporting)
 
@@ -72,6 +72,8 @@ Full records live in `config/feeds.json` under `sources.<id>.publisherFeed`. A r
 | ScienceDaily | not configured | | https://www.sciencedaily.com/terms.htm | none | Disabled: terms forbid altering or omitting feed content and storing it in a database without consent |
 | Positive News, Good News Network | not configured | | not verified for this use | none | Disabled: restrictive general reuse terms reported |
 | Reasons to be Cheerful, Optimist Daily, Good Good Good, Upworthy, The Better India | not configured | | not verified | none | Disabled until verified |
+
+Home-country pin: a source may set `defaultCountry` in its `publisherFeed` record (today only Mongabay India, set to India). When the headline names no place, the card gets that country's approximate centre pin with the label `country_from_publisher`. A place the headline does name always wins, and the pin is never used for a source without the setting, with an unknown country name, or when the location switch is off. This is a guess about the story's country based on the publisher's focus, which is why the label says so; remove the setting to turn it off.
 
 Rules that apply to every source: only the configured feed URL and its robots.txt are fetched; article links are validated against the source's domains and are never fetched or added to the allowlist; headlines are not edited (a headline longer than 300 characters is excluded rather than shortened); descriptions from no-derivatives sources are used only for private screening and are never stored or shown; feed images and third-party media are never imported; no endorsement is implied. Exceptions noted in the records: NASA insignia and third-party material, NSF visual media, CC-excluded photos at Mongabay and Global Voices.
 
