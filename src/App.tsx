@@ -12,6 +12,7 @@ import { feedUpdatedAt, globeStories, isRecent, unreadFirst } from './lib/readin
 import { CATEGORY_COLORS } from './types';
 import type { Story, Filters, CategoryFilter } from './types';
 import { filterStories, nextStory, dateLabel } from './lib/story-utils';
+import { swipeStories, neighborStory, swipePosition } from './lib/story-swipe';
 import { stories as demoStories, DEMO_DATE } from './data/demo.mjs';
 const periods = { '30': 'Past 30 days', '7': 'Past 7 days', all: 'All dates' };
 const repo = 'https://github.com/AiWapez/positivi-tv';
@@ -30,6 +31,7 @@ export default function App() {
   const [mode, setMode] = useState<'globe' | 'list'>('globe'), [selectedId, setSelected] = useState<string | null>(demo ? 'portugal' : null);
   const [dialog, setDialog] = useState<'about' | 'filters' | 'sample' | 'privacy' | 'terms' | null>(null), [message, setMessage] = useState('');
   const [globeReady, setGlobeReady] = useState(false), [globeFailed, setGlobeFailed] = useState(false), [expanded, setExpanded] = useState(false);
+  const [enterFrom, setEnterFrom] = useState<'next' | 'previous' | null>(null), stepping = useRef(false);
   const globe = useRef<GlobeControls>(null), explorer = useRef<HTMLElement>(null), discovery = useRef<HTMLButtonElement>(null);
   const items: Story[] = demo ? demoStories as Story[] : feed.stories;
   const visible = useMemo(() => filterStories(items, filters, saved, demo ? Date.parse(DEMO_DATE) : Date.now()), [items, filters, saved, demo]);
@@ -42,6 +44,8 @@ export default function App() {
   const pins = demo ? view : globeStories(view, read, feedUpdatedAt(feed), selectedId);
   const unreadCount = view.filter(s => !read[s.id]).length;
   const selected = view.find(s => s.id === selectedId) ?? null;
+  // Swiping the card moves through the stories that have a pin, in the same order as the Stories list.
+  const swipeList = swipeStories(listed, selectedId), position = swipePosition(swipeList, selectedId);
   // The globe summary appears once per daily update on this device, then fades away.
   const updateId = demo ? '' : feed.revision;
   useEffect(() => {
@@ -68,12 +72,12 @@ export default function App() {
   }, [globeReady, selected?.id, selected?.version]);
   function reset() { setFilters({ category: 'All', query: '', period: '30', savedOnly: false }); setShowPrevious(false); setMessage('Filters reset.'); }
   function changeMode(next: 'globe' | 'list') { setMode(next); setFilters(f => ({ ...f, savedOnly: false })); }
-  async function select(id: string) {
+  async function select(id: string, options: { scroll?: boolean; from?: 'next' | 'previous' } = {}) {
     const s = view.find(s => s.id === id); if (!s) return;
     if (!s.isDemo && !await confirm(s)) { setMessage('That story is no longer available in the current edition.'); return; }
-    setSelected(id); setMode('globe'); if (!s.isDemo) markRead(id);
+    setSelected(id); setMode('globe'); setEnterFrom(options.from ?? null); if (!s.isDemo) markRead(id);
     setMessage(`Selected ${s.title}, ${s.location}.${s.isDemo ? ' Design sample.' : ''}`);
-    if (matchMedia('(max-width: 767px)').matches) explorer.current?.scrollIntoView({ behavior: 'auto', block: 'start' });
+    if (options.scroll !== false && matchMedia('(max-width: 767px)').matches) explorer.current?.scrollIntoView({ behavior: 'auto', block: 'start' });
   }
   function discover(random = false) {
     // Prefer stories this reader has not opened yet.
@@ -81,6 +85,13 @@ export default function App() {
     const mapped = base.filter(s => s.lat !== null && s.lng !== null);
     const pool = mode === 'globe' && mapped.some(s => s.id !== selectedId) ? mapped : base;
     const s = nextStory(pool, selectedId, random); if (s) void select(s.id);
+  }
+  async function step(direction: 1 | -1) {
+    if (stepping.current) return;
+    const target = neighborStory(swipeList, selectedId, direction);
+    if (!target || target.id === selectedId) return;
+    stepping.current = true;
+    try { await select(target.id, { scroll: false, from: direction === 1 ? 'next' : 'previous' }); } finally { stepping.current = false; }
   }
   function toggleSave(s: Story) { toggle(s.id); setMessage(saved.has(s.id) ? 'Story removed from saved.' : 'Story saved.'); }
   function switchDemo(value: boolean) { setDemo(value); setSelected(value ? 'portugal' : null); setDialog(null); reset(); const url = new URL(location.href); value ? url.searchParams.set('demo','1') : url.searchParams.delete('demo'); history.replaceState(null, '', url); }
@@ -135,7 +146,7 @@ export default function App() {
         {mode === 'globe' && (!globeReady || !view.length) && <div className="globe-status" role="status">{globeFailed ? <>The globe couldn’t load. Every story is still available in the list.<button className="primary" onClick={() => setMode('list')}>Browse stories <Icon name="arrow" /></button></> : !globeReady ? 'Loading our world…' : loading && !demo ? 'Checking the latest stories…' : empty}</div>}
         <div className="map-controls" role="group" aria-label="Globe controls" hidden={mode === 'list'}><button aria-label="Zoom in" disabled={!globeReady} onClick={() => globe.current?.zoom(.85)}><Icon name="plus" /></button><button aria-label="Zoom out" disabled={!globeReady} onClick={() => globe.current?.zoom(1/.85)}><Icon name="minus" /></button><button aria-label="Reset globe orientation" disabled={!globeReady} onClick={() => globe.current?.reset()}><Icon name="compass" /></button><button aria-label={expanded ? 'Exit expanded globe' : 'Expand globe'} onClick={() => void expand()}><Icon name="expand" /></button></div>
         <div className="list-view" hidden={mode !== 'list'}><div className="list-view-heading"><div><p className="eyebrow">A little perspective</p><h2>Good news, wherever you look.</h2></div><span className="meta">{heading} · {view.length}{unreadNote}{demo ? ' · Design samples' : ''}</span></div>{!quietWeek && previousToggle}<div id="list-grid">{view.length ? listed.map(s => <StoryButton key={s.id} story={s} read={!!read[s.id]} selected={selected?.id === s.id} onSelect={select} />) : empty}</div></div>
-        {selected && mode === 'globe' && <SelectedStoryCard key={selected.id} story={selected} saved={saved.has(selected.id)} onSave={() => toggleSave(selected)} onClose={() => { setSelected(null); discovery.current?.focus(); }} onNext={() => discover()} onReadSample={() => setDialog('sample')} />}
+        {selected && mode === 'globe' && <SelectedStoryCard key={selected.id} story={selected} saved={saved.has(selected.id)} position={position} enterFrom={enterFrom} onSave={() => toggleSave(selected)} onClose={() => { setSelected(null); discovery.current?.focus(); }} onStep={direction => void step(direction)} onReadSample={() => setDialog('sample')} />}
         <div className="globe-footer"><span className="hint"><Icon name="mouse" />Drag to rotate · Scroll to zoom · Select a pin</span><button className="surprise" ref={discovery} disabled={!view.length} onClick={() => discover(true)}><Icon name="shuffle" />Take me somewhere good</button></div><a className="credit" href="https://visibleearth.nasa.gov/images/57723/the-blue-marble" target="_blank" rel="noopener noreferrer">Earth imagery: NASA / Blue Marble</a>
       </section></main>
       <nav className="category-dock" aria-label="Story categories">{categoryChips()}</nav>

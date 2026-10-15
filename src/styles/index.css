@@ -68,3 +68,20 @@ html{scroll-behavior:auto}body{overflow-x:hidden}svg{display:block;width:20px;he
 .explorer:not(:fullscreen):not(.expanded) .selected.is-compact .story-attribution{padding-top:2px;padding-bottom:0}
 }
 @media(prefers-reduced-motion:reduce){.card-tab:after{transition:none}}
+/* Swiping between stories: the card allows vertical scrolling and pinch-zoom while it listens for sideways swipes. Dots show where you are. */
+.selected{touch-action:pan-y pinch-zoom}
+.card-pager{display:none}
+.stepper{display:flex;flex-wrap:wrap;justify-content:space-between;gap:4px 8px}
+.flip{display:inline-flex;transform:scaleX(-1)}
+.card-pager i{width:7px;height:7px;border-radius:50%;background:#465F77;transition:background .2s ease,transform .2s ease}
+.card-pager i.on{background:var(--yellow);transform:scale(1.25)}
+.card-pager span{font-size:11px;color:var(--muted)}
+@keyframes card-from-right{from{opacity:.3;transform:translateX(32px)}to{opacity:1;transform:none}}
+@keyframes card-from-left{from{opacity:.3;transform:translateX(-32px)}to{opacity:1;transform:none}}
+@media(max-width:767px){
+.explorer:not(:fullscreen):not(.expanded) .selected .card-pager{display:flex;justify-content:center;align-items:center;gap:7px;min-height:14px;margin-top:8px}
+.explorer:not(:fullscreen):not(.expanded) .selected[data-enter="next"]{animation:card-from-right .24s ease}
+.explorer:not(:fullscreen):not(.expanded) .selected[data-enter="previous"]{animation:card-from-left .24s ease}
+.explorer:not(:fullscreen):not(.expanded) .selected .stepper{justify-content:space-between}
+}
+@media(prefers-reduced-motion:reduce){.selected[data-enter]{animation:none!important}.card-pager i{transition:none}}
