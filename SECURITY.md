@@ -6,7 +6,7 @@ PositiviTV is a free, public website that shows headlines from a small set of pu
 
 If you find a security problem, please report it privately through GitHub: open the **Security** tab of this repository and choose **Report a vulnerability**. Please do not open a public issue for security problems.
 
-Helpful details: what you found, the steps to see it, and what an attacker could do with it. Please do not access data that is not yours, do not disrupt the site, and do not test against other people's accounts.
+Helpful details: what you found, the steps to see it, and what an attacker could do with it. Please do not disrupt the site, and do not try to access anyone else's data. PositiviTV doesn't run a paid bug bounty.
 
 ## What is in scope
 
@@ -14,7 +14,7 @@ Helpful details: what you found, the steps to see it, and what an attacker could
 - The collection code that fetches publisher feeds.
 - This repository's code and GitHub workflows.
 
-The publishers' own websites are not in scope; please report issues there to the publisher.
+The publishers' own websites are not in scope; please report issues there to the publisher. Problems with GitHub or Vercel themselves should be reported to those companies.
 
 ## How the project protects itself today
 
