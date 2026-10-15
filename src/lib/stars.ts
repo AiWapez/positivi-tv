@@ -10,11 +10,11 @@ export interface StarLayer { positions: Float32Array; colors: Float32Array; size
 
 /** Distance of the sky from the middle of the globe. The camera never goes past 5, so every star stays far behind it. */
 export const STAR_RADIUS = 18;
-export const STAR_COUNTS = { faint: 5000, medium: 1200, bright: 220 } as const;
+export const STAR_COUNTS = { faint: 8000, medium: 2000, bright: 360 } as const;
 /** Share of the faint stars pulled into the band. */
 export const BAND_SHARE = 0.4;
-export const STAR_SIZES = { faint: 0.027, medium: 0.042, bright: 0.072 } as const;
-export const STAR_OPACITY = { faint: 0.62, medium: 0.8, bright: 0.95 } as const;
+export const STAR_SIZES = { faint: 0.032, medium: 0.05, bright: 0.085 } as const;
+export const STAR_OPACITY = { faint: 0.78, medium: 0.92, bright: 1 } as const;
 
 /** Small seeded random number generator, so every visitor sees the same sky. */
 export function seededRandom(seed: number): () => number {
@@ -57,8 +57,8 @@ function layer(count: number, size: number, opacity: number, random: () => numbe
 export function buildStarLayers(seed = 31): StarLayer[] {
   const random = seededRandom(seed);
   return [
-    layer(STAR_COUNTS.faint, STAR_SIZES.faint, STAR_OPACITY.faint, random, [0.45, 0.9], BAND_SHARE),
-    layer(STAR_COUNTS.medium, STAR_SIZES.medium, STAR_OPACITY.medium, random, [0.7, 1], 0.2),
+    layer(STAR_COUNTS.faint, STAR_SIZES.faint, STAR_OPACITY.faint, random, [0.55, 1], BAND_SHARE),
+    layer(STAR_COUNTS.medium, STAR_SIZES.medium, STAR_OPACITY.medium, random, [0.8, 1], 0.2),
     layer(STAR_COUNTS.bright, STAR_SIZES.bright, STAR_OPACITY.bright, random, [0.9, 1], 0),
   ];
 }
