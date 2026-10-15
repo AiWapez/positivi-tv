@@ -36,7 +36,7 @@ test('the publisher pin passes the public contract, shows its own honest label, 
   const snap = build(src, {}, 'Bird hotspots remain outside protected areas');
   const stories = projectPublisherFeed(snap, ctl, src, NOW).stories;
   assert.equal(stories.length, 1); assert.equal(stories[0].location, 'India');
-  assert(qualifierLabels(stories[0]).some(t => /this publisher reports on this country/.test(t)));
+  assert(qualifierLabels(stories[0]).includes("Approximate pin: placed in India because this publisher covers India. The headline doesn't name a place."));
   const off = projectPublisherFeed(snap, control({ locationResolver: 'off' }), src, NOW).stories;
   assert.equal(off[0].lat, null); assert(!off[0].labels.includes('country_from_publisher'));
 });

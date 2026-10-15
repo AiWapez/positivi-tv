@@ -384,7 +384,6 @@
         "attribution": "Author, publisher, original article link and linked license shown with every card. Items missing an author are omitted.",
         "exceptions": "Photos credited to others are excluded from the license and are not imported. Descriptions are used only for private screening and are never stored or shown, because shortening them would be a modification under ND terms.",
         "notes": "Mongabay India edition (English), same CC BY-ND 4.0 terms as news.mongabay.com. Fetched 2026-10-15: 20 items, host india.mongabay.com; images on imgs.mongabay.com are not imported. RSS lists two names per item (writer and editor), so bylines come from the WordPress byline endpoint like the main edition; that endpoint is UNVERIFIED for this edition. Enabled 2026-10-15 by Alex with terms recorded; General Counsel review to follow.",
-        "defaultCountry": "India",
         "requiresAuthor": true,
         "license": {
           "name": "CC BY-ND 4.0",
