@@ -42,6 +42,19 @@
       "supplementalBylineUrl": "https://news.mongabay.com/wp-json/wp/v2/byline"
     },
     {
+      "id": "mongabay-upbeat",
+      "url": "https://news.mongabay.com/feed/?post_type=post&topic=happy-upbeat-environmental",
+      "allowedDomains": [
+        "news.mongabay.com"
+      ],
+      "topic": "animals_nature",
+      "fetchPolicyRef": "https://news.mongabay.com/copyright/creative-commons/",
+      "maxBytes": 2097152,
+      "lanes": [
+        "publisher_feed"
+      ]
+    },
+    {
       "id": "globalvoices",
       "url": "https://globalvoices.org/-/topics/good-news/feed/",
       "allowedDomains": [
@@ -67,6 +80,32 @@
     {
       "id": "globalvoices-main",
       "url": "https://globalvoices.org/feed/",
+      "allowedDomains": [
+        "globalvoices.org"
+      ],
+      "topic": "community_kindness",
+      "fetchPolicyRef": "https://globalvoices.org/about/global-voices-attribution-policy/",
+      "maxBytes": 2097152,
+      "lanes": [
+        "publisher_feed"
+      ]
+    },
+    {
+      "id": "globalvoices-featured",
+      "url": "https://globalvoices.org/-/type/feature/feed/",
+      "allowedDomains": [
+        "globalvoices.org"
+      ],
+      "topic": "community_kindness",
+      "fetchPolicyRef": "https://globalvoices.org/about/global-voices-attribution-policy/",
+      "maxBytes": 2097152,
+      "lanes": [
+        "publisher_feed"
+      ]
+    },
+    {
+      "id": "globalvoices-africa",
+      "url": "https://globalvoices.org/-/world/sub-saharan-africa/feed/",
       "allowedDomains": [
         "globalvoices.org"
       ],
@@ -333,7 +372,7 @@
         ],
         "attribution": "Author, publisher, original article link and linked license shown with every card. Items missing an author are omitted.",
         "exceptions": "Third-party images and media embedded in posts are excluded from the license and are not imported. Descriptions are used only for private screening.",
-        "notes": "Main Global Voices feed (all topics, English), same publisher and CC BY 3.0 terms as the approved good-news feed. Fetched 2026-10-15: 7+ items a week, host globalvoices.org only; most are problem-focused, so the existing screening rules decide what qualifies. Enabled 2026-10-15 by Alex with terms recorded; General Counsel review to follow.",
+        "notes": "Main Global Voices feed (all topics, English), same publisher and CC BY 3.0 terms as the approved good-news feed. Fetched 2026-10-15: 7+ items a week, host globalvoices.org only; most are problem-focused, so the existing screening rules decide what qualifies. Enabled 2026-10-15 by Alex with terms recorded. GC reviewed 2026-10-15: cleared, CC BY 3.0.",
         "requiresAuthor": true,
         "license": {
           "name": "CC BY 3.0",
@@ -382,7 +421,7 @@
         ],
         "attribution": "Author, publisher, original article link and linked license shown with every card. Items missing an author are omitted.",
         "exceptions": "Photos credited to others are excluded from the license and are not imported. Descriptions are used only for private screening and are never stored or shown, because shortening them would be a modification under ND terms.",
-        "notes": "Mongabay India edition (English), same CC BY-ND 4.0 terms as news.mongabay.com. Fetched 2026-10-15: 20 items, host india.mongabay.com; images on imgs.mongabay.com are not imported. RSS lists two names per item (writer and editor), so bylines come from the WordPress byline endpoint like the main edition; that endpoint is UNVERIFIED for this edition. Enabled 2026-10-15 by Alex with terms recorded; General Counsel review to follow.",
+        "notes": "Mongabay India edition (English), same CC BY-ND 4.0 terms as news.mongabay.com. Fetched 2026-10-15: 20 items, host india.mongabay.com; images on imgs.mongabay.com are not imported. RSS lists two names per item (writer and editor), so bylines come from the WordPress byline endpoint like the main edition; that endpoint is UNVERIFIED for this edition. Enabled 2026-10-15 by Alex with terms recorded. GC reviewed 2026-10-15: on hold pending byline verification and Mongabay confirmation that CC BY-ND 4.0 covers the India edition.",
         "requiresAuthor": true,
         "license": {
           "name": "CC BY-ND 4.0",
@@ -430,7 +469,151 @@
         ],
         "attribution": "Source shown as NOAA; the headline links to the original NOAA page.",
         "exceptions": "Third-party images and material credited to others are excluded. NOAA logos are not used. Feed images are not imported.",
-        "notes": "Feed fetched 2026-10-15: valid RSS 2.0, 10 items, host www.noaa.gov only. robots.txt not yet checked from the fetcher (it checks on every run). Enabled 2026-10-15 by Alex with terms recorded; General Counsel review to follow."
+        "notes": "Feed fetched 2026-10-15: valid RSS 2.0, 10 items, host www.noaa.gov only. robots.txt not yet checked from the fetcher (it checks on every run). Enabled 2026-10-15 by Alex with terms recorded. GC reviewed 2026-10-15: cleared. Policy page is the NOS FAQ, and federal works are not under U.S. copyright."
+      }
+    },
+    "mongabay-upbeat": {
+      "id": "mongabay-upbeat",
+      "displayName": "Mongabay",
+      "domains": [
+        "news.mongabay.com"
+      ],
+      "enabled": true,
+      "tier": 2,
+      "type": "outlet",
+      "permissions": {
+        "title": true,
+        "summary": false,
+        "policyRef": "https://news.mongabay.com/copyright/creative-commons/",
+        "retentionDays": 30
+      },
+      "publisherFeed": {
+        "enabled": true,
+        "category": "Planet",
+        "summary": false,
+        "retentionDays": 30,
+        "licenseOrTerms": "Creative Commons Attribution-NoDerivatives 4.0 (CC BY-ND 4.0) for Mongabay articles.",
+        "policyUrl": "https://news.mongabay.com/copyright/creative-commons/",
+        "checkedAt": "2026-10-15",
+        "permittedFields": [
+          "title",
+          "link",
+          "pubDate",
+          "author"
+        ],
+        "attribution": "Author, publisher, original article link and linked license shown with every card. Items missing an author are omitted.",
+        "exceptions": "Photos credited to others are excluded from the license and are not imported. Descriptions are used only for private screening and are never stored or shown, because shortening them would be a modification under ND terms.",
+        "notes": "Mongabay's Happy-Upbeat Environmental topic feed on news.mongabay.com, the same site and CC BY-ND 4.0 terms as the main Mongabay feed. Fetched 2026-10-15 (research check): 26+ items from 2 Jul to 14 Oct 2026, about 1.7 a week, every link on news.mongabay.com. The URLs suggested by outside research (feedtype=bulletpoints, and the frozen 2008 file on mongabay.com/xml) do not work and are not used. RSS only, no WordPress supplement: the RSS byline is used, as for RSS items of the main feed. Stories that also appear in the main feed are shown once (same-URL duplicate rule). Requests to news.mongabay.com are spaced at least 10 seconds apart per run. Byline check 2026-10-15: the feed lists the writer as dc:creator, which the app uses (the second name is the editor). Compared with the credits printed on four live articles: Researcher who listens to forests wins 2026 Pritzker Environmental Genius Award (https://news.mongabay.com/short-article/2026/10/researcher-who-listens-to-forests-wins-2026-pritzker-environmental-genius-award/), RSS Shreya Dasgupta, page byline Shreya Dasgupta; In war-torn South Sudan, giraffes retain a surprisingly healthy gene pool (https://news.mongabay.com/short-article/2026/09/in-war-torn-south-sudan-giraffes-retain-a-surprisingly-healthy-gene-pool/), RSS David Brown, page byline David Brown; Nigeria's Rachel Ikemeh wins Rolex Award for efforts to save rare red monkey (https://news.mongabay.com/short-article/2026/09/nigerias-rachel-ikemeh-wins-rolex-award-for-efforts-to-save-rare-red-monkey/), RSS David Brown, page byline David Brown; The Home Planet Fund succeeds by giving directly to local communities (https://news.mongabay.com/podcast/2026/09/the-home-planet-fund-succeeds-by-giving-directly-to-local-communities/), RSS Mike DiGirolamo, page byline Mike DiGirolamo. All four matched. A fifth, the Sumatran rhino article, could not be loaded for comparison. GC reviewed 2026-10-15: covered by the Mongabay clearance.",
+        "requiresAuthor": true,
+        "license": {
+          "name": "CC BY-ND 4.0",
+          "url": "https://creativecommons.org/licenses/by-nd/4.0/"
+        },
+        "blockedCredits": [
+          "Associated Press",
+          "Reuters",
+          "Agence France-Presse",
+          "AFP",
+          "Grist",
+          "republished from",
+          "originally published by"
+        ]
+      }
+    },
+    "globalvoices-featured": {
+      "id": "globalvoices-featured",
+      "displayName": "Global Voices",
+      "domains": [
+        "globalvoices.org"
+      ],
+      "enabled": true,
+      "tier": 2,
+      "type": "outlet",
+      "permissions": {
+        "title": true,
+        "summary": false,
+        "policyRef": "https://globalvoices.org/about/global-voices-attribution-policy/",
+        "retentionDays": 30
+      },
+      "publisherFeed": {
+        "enabled": true,
+        "category": "auto",
+        "summary": false,
+        "retentionDays": 30,
+        "licenseOrTerms": "Creative Commons Attribution 3.0 (CC BY 3.0) for Global Voices content.",
+        "policyUrl": "https://globalvoices.org/about/global-voices-attribution-policy/",
+        "checkedAt": "2026-10-15",
+        "permittedFields": [
+          "title",
+          "link",
+          "pubDate",
+          "author"
+        ],
+        "attribution": "Author, publisher, original article link and linked license shown with every card. Items missing an author are omitted.",
+        "exceptions": "Third-party images and media embedded in posts are excluded from the license and are not imported. Descriptions are used only for private screening.",
+        "notes": "Global Voices Featured feed, listed on globalvoices.org/feeds/, the same site and CC BY 3.0 terms as the main Global Voices feed (the feed's copyright element reads \"Creative Commons Attribution, see our Attribution Policy for details\"). Fetched 2026-10-15 (research check): items link to globalvoices.org only. Mostly a subset of the main feed that reaches further back in time; stories already listed from another Global Voices feed are shown once (same-URL duplicate rule). Requests to globalvoices.org are spaced at least 10 seconds apart per run (robots.txt Crawl-delay 10). GC reviewed 2026-10-15: covered by the Global Voices clearance.",
+        "requiresAuthor": true,
+        "license": {
+          "name": "CC BY 3.0",
+          "url": "https://creativecommons.org/licenses/by/3.0/"
+        },
+        "blockedCredits": [
+          "Associated Press",
+          "Reuters",
+          "Agence France-Presse",
+          "AFP",
+          "Grist",
+          "republished from",
+          "originally published by"
+        ]
+      }
+    },
+    "globalvoices-africa": {
+      "id": "globalvoices-africa",
+      "displayName": "Global Voices",
+      "domains": [
+        "globalvoices.org"
+      ],
+      "enabled": true,
+      "tier": 2,
+      "type": "outlet",
+      "permissions": {
+        "title": true,
+        "summary": false,
+        "policyRef": "https://globalvoices.org/about/global-voices-attribution-policy/",
+        "retentionDays": 30
+      },
+      "publisherFeed": {
+        "enabled": true,
+        "category": "auto",
+        "summary": false,
+        "retentionDays": 30,
+        "licenseOrTerms": "Creative Commons Attribution 3.0 (CC BY 3.0) for Global Voices content.",
+        "policyUrl": "https://globalvoices.org/about/global-voices-attribution-policy/",
+        "checkedAt": "2026-10-15",
+        "permittedFields": [
+          "title",
+          "link",
+          "pubDate",
+          "author"
+        ],
+        "attribution": "Author, publisher, original article link and linked license shown with every card. Items missing an author are omitted.",
+        "exceptions": "Third-party images and media embedded in posts are excluded from the license and are not imported. Descriptions are used only for private screening.",
+        "notes": "Global Voices Sub-Saharan Africa region feed, listed on globalvoices.org/feeds/, the same site and CC BY 3.0 terms as the main Global Voices feed (the feed's copyright element reads \"Creative Commons Attribution, see our Attribution Policy for details\"). Fetched 2026-10-15 (research check): items link to globalvoices.org only. Mostly a subset of the main feed that reaches further back in time; stories already listed from another Global Voices feed are shown once (same-URL duplicate rule). Requests to globalvoices.org are spaced at least 10 seconds apart per run (robots.txt Crawl-delay 10). GC reviewed 2026-10-15: covered by the Global Voices clearance.",
+        "requiresAuthor": true,
+        "license": {
+          "name": "CC BY 3.0",
+          "url": "https://creativecommons.org/licenses/by/3.0/"
+        },
+        "blockedCredits": [
+          "Associated Press",
+          "Reuters",
+          "Agence France-Presse",
+          "AFP",
+          "Grist",
+          "republished from",
+          "originally published by"
+        ]
       }
     }
   },
