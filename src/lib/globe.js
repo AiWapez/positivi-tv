@@ -123,7 +123,7 @@ export async function createGlobe({ host, stage, markerHost, touchHost, getMode,
     const openingView = point(20, 5).negate().normalize();
     // Made-up satellites (not real objects, no names): small dots drifting round the Earth. The Earth hides them when they pass behind it.
     const orbits = decorativeOrbits(), satelliteGeometry = new THREE.BufferGeometry(); satelliteGeometry.setAttribute('position', new THREE.BufferAttribute(new Float32Array(orbits.length * 3), 3));
-    const satellites = new THREE.Points(satelliteGeometry, new THREE.PointsMaterial({ color: 0xffffff, size: .045, transparent: true, opacity: 1, depthWrite: false })); satellites.frustumCulled = false; scene.add(satellites);
+    const satellites = new THREE.Points(satelliteGeometry, new THREE.PointsMaterial({ color: 0xffffff, size: .045, transparent: true, opacity: 1, depthWrite: false })); satellites.frustumCulled = false; satellites.visible = false; scene.add(satellites);
     let satelliteTick = 0;
     const moveSatellites = seconds => { const attribute = satelliteGeometry.attributes.position; orbits.forEach((orbit, n) => attribute.setXYZ(n, ...satellitePosition(orbit, seconds))); attribute.needsUpdate = true; };
     moveSatellites(0);
@@ -148,7 +148,7 @@ export async function createGlobe({ host, stage, markerHost, touchHost, getMode,
       }
       controls.update(); upgradeEarth(); loadBorders(); loadPlaces();
       // The dots drift about ten times a second; with reduced motion they stay where they are.
-      if (!reduced.matches && now - satelliteTick > 100) { satelliteTick = now; moveSatellites(now / 1000); dirty = true; }
+      if (satellites.visible && !reduced.matches && now - satelliteTick > 100) { satelliteTick = now; moveSatellites(now / 1000); dirty = true; }
       if (!dirty) return; dirty = false;
       const covered = placeState === 'ready' ? overlayBoxes() : [];
       if (borderLayer) {
@@ -196,6 +196,8 @@ export async function createGlobe({ host, stage, markerHost, touchHost, getMode,
         }
         resize(); dirty = true;
       },
+      // The made-up satellites start hidden; the reader switches them on with a button in the globe controls.
+      setSatellites(on) { satellites.visible = !!on; if (on) moveSatellites(performance.now() / 1000); dirty = true; },
       flyTo(lat, lng, distance = 3.05) { if (!Number.isFinite(lat) || !Number.isFinite(lng) || !Number.isFinite(distance)) return; flight = { start: performance.now(), from: camera.position.clone(), to: point(lat, lng, distance), duration: reduced.matches ? 0 : 1050 }; dirty = true; },
       zoom(factor) { flight = null; camera.position.setLength(THREE.MathUtils.clamp(camera.position.length() * factor, controls.minDistance, controls.maxDistance)); controls.update(); dirty = true; },
       reset() { flight = null; controls.reset(); dirty = true; }, redraw: markDirty, dispose,

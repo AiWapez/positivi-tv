@@ -34,3 +34,13 @@ test('the made-up satellites carry no names or data source, and the docs say the
   assert.deepEqual(Object.keys(decorativeOrbits()[0]).sort(), ['inclination', 'node', 'period', 'phase', 'radius']);
   assert.match(await readFile(new URL('../../docs/globe-detail.md', import.meta.url), 'utf8'), /made-up satellites/i);
 });
+
+test('the satellites start off and a button turns them on', async () => {
+  const app = await readFile(new URL('../../src/App.tsx', import.meta.url), 'utf8');
+  assert.match(app, /useState\(false\);\s*\n\s*const \[globeReady/);
+  assert.match(app, /satellites=\{satellitesOn\}/);
+  assert.match(app, /className="satellite-button" aria-pressed=\{satellitesOn\}/);
+  const globe = await readFile(new URL('../../src/lib/globe.js', import.meta.url), 'utf8');
+  assert.match(globe, /satellites\.visible = false/);
+  assert.match(globe, /setSatellites\(on\)/);
+});

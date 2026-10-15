@@ -100,3 +100,4 @@ html{scroll-behavior:auto}body{overflow-x:hidden}svg{display:block;width:20px;he
 .map-controls .sky-button{position:relative}
 .map-controls .sky-button .sky-count{position:absolute;top:-5px;right:-5px;min-width:18px;height:18px;padding:0 4px;border-radius:9px;background:var(--yellow);color:#07111A;font-size:11px;font-weight:700;line-height:18px;text-align:center}
 .pin-star .pin-label{right:auto;left:43px}
+.map-controls .satellite-button[aria-pressed=true]{background:var(--yellow);color:#07111A;border-color:var(--yellow)}
