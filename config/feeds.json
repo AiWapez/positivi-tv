@@ -86,9 +86,7 @@
       "topic": "animals_nature",
       "fetchPolicyRef": "https://news.mongabay.com/copyright/creative-commons/",
       "maxBytes": 2097152,
-      "lanes": [
-        "publisher_feed"
-      ],
+      "lanes": [],
       "supplementalUrl": "https://india.mongabay.com/wp-json/wp/v2/posts?per_page=100&_fields=link,title,excerpt,date_gmt,byline",
       "supplementalBylineUrl": "https://india.mongabay.com/wp-json/wp/v2/byline"
     },
@@ -358,7 +356,7 @@
       "domains": [
         "india.mongabay.com"
       ],
-      "enabled": true,
+      "enabled": false,
       "tier": 2,
       "type": "outlet",
       "permissions": {
@@ -368,7 +366,8 @@
         "retentionDays": 30
       },
       "publisherFeed": {
-        "enabled": true,
+        "enabled": false,
+        "pausedReason": "Paused 2026-10-15 on General Counsel's ruling until the Mongabay India bylines are checked against five live article pages and Mongabay confirms in writing that the CC BY-ND 4.0 license covers india.mongabay.com.",
         "category": "Planet",
         "summary": false,
         "retentionDays": 30,
