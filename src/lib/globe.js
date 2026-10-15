@@ -191,7 +191,7 @@ export async function createGlobe({ host, stage, markerHost, touchHost, getMode,
           // A new story version can move or rename its pin; keep the marker in step with the current data.
           marker.p = point(spot.lat, spot.lng, radius); marker.location = place; marker.sky = star; marker.el.classList.toggle('pin-star', star); marker.el.querySelector('.pin-label').textContent = place;
           marker.el.style.setProperty('--pin-color', categories[s.category]); marker.el.setAttribute('aria-label', `${place}: ${s.title}${s.isDemo ? '. Design sample.' : star ? '. A space story, shown as a star above the globe.' : s.provenance === 'publisher_feed' ? '. Approximate area, not an exact event site.' : ''}${read[s.id] ? ' Read.' : ''}`); marker.el.setAttribute('aria-pressed', String(selected === s.id));
-          // Opened stories dim until the next daily update removes them.
+          // Opened stories stay on the globe, dimmed.
           marker.el.classList.toggle('read', !!read[s.id]);
         }
         resize(); dirty = true;

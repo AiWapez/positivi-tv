@@ -10,7 +10,7 @@ import { useStoryFeed } from './hooks/useStoryFeed';
 import { useReadStories } from './hooks/useReadStories';
 import { useCountryFacts } from './hooks/useCountryFacts';
 import { CountryPage } from './components/CountryFacts';
-import { feedUpdatedAt, globeStories, isRecent, unreadFirst } from './lib/reading';
+import { isRecent, unreadFirst } from './lib/reading';
 import { isSpaceStory, skyView, storyPlace } from './lib/space-stories';
 import { CATEGORY_COLORS } from './types';
 import type { Story, Filters, CategoryFilter } from './types';
@@ -45,7 +45,8 @@ export default function App() {
   const view = filters.savedOnly || showPrevious ? visible : recent;
   const olderCount = filters.savedOnly ? 0 : visible.length - recent.length;
   const listed = demo ? view : unreadFirst(view, Object.fromEntries(Object.entries(read).filter(([, at]) => Date.parse(at) < visitStart)));
-  const pins = demo ? view : globeStories(view, read, feedUpdatedAt(feed), selectedId);
+  // Every story in view keeps its pin. Opened ones are only dimmed (see the read class in globe.js).
+  const pins = view;
   const unreadCount = view.filter(s => !read[s.id]).length;
   const selected = view.find(s => s.id === selectedId) ?? null;
   const countryInfo = useCountryFacts(selected);
