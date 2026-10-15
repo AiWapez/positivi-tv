@@ -97,7 +97,5 @@ html{scroll-behavior:auto}body{overflow-x:hidden}svg{display:block;width:20px;he
 .pin-star .pin-dot{width:20px;height:20px;border:0;border-radius:0;transform:none;background:var(--pin-color);clip-path:polygon(50% 0,61% 35%,98% 35%,68% 57%,79% 91%,50% 70%,21% 91%,32% 57%,2% 35%,39% 35%);box-shadow:none;filter:drop-shadow(0 0 6px var(--pin-color))}
 .pin-star[aria-pressed=true] .pin-dot{width:30px;height:30px;background:var(--yellow);border:0;box-shadow:none;filter:drop-shadow(0 0 9px #FFE438aa)}
 .pin-star.read:not([aria-pressed=true]) .pin-dot{background:#8796a6;border:0;filter:none;opacity:.7}
-.map-controls .sky-button{position:relative}
-.map-controls .sky-button .sky-count{position:absolute;top:-5px;right:-5px;min-width:18px;height:18px;padding:0 4px;border-radius:9px;background:var(--yellow);color:#07111A;font-size:11px;font-weight:700;line-height:18px;text-align:center}
 .pin-star .pin-label{right:auto;left:43px}
 .map-controls .satellite-button[aria-pressed=true]{background:var(--yellow);color:#07111A;border-color:var(--yellow)}
