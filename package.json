@@ -21,7 +21,9 @@
     "boxes:build": "node scripts/build-country-boxes.mjs",
     "boxes:check": "node scripts/build-country-boxes.mjs --check",
     "facts:build": "node scripts/build-country-facts.mjs --archive",
-    "facts:check": "node scripts/build-country-facts.mjs --check --archive"
+    "facts:check": "node scripts/build-country-facts.mjs --check --archive",
+    "animals:build": "node scripts/build-animal-facts.mjs",
+    "animals:check": "node scripts/build-animal-facts.mjs --check"
   },
   "dependencies": {
     "@vercel/blob": "2.8.2",

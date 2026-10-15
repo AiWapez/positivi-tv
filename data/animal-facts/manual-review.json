@@ -1,0 +1,43 @@
+{
+ "reviewedOn": "2026-10-15",
+ "reviewer": "PositiviTV Builder (Claude, an AI model). Not a person at PositiviTV and not a licensed professional.",
+ "rule": "The script check (checks.json) decides every fact it can. Only the facts below needed a human-style decision, and each is explained. A fact that failed the script check and is not listed here is left out of the file.",
+ "decisions": {
+  "kakapo": {
+   "scientificName": {
+    "keep": true,
+    "note": "Wikipedia spells the species name Strigops habroptilus. Wikidata and the IUCN spell it Strigops habroptila. It is the same bird; only the Latin ending differs. The file uses the Wikidata spelling."
+   }
+  },
+  "panamanian-golden-frog": {
+   "status": {
+    "keep": true,
+    "note": "Wikipedia shows Critically Endangered with the tag \"possibly extinct in the wild\" (its box code is PEW). Wikidata says Critically Endangered. The card says Critically Endangered."
+   }
+  },
+  "green-sea-turtle": {
+   "status": {
+    "keep": false,
+    "note": "Wikidata still says Endangered. Wikipedia says the IUCN moved the species to Least Concern in 2025. The two sources disagree, so no category is shown."
+   }
+  },
+  "bald-eagle": {
+   "adultWeight": {
+    "keep": false,
+    "note": "The matching figures are from one Alaska study quoted in the article, not a figure for the whole species. Left out."
+   }
+  },
+  "california-condor": {
+   "adultWeight": {
+    "keep": false,
+    "note": "The second source gives a wide range (7 to 14.1 kg) and only \"estimations\" of the average. Not firm enough. Left out."
+   }
+  },
+  "northern-giraffe": {
+   "status": {
+    "keep": false,
+    "note": "Both sources give Vulnerable, but that is the category for all giraffes together. Wikipedia's own text says the northern giraffe is the most endangered giraffe species, so the category for this exact animal is not confirmed. With no category left, only its name remained, so it has no card."
+   }
+  }
+ }
+}

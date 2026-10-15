@@ -1,0 +1,2160 @@
+{
+ "secondSource": "English Wikipedia (read only, never copied)",
+ "retrieved": "2026-10-15",
+ "requests": [
+  "https://en.wikipedia.org/w/api.php?action=query&prop=revisions&rvprop=content|ids&rvslots=main&redirects=1&format=json&formatversion=2&titles=African%20bush%20elephant|African%20forest%20elephant|Asian%20elephant|Northern%20giraffe",
+  "https://en.wikipedia.org/w/api.php?action=query&prop=revisions&rvprop=content|ids&rvslots=main&redirects=1&format=json&formatversion=2&titles=Sumatran%20rhinoceros|Javan%20rhinoceros|Black%20rhinoceros|White%20rhinoceros",
+  "https://en.wikipedia.org/w/api.php?action=query&prop=revisions&rvprop=content|ids&rvslots=main&redirects=1&format=json&formatversion=2&titles=Indian%20rhinoceros|Tiger|Lion|Leopard",
+  "https://en.wikipedia.org/w/api.php?action=query&prop=revisions&rvprop=content|ids&rvslots=main&redirects=1&format=json&formatversion=2&titles=Snow%20leopard|Clouded%20leopard|Leopard%20cat|Cheetah",
+  "https://en.wikipedia.org/w/api.php?action=query&prop=revisions&rvprop=content|ids&rvslots=main&redirects=1&format=json&formatversion=2&titles=Wolf|Brown%20bear|Polar%20bear|Giant%20panda",
+  "https://en.wikipedia.org/w/api.php?action=query&prop=revisions&rvprop=content|ids&rvslots=main&redirects=1&format=json&formatversion=2&titles=Red%20panda|Bornean%20orangutan|Sumatran%20orangutan|Tapanuli%20orangutan",
+  "https://en.wikipedia.org/w/api.php?action=query&prop=revisions&rvprop=content|ids&rvslots=main&redirects=1&format=json&formatversion=2&titles=Mountain%20gorilla|Chimpanzee|Bonobo|Humpback%20whale",
+  "https://en.wikipedia.org/w/api.php?action=query&prop=revisions&rvprop=content|ids&rvslots=main&redirects=1&format=json&formatversion=2&titles=Blue%20whale|Sperm%20whale|Gray%20whale|Orca",
+  "https://en.wikipedia.org/w/api.php?action=query&prop=revisions&rvprop=content|ids&rvslots=main&redirects=1&format=json&formatversion=2&titles=Beluga%20whale|Narwhal|Common%20bottlenose%20dolphin|Vaquita",
+  "https://en.wikipedia.org/w/api.php?action=query&prop=revisions&rvprop=content|ids&rvslots=main&redirects=1&format=json&formatversion=2&titles=Sea%20otter|Dugong|Walrus|Koala",
+  "https://en.wikipedia.org/w/api.php?action=query&prop=revisions&rvprop=content|ids&rvslots=main&redirects=1&format=json&formatversion=2&titles=Tasmanian%20devil|African%20wild%20dog|Ethiopian%20wolf|Saiga%20antelope",
+  "https://en.wikipedia.org/w/api.php?action=query&prop=revisions&rvprop=content|ids&rvslots=main&redirects=1&format=json&formatversion=2&titles=American%20bison|European%20bison|Przewalski%27s%20horse|Iberian%20lynx",
+  "https://en.wikipedia.org/w/api.php?action=query&prop=revisions&rvprop=content|ids&rvslots=main&redirects=1&format=json&formatversion=2&titles=Hippopotamus|Okapi|Proboscis%20monkey|Pygmy%20hippopotamus",
+  "https://en.wikipedia.org/w/api.php?action=query&prop=revisions&rvprop=content|ids&rvslots=main&redirects=1&format=json&formatversion=2&titles=Amazonian%20manatee|West%20Indian%20manatee|Bald%20eagle|California%20condor",
+  "https://en.wikipedia.org/w/api.php?action=query&prop=revisions&rvprop=content|ids&rvslots=main&redirects=1&format=json&formatversion=2&titles=K%C4%81k%C4%81p%C5%8D|Atlantic%20puffin|Emperor%20penguin|African%20penguin",
+  "https://en.wikipedia.org/w/api.php?action=query&prop=revisions&rvprop=content|ids&rvslots=main&redirects=1&format=json&formatversion=2&titles=Whooping%20crane|Peregrine%20falcon|Philippine%20eagle|Scarlet%20macaw",
+  "https://en.wikipedia.org/w/api.php?action=query&prop=revisions&rvprop=content|ids&rvslots=main&redirects=1&format=json&formatversion=2&titles=Hyacinth%20macaw|Harpy%20eagle|Spoon-billed%20sandpiper|Snowy%20owl",
+  "https://en.wikipedia.org/w/api.php?action=query&prop=revisions&rvprop=content|ids&rvslots=main&redirects=1&format=json&formatversion=2&titles=Greater%20flamingo|Shoebill|Resplendent%20quetzal|Andean%20condor",
+  "https://en.wikipedia.org/w/api.php?action=query&prop=revisions&rvprop=content|ids&rvslots=main&redirects=1&format=json&formatversion=2&titles=Green%20sea%20turtle|Leatherback%20sea%20turtle|Hawksbill%20sea%20turtle|Loggerhead%20sea%20turtle",
+  "https://en.wikipedia.org/w/api.php?action=query&prop=revisions&rvprop=content|ids&rvslots=main&redirects=1&format=json&formatversion=2&titles=Komodo%20dragon|Saltwater%20crocodile|Nile%20crocodile|Gharial",
+  "https://en.wikipedia.org/w/api.php?action=query&prop=revisions&rvprop=content|ids&rvslots=main&redirects=1&format=json&formatversion=2&titles=Axolotl|King%20cobra|Panamanian%20golden%20frog|Whale%20shark",
+  "https://en.wikipedia.org/w/api.php?action=query&prop=revisions&rvprop=content|ids&rvslots=main&redirects=1&format=json&formatversion=2&titles=Great%20white%20shark|Great%20hammerhead|Giant%20oceanic%20manta%20ray|Atlantic%20salmon",
+  "https://en.wikipedia.org/w/api.php?action=query&prop=revisions&rvprop=content|ids&rvslots=main&redirects=1&format=json&formatversion=2&titles=Chinook%20salmon|Sockeye%20salmon|Atlantic%20bluefin%20tuna|Southern%20bluefin%20tuna",
+  "https://en.wikipedia.org/w/api.php?action=query&prop=revisions&rvprop=content|ids&rvslots=main&redirects=1&format=json&formatversion=2&titles=European%20eel|Giant%20squid|West%20Indian%20Ocean%20coelacanth|Monarch%20butterfly",
+  "https://en.wikipedia.org/w/api.php?action=query&prop=revisions&rvprop=content|ids&rvslots=main&redirects=1&format=json&formatversion=2&titles=Western%20honey%20bee|Coconut%20crab|Giant%20otter",
+  "https://en.wikipedia.org/w/api.php?action=query&prop=revisions&rvprop=content|ids&rvslots=main&redirects=1&format=json&formatversion=2&titles=California%20condor|Monarch%20butterfly"
+ ],
+ "summary": {
+  "checked": 297,
+  "matched": 223,
+  "notMatched": 74
+ },
+ "species": {
+  "african-bush-elephant": {
+   "title": "African bush elephant",
+   "wikipediaTitle": "African bush elephant",
+   "revid": 1379998009,
+   "checks": {
+    "scientificName": {
+     "verdict": "match",
+     "found": "loxodonta africana {{msw3 proboscidea"
+    },
+    "status": {
+     "verdict": "match",
+     "found": "EN"
+    },
+    "longestLifespan": {
+     "verdict": "no-match",
+     "found": [
+      null
+     ]
+    },
+    "gestation": {
+     "verdict": "match",
+     "found": [
+      "22 months"
+     ]
+    }
+   }
+  },
+  "african-forest-elephant": {
+   "title": "African forest elephant",
+   "wikipediaTitle": "African forest elephant",
+   "revid": 1371692214,
+   "checks": {
+    "scientificName": {
+     "verdict": "match",
+     "found": "loxodonta cyclotis {{msw3 proboscidea"
+    },
+    "status": {
+     "verdict": "match",
+     "found": "CR"
+    }
+   }
+  },
+  "asian-elephant": {
+   "title": "Asian elephant",
+   "wikipediaTitle": "Asian elephant",
+   "revid": 1377410481,
+   "checks": {
+    "scientificName": {
+     "verdict": "match",
+     "found": "elephas maximus {{msw3 proboscidea"
+    },
+    "status": {
+     "verdict": "match",
+     "found": "EN"
+    },
+    "longestLifespan": {
+     "verdict": "no-match",
+     "found": [
+      null
+     ]
+    },
+    "gestation": {
+     "verdict": "match",
+     "found": [
+      "18 to 22 months"
+     ]
+    }
+   }
+  },
+  "northern-giraffe": {
+   "title": "Northern giraffe",
+   "wikipediaTitle": "Northern giraffe",
+   "revid": 1370996920,
+   "checks": {
+    "scientificName": {
+     "verdict": "match",
+     "found": "giraffa camelopardalis"
+    },
+    "status": {
+     "verdict": "match",
+     "found": "VU"
+    },
+    "longestLifespan": {
+     "verdict": "no-match",
+     "found": [
+      null
+     ]
+    },
+    "gestation": {
+     "verdict": "no-match",
+     "found": [
+      null
+     ]
+    }
+   }
+  },
+  "sumatran-rhinoceros": {
+   "title": "Sumatran rhinoceros",
+   "wikipediaTitle": "Sumatran rhinoceros",
+   "revid": 1373826326,
+   "checks": {
+    "scientificName": {
+     "verdict": "match",
+     "found": "dicerorhinus sumatrensis {{msw3 perissodactyla"
+    },
+    "status": {
+     "verdict": "match",
+     "found": "CR"
+    },
+    "gestation": {
+     "verdict": "no-match",
+     "found": [
+      null
+     ]
+    }
+   }
+  },
+  "javan-rhinoceros": {
+   "title": "Javan rhinoceros",
+   "wikipediaTitle": "Javan rhinoceros",
+   "revid": 1367199000,
+   "checks": {
+    "scientificName": {
+     "verdict": "match",
+     "found": "rhinoceros sondaicus {{msw3 perissodactyla"
+    },
+    "status": {
+     "verdict": "match",
+     "found": "CR"
+    },
+    "gestation": {
+     "verdict": "no-match",
+     "found": [
+      null
+     ]
+    }
+   }
+  },
+  "black-rhinoceros": {
+   "title": "Black rhinoceros",
+   "wikipediaTitle": "Black rhinoceros",
+   "revid": 1377500079,
+   "checks": {
+    "scientificName": {
+     "verdict": "match",
+     "found": "diceros bicornis"
+    },
+    "status": {
+     "verdict": "match",
+     "found": "CR"
+    },
+    "longestLifespan": {
+     "verdict": "no-match",
+     "found": [
+      null
+     ],
+     "articleAlsoStatesLonger": [
+      57
+     ]
+    },
+    "gestation": {
+     "verdict": "match",
+     "found": [
+      "15 months"
+     ]
+    }
+   }
+  },
+  "white-rhinoceros": {
+   "title": "White rhinoceros",
+   "wikipediaTitle": "White rhinoceros",
+   "revid": 1379845975,
+   "checks": {
+    "scientificName": {
+     "verdict": "match",
+     "found": "ceratotherium simum"
+    },
+    "status": {
+     "verdict": "match",
+     "found": "NT"
+    },
+    "longestLifespan": {
+     "verdict": "no-match",
+     "found": [
+      null
+     ],
+     "articleAlsoStatesLonger": [
+      50
+     ]
+    },
+    "gestation": {
+     "verdict": "match",
+     "found": [
+      "16 months"
+     ]
+    }
+   }
+  },
+  "indian-rhinoceros": {
+   "title": "Indian rhinoceros",
+   "wikipediaTitle": "Indian rhinoceros",
+   "revid": 1373210829,
+   "checks": {
+    "scientificName": {
+     "verdict": "match",
+     "found": "rhinoceros unicornis"
+    },
+    "status": {
+     "verdict": "match",
+     "found": "VU"
+    },
+    "longestLifespan": {
+     "verdict": "no-match",
+     "found": [
+      null
+     ],
+     "articleAlsoStatesLonger": [
+      47
+     ]
+    },
+    "gestation": {
+     "verdict": "match",
+     "found": [
+      "15.7 months"
+     ]
+    }
+   }
+  },
+  "tiger": {
+   "title": "Tiger",
+   "wikipediaTitle": "Tiger",
+   "revid": 1379390513,
+   "checks": {
+    "scientificName": {
+     "verdict": "match",
+     "found": "panthera tigris"
+    },
+    "status": {
+     "verdict": "match",
+     "found": "EN"
+    },
+    "longestLifespan": {
+     "verdict": "no-match",
+     "found": [
+      null
+     ]
+    },
+    "gestation": {
+     "verdict": "no-match",
+     "found": [
+      null
+     ]
+    },
+    "adultWeight": {
+     "verdict": "no-match",
+     "found": [
+      null,
+      null
+     ]
+    }
+   }
+  },
+  "lion": {
+   "title": "Lion",
+   "wikipediaTitle": "Lion",
+   "revid": 1379222844,
+   "checks": {
+    "scientificName": {
+     "verdict": "match",
+     "found": "panthera leo {{msw3 carnivora"
+    },
+    "status": {
+     "verdict": "match",
+     "found": "VU"
+    },
+    "longestLifespan": {
+     "verdict": "no-match",
+     "found": [
+      null
+     ]
+    },
+    "gestation": {
+     "verdict": "match",
+     "found": [
+      "110 days"
+     ]
+    },
+    "adultWeight": {
+     "verdict": "no-match",
+     "found": [
+      null,
+      null
+     ]
+    }
+   }
+  },
+  "leopard": {
+   "title": "Leopard",
+   "wikipediaTitle": "Leopard",
+   "revid": 1380027105,
+   "checks": {
+    "scientificName": {
+     "verdict": "match",
+     "found": "panthera pardus {{msw3 wozencraft"
+    },
+    "status": {
+     "verdict": "match",
+     "found": "VU"
+    },
+    "longestLifespan": {
+     "verdict": "no-match",
+     "found": [
+      null
+     ]
+    },
+    "gestation": {
+     "verdict": "match",
+     "found": [
+      "90 to 105 days"
+     ]
+    }
+   }
+  },
+  "snow-leopard": {
+   "title": "Snow leopard",
+   "wikipediaTitle": "Snow leopard",
+   "revid": 1379262323,
+   "checks": {
+    "scientificName": {
+     "verdict": "match",
+     "found": "panthera uncia"
+    },
+    "status": {
+     "verdict": "match",
+     "found": "VU"
+    },
+    "gestation": {
+     "verdict": "no-match",
+     "found": [
+      null
+     ]
+    }
+   }
+  },
+  "clouded-leopard": {
+   "title": "Clouded leopard",
+   "wikipediaTitle": "Clouded leopard",
+   "revid": 1378381479,
+   "checks": {
+    "scientificName": {
+     "verdict": "match",
+     "found": "neofelis nebulosa {{msw3 wozencraft"
+    },
+    "status": {
+     "verdict": "match",
+     "found": "VU"
+    },
+    "longestLifespan": {
+     "verdict": "no-match",
+     "found": [
+      null
+     ]
+    },
+    "gestation": {
+     "verdict": "no-match",
+     "found": [
+      null
+     ]
+    }
+   }
+  },
+  "leopard-cat": {
+   "title": "Leopard cat",
+   "wikipediaTitle": "Leopard cat",
+   "revid": 1374708771,
+   "checks": {
+    "scientificName": {
+     "verdict": "match",
+     "found": "prionailurus bengalensis"
+    },
+    "status": {
+     "verdict": "match",
+     "found": "LC"
+    },
+    "longestLifespan": {
+     "verdict": "no-match",
+     "found": [
+      null
+     ]
+    },
+    "gestation": {
+     "verdict": "match",
+     "found": [
+      "60 to 70 days"
+     ]
+    }
+   }
+  },
+  "cheetah": {
+   "title": "Cheetah",
+   "wikipediaTitle": "Cheetah",
+   "revid": 1380372320,
+   "checks": {
+    "scientificName": {
+     "verdict": "match",
+     "found": "acinonyx jubatus"
+    },
+    "status": {
+     "verdict": "match",
+     "found": "VU"
+    },
+    "longestLifespan": {
+     "verdict": "no-match",
+     "found": [
+      null
+     ]
+    },
+    "gestation": {
+     "verdict": "no-match",
+     "found": [
+      null
+     ]
+    },
+    "adultWeight": {
+     "verdict": "no-match",
+     "found": [
+      null,
+      null
+     ]
+    }
+   }
+  },
+  "wolf": {
+   "title": "Wolf",
+   "wikipediaTitle": "Wolf",
+   "revid": 1376352576,
+   "checks": {
+    "scientificName": {
+     "verdict": "match",
+     "found": "canis lupus"
+    },
+    "status": {
+     "verdict": "match",
+     "found": "LC"
+    },
+    "longestLifespan": {
+     "verdict": "no-match",
+     "found": [
+      null
+     ]
+    },
+    "gestation": {
+     "verdict": "match",
+     "found": [
+      "62 to 75 days"
+     ]
+    }
+   }
+  },
+  "brown-bear": {
+   "title": "Brown bear",
+   "wikipediaTitle": "Brown bear",
+   "revid": 1379362515,
+   "checks": {
+    "scientificName": {
+     "verdict": "match",
+     "found": "ursus arctos"
+    },
+    "status": {
+     "verdict": "match",
+     "found": "LC"
+    },
+    "longestLifespan": {
+     "verdict": "no-match",
+     "found": [
+      "40 years"
+     ],
+     "articleAlsoStatesLonger": [
+      47
+     ]
+    },
+    "gestation": {
+     "verdict": "no-match",
+     "found": [
+      null
+     ]
+    }
+   }
+  },
+  "polar-bear": {
+   "title": "Polar bear",
+   "wikipediaTitle": "Polar bear",
+   "revid": 1378892239,
+   "checks": {
+    "scientificName": {
+     "verdict": "match",
+     "found": "ursus maritimus"
+    },
+    "status": {
+     "verdict": "match",
+     "found": "VU"
+    },
+    "longestLifespan": {
+     "verdict": "no-match",
+     "found": [
+      null
+     ]
+    },
+    "gestation": {
+     "verdict": "no-match",
+     "found": [
+      null
+     ]
+    }
+   }
+  },
+  "giant-panda": {
+   "title": "Giant panda",
+   "wikipediaTitle": "Giant panda",
+   "revid": 1380152909,
+   "checks": {
+    "scientificName": {
+     "verdict": "match",
+     "found": "ailuropoda melanoleuca"
+    },
+    "status": {
+     "verdict": "match",
+     "found": "VU"
+    },
+    "longestLifespan": {
+     "verdict": "no-match",
+     "found": [
+      null
+     ],
+     "articleAlsoStatesLonger": [
+      38
+     ]
+    },
+    "gestation": {
+     "verdict": "no-match",
+     "found": [
+      null
+     ]
+    },
+    "adultWeight": {
+     "verdict": "no-match",
+     "found": [
+      null
+     ]
+    }
+   }
+  },
+  "red-panda": {
+   "title": "Red panda",
+   "wikipediaTitle": "Red panda",
+   "revid": 1374034403,
+   "checks": {
+    "scientificName": {
+     "verdict": "match",
+     "found": "ailurus fulgens"
+    },
+    "status": {
+     "verdict": "match",
+     "found": "EN"
+    },
+    "longestLifespan": {
+     "verdict": "no-match",
+     "found": [
+      null
+     ]
+    },
+    "gestation": {
+     "verdict": "no-match",
+     "found": [
+      null
+     ]
+    },
+    "adultWeight": {
+     "verdict": "no-match",
+     "found": [
+      null
+     ]
+    }
+   }
+  },
+  "bornean-orangutan": {
+   "title": "Bornean orangutan",
+   "wikipediaTitle": "Bornean orangutan",
+   "revid": 1377030744,
+   "checks": {
+    "scientificName": {
+     "verdict": "match",
+     "found": "pongo pygmaeus"
+    },
+    "status": {
+     "verdict": "match",
+     "found": "CR"
+    },
+    "longestLifespan": {
+     "verdict": "no-match",
+     "found": [
+      null
+     ]
+    },
+    "gestation": {
+     "verdict": "no-match",
+     "found": [
+      null
+     ]
+    }
+   }
+  },
+  "sumatran-orangutan": {
+   "title": "Sumatran orangutan",
+   "wikipediaTitle": "Sumatran orangutan",
+   "revid": 1374201098,
+   "checks": {
+    "scientificName": {
+     "verdict": "match",
+     "found": "pongo abelii"
+    },
+    "status": {
+     "verdict": "match",
+     "found": "CR"
+    }
+   }
+  },
+  "tapanuli-orangutan": {
+   "title": "Tapanuli orangutan",
+   "wikipediaTitle": "Tapanuli orangutan",
+   "revid": 1372056312,
+   "checks": {
+    "scientificName": {
+     "verdict": "match",
+     "found": "pongo tapanuliensis"
+    },
+    "status": {
+     "verdict": "match",
+     "found": "CR"
+    }
+   }
+  },
+  "mountain-gorilla": {
+   "title": "Mountain gorilla",
+   "wikipediaTitle": "Mountain gorilla",
+   "revid": 1380016763,
+   "checks": {
+    "scientificName": {
+     "verdict": "match",
+     "found": "gorilla beringei / gorilla beringei beringei {{msw3 groves"
+    },
+    "status": {
+     "verdict": "match",
+     "found": "EN"
+    }
+   }
+  },
+  "chimpanzee": {
+   "title": "Chimpanzee",
+   "wikipediaTitle": "Chimpanzee",
+   "revid": 1379832110,
+   "checks": {
+    "scientificName": {
+     "verdict": "match",
+     "found": "pan troglodytes"
+    },
+    "status": {
+     "verdict": "match",
+     "found": "EN"
+    },
+    "longestLifespan": {
+     "verdict": "no-match",
+     "found": [
+      null
+     ]
+    },
+    "gestation": {
+     "verdict": "no-match",
+     "found": [
+      null
+     ]
+    }
+   }
+  },
+  "bonobo": {
+   "title": "Bonobo",
+   "wikipediaTitle": "Bonobo",
+   "revid": 1379549275,
+   "checks": {
+    "scientificName": {
+     "verdict": "match",
+     "found": "pan paniscus"
+    },
+    "status": {
+     "verdict": "match",
+     "found": "EN"
+    },
+    "gestation": {
+     "verdict": "match",
+     "found": [
+      "240 days"
+     ]
+    }
+   }
+  },
+  "humpback-whale": {
+   "title": "Humpback whale",
+   "wikipediaTitle": "Humpback whale",
+   "revid": 1380210410,
+   "checks": {
+    "scientificName": {
+     "verdict": "match",
+     "found": "megaptera novaeangliae"
+    },
+    "status": {
+     "verdict": "match",
+     "found": "LC"
+    },
+    "adultWeight": {
+     "verdict": "no-match",
+     "found": [
+      null
+     ]
+    }
+   }
+  },
+  "blue-whale": {
+   "title": "Blue whale",
+   "wikipediaTitle": "Blue whale",
+   "revid": 1379041047,
+   "checks": {
+    "scientificName": {
+     "verdict": "match",
+     "found": "balaenoptera musculus"
+    },
+    "status": {
+     "verdict": "match",
+     "found": "EN"
+    },
+    "gestation": {
+     "verdict": "match",
+     "found": [
+      "10 to 12 months"
+     ]
+    }
+   }
+  },
+  "sperm-whale": {
+   "title": "Sperm whale",
+   "wikipediaTitle": "Sperm whale",
+   "revid": 1379537253,
+   "checks": {
+    "scientificName": {
+     "verdict": "match",
+     "found": "physeter macrocephalus"
+    },
+    "status": {
+     "verdict": "match",
+     "found": "VU"
+    },
+    "gestation": {
+     "verdict": "match",
+     "found": [
+      "14 to 16 months"
+     ]
+    }
+   }
+  },
+  "gray-whale": {
+   "title": "Gray whale",
+   "wikipediaTitle": "Gray whale",
+   "revid": 1380335549,
+   "checks": {
+    "scientificName": {
+     "verdict": "match",
+     "found": "eschrichtius robustus"
+    },
+    "status": {
+     "verdict": "match",
+     "found": "LC"
+    },
+    "gestation": {
+     "verdict": "no-match",
+     "found": [
+      null
+     ]
+    }
+   }
+  },
+  "orca": {
+   "title": "Orca",
+   "wikipediaTitle": "Orca",
+   "revid": 1375859940,
+   "checks": {
+    "scientificName": {
+     "verdict": "match",
+     "found": "orcinus orca (linnaeus, 1758) / orcinus orca"
+    },
+    "status": {
+     "verdict": "match",
+     "found": "DD"
+    },
+    "gestation": {
+     "verdict": "match",
+     "found": [
+      "15 to 18 months"
+     ]
+    }
+   }
+  },
+  "beluga": {
+   "title": "Beluga whale",
+   "wikipediaTitle": "Beluga whale",
+   "revid": 1379245733,
+   "checks": {
+    "scientificName": {
+     "verdict": "match",
+     "found": "delphinapterus leucas"
+    },
+    "status": {
+     "verdict": "match",
+     "found": "LC"
+    },
+    "longestLifespan": {
+     "verdict": "no-match",
+     "found": [
+      null
+     ],
+     "articleAlsoStatesLonger": [
+      80,
+      79
+     ]
+    },
+    "gestation": {
+     "verdict": "no-match",
+     "found": [
+      null
+     ]
+    }
+   }
+  },
+  "narwhal": {
+   "title": "Narwhal",
+   "wikipediaTitle": "Narwhal",
+   "revid": 1380354604,
+   "checks": {
+    "scientificName": {
+     "verdict": "match",
+     "found": "monodon monoceros"
+    },
+    "status": {
+     "verdict": "match",
+     "found": "LC"
+    },
+    "gestation": {
+     "verdict": "no-match",
+     "found": [
+      null
+     ]
+    }
+   }
+  },
+  "bottlenose-dolphin": {
+   "title": "Common bottlenose dolphin",
+   "wikipediaTitle": "Common bottlenose dolphin",
+   "revid": 1366558565,
+   "checks": {
+    "scientificName": {
+     "verdict": "match",
+     "found": "tursiops truncatus"
+    },
+    "status": {
+     "verdict": "match",
+     "found": "LC"
+    },
+    "longestLifespan": {
+     "verdict": "no-match",
+     "found": [
+      "51 years"
+     ],
+     "articleAlsoStatesLonger": [
+      60
+     ]
+    },
+    "gestation": {
+     "verdict": "match",
+     "found": [
+      "12 month"
+     ]
+    }
+   }
+  },
+  "vaquita": {
+   "title": "Vaquita",
+   "wikipediaTitle": "Vaquita",
+   "revid": 1380399584,
+   "checks": {
+    "scientificName": {
+     "verdict": "match",
+     "found": "phocoena sinus"
+    },
+    "status": {
+     "verdict": "match",
+     "found": "CR"
+    }
+   }
+  },
+  "sea-otter": {
+   "title": "Sea otter",
+   "wikipediaTitle": "Sea otter",
+   "revid": 1377508571,
+   "checks": {
+    "scientificName": {
+     "verdict": "match",
+     "found": "enhydra lutris"
+    },
+    "status": {
+     "verdict": "match",
+     "found": "EN"
+    },
+    "longestLifespan": {
+     "verdict": "no-match",
+     "found": [
+      null
+     ],
+     "articleAlsoStatesLonger": [
+      23,
+      22
+     ]
+    }
+   }
+  },
+  "dugong": {
+   "title": "Dugong",
+   "wikipediaTitle": "Dugong",
+   "revid": 1379988469,
+   "checks": {
+    "scientificName": {
+     "verdict": "match",
+     "found": "dugong dugon"
+    },
+    "status": {
+     "verdict": "match",
+     "found": "VU"
+    },
+    "longestLifespan": {
+     "verdict": "no-match",
+     "found": [
+      null
+     ]
+    }
+   }
+  },
+  "walrus": {
+   "title": "Walrus",
+   "wikipediaTitle": "Walrus",
+   "revid": 1378954643,
+   "checks": {
+    "scientificName": {
+     "verdict": "match",
+     "found": "odobenus rosmarus"
+    },
+    "status": {
+     "verdict": "match",
+     "found": "VU"
+    },
+    "gestation": {
+     "verdict": "match",
+     "found": [
+      "15 to 16 months"
+     ]
+    }
+   }
+  },
+  "koala": {
+   "title": "Koala",
+   "wikipediaTitle": "Koala",
+   "revid": 1379927503,
+   "checks": {
+    "scientificName": {
+     "verdict": "match",
+     "found": "phascolarctos cinereus"
+    },
+    "status": {
+     "verdict": "match",
+     "found": "VU"
+    },
+    "longestLifespan": {
+     "verdict": "no-match",
+     "found": [
+      null
+     ]
+    },
+    "gestation": {
+     "verdict": "no-match",
+     "found": [
+      null
+     ]
+    }
+   }
+  },
+  "tasmanian-devil": {
+   "title": "Tasmanian devil",
+   "wikipediaTitle": "Tasmanian devil",
+   "revid": 1379041374,
+   "checks": {
+    "scientificName": {
+     "verdict": "match",
+     "found": "sarcophilus harrisii"
+    },
+    "status": {
+     "verdict": "match",
+     "found": "EN"
+    },
+    "longestLifespan": {
+     "verdict": "no-match",
+     "found": [
+      null
+     ]
+    },
+    "gestation": {
+     "verdict": "match",
+     "found": [
+      "21 days"
+     ]
+    }
+   }
+  },
+  "african-wild-dog": {
+   "title": "African wild dog",
+   "wikipediaTitle": "African wild dog",
+   "revid": 1379562554,
+   "checks": {
+    "scientificName": {
+     "verdict": "match",
+     "found": "lycaon pictus"
+    },
+    "status": {
+     "verdict": "match",
+     "found": "EN"
+    },
+    "longestLifespan": {
+     "verdict": "no-match",
+     "found": [
+      null
+     ],
+     "articleAlsoStatesLonger": [
+      200000
+     ]
+    },
+    "gestation": {
+     "verdict": "match",
+     "found": [
+      "69 to 73 days"
+     ]
+    }
+   }
+  },
+  "ethiopian-wolf": {
+   "title": "Ethiopian wolf",
+   "wikipediaTitle": "Ethiopian wolf",
+   "revid": 1368823655,
+   "checks": {
+    "scientificName": {
+     "verdict": "match",
+     "found": "canis simensis"
+    },
+    "status": {
+     "verdict": "match",
+     "found": "EN"
+    }
+   }
+  },
+  "saiga": {
+   "title": "Saiga antelope",
+   "wikipediaTitle": "Saiga antelope",
+   "revid": 1375844151,
+   "checks": {
+    "scientificName": {
+     "verdict": "match",
+     "found": "saiga tatarica"
+    },
+    "status": {
+     "verdict": "match",
+     "found": "NT"
+    },
+    "gestation": {
+     "verdict": "no-match",
+     "found": [
+      null
+     ]
+    }
+   }
+  },
+  "american-bison": {
+   "title": "American bison",
+   "wikipediaTitle": "American bison",
+   "revid": 1379027570,
+   "checks": {
+    "scientificName": {
+     "verdict": "match",
+     "found": "bison bison"
+    },
+    "status": {
+     "verdict": "match",
+     "found": "NT"
+    },
+    "longestLifespan": {
+     "verdict": "no-match",
+     "found": [
+      null
+     ]
+    },
+    "gestation": {
+     "verdict": "match",
+     "found": [
+      "285 days"
+     ]
+    }
+   }
+  },
+  "european-bison": {
+   "title": "European bison",
+   "wikipediaTitle": "European bison",
+   "revid": 1377529408,
+   "checks": {
+    "scientificName": {
+     "verdict": "match",
+     "found": "bison bonasus"
+    },
+    "status": {
+     "verdict": "match",
+     "found": "NT"
+    },
+    "longestLifespan": {
+     "verdict": "no-match",
+     "found": [
+      null
+     ],
+     "articleAlsoStatesLonger": [
+      9900,
+      30
+     ]
+    },
+    "gestation": {
+     "verdict": "match",
+     "found": [
+      "264 days"
+     ]
+    }
+   }
+  },
+  "przewalskis-horse": {
+   "title": "Przewalski's horse",
+   "wikipediaTitle": "Przewalski's horse",
+   "revid": 1380316301,
+   "checks": {
+    "scientificName": {
+     "verdict": "match",
+     "found": "equus ferus / equus ferus przewalskii"
+    },
+    "status": {
+     "verdict": "match",
+     "found": "EN"
+    },
+    "gestation": {
+     "verdict": "match",
+     "found": [
+      "11 to 12 months"
+     ]
+    }
+   }
+  },
+  "iberian-lynx": {
+   "title": "Iberian lynx",
+   "wikipediaTitle": "Iberian lynx",
+   "revid": 1377842712,
+   "checks": {
+    "scientificName": {
+     "verdict": "match",
+     "found": "lynx pardinus"
+    },
+    "status": {
+     "verdict": "match",
+     "found": "VU"
+    }
+   }
+  },
+  "hippopotamus": {
+   "title": "Hippopotamus",
+   "wikipediaTitle": "Hippopotamus",
+   "revid": 1379833529,
+   "checks": {
+    "scientificName": {
+     "verdict": "match",
+     "found": "hippopotamus amphibius"
+    },
+    "status": {
+     "verdict": "match",
+     "found": "VU"
+    },
+    "longestLifespan": {
+     "verdict": "no-match",
+     "found": [
+      null
+     ],
+     "articleAlsoStatesLonger": [
+      65
+     ]
+    },
+    "gestation": {
+     "verdict": "no-match",
+     "found": [
+      null
+     ]
+    }
+   }
+  },
+  "okapi": {
+   "title": "Okapi",
+   "wikipediaTitle": "Okapi",
+   "revid": 1380410568,
+   "checks": {
+    "scientificName": {
+     "verdict": "match",
+     "found": "okapia johnstoni"
+    },
+    "status": {
+     "verdict": "match",
+     "found": "EN"
+    },
+    "longestLifespan": {
+     "verdict": "no-match",
+     "found": [
+      null
+     ]
+    },
+    "gestation": {
+     "verdict": "match",
+     "found": [
+      "440 to 450 days"
+     ]
+    },
+    "adultWeight": {
+     "verdict": "no-match",
+     "found": [
+      null
+     ]
+    }
+   }
+  },
+  "proboscis-monkey": {
+   "title": "Proboscis monkey",
+   "wikipediaTitle": "Proboscis monkey",
+   "revid": 1379340219,
+   "checks": {
+    "scientificName": {
+     "verdict": "match",
+     "found": "nasalis larvatus {{msw3 primates"
+    },
+    "status": {
+     "verdict": "match",
+     "found": "EN"
+    },
+    "longestLifespan": {
+     "verdict": "no-match",
+     "found": [
+      null
+     ]
+    }
+   }
+  },
+  "pygmy-hippopotamus": {
+   "title": "Pygmy hippopotamus",
+   "wikipediaTitle": "Pygmy hippopotamus",
+   "revid": 1377818217,
+   "checks": {
+    "scientificName": {
+     "verdict": "match",
+     "found": "choeropsis liberiensis"
+    },
+    "status": {
+     "verdict": "match",
+     "found": "EN"
+    }
+   }
+  },
+  "amazonian-manatee": {
+   "title": "Amazonian manatee",
+   "wikipediaTitle": "Amazonian manatee",
+   "revid": 1374401423,
+   "checks": {
+    "scientificName": {
+     "verdict": "match",
+     "found": "trichechus inunguis"
+    },
+    "status": {
+     "verdict": "match",
+     "found": "VU"
+    },
+    "longestLifespan": {
+     "verdict": "no-match",
+     "found": [
+      null
+     ]
+    },
+    "gestation": {
+     "verdict": "match",
+     "found": [
+      "12 to 14 months"
+     ]
+    }
+   }
+  },
+  "west-indian-manatee": {
+   "title": "West Indian manatee",
+   "wikipediaTitle": "West Indian manatee",
+   "revid": 1375237587,
+   "checks": {
+    "scientificName": {
+     "verdict": "match",
+     "found": "trichechus manatus"
+    },
+    "status": {
+     "verdict": "match",
+     "found": "VU"
+    },
+    "gestation": {
+     "verdict": "match",
+     "found": [
+      "12 to 14 months"
+     ]
+    }
+   }
+  },
+  "bald-eagle": {
+   "title": "Bald eagle",
+   "wikipediaTitle": "Bald eagle",
+   "revid": 1379351987,
+   "checks": {
+    "scientificName": {
+     "verdict": "match",
+     "found": "haliaeetus leucocephalus"
+    },
+    "status": {
+     "verdict": "match",
+     "found": "LC"
+    },
+    "adultWeight": {
+     "verdict": "match",
+     "found": [
+      "4.1 kg",
+      "5.35 kg"
+     ]
+    }
+   }
+  },
+  "california-condor": {
+   "title": "California condor",
+   "wikipediaTitle": "California condor",
+   "revid": 1377927526,
+   "checks": {
+    "scientificName": {
+     "verdict": "match",
+     "found": "gymnogyps californianus"
+    },
+    "status": {
+     "verdict": "match",
+     "found": "CR"
+    },
+    "adultWeight": {
+     "verdict": "match",
+     "found": [
+      "8 to 9 kg"
+     ]
+    }
+   }
+  },
+  "kakapo": {
+   "title": "Kākāpō",
+   "wikipediaTitle": "Kākāpō",
+   "revid": 1380369728,
+   "checks": {
+    "scientificName": {
+     "verdict": "no-match",
+     "found": "strigops habroptilus"
+    },
+    "status": {
+     "verdict": "match",
+     "found": "CR"
+    }
+   }
+  },
+  "atlantic-puffin": {
+   "title": "Atlantic puffin",
+   "wikipediaTitle": "Atlantic puffin",
+   "revid": 1375007520,
+   "checks": {
+    "scientificName": {
+     "verdict": "match",
+     "found": "fratercula arctica"
+    },
+    "status": {
+     "verdict": "match",
+     "found": "VU"
+    },
+    "adultWeight": {
+     "verdict": "no-match",
+     "found": [
+      null
+     ]
+    }
+   }
+  },
+  "emperor-penguin": {
+   "title": "Emperor penguin",
+   "wikipediaTitle": "Emperor penguin",
+   "revid": 1377089235,
+   "checks": {
+    "scientificName": {
+     "verdict": "match",
+     "found": "aptenodytes forsteri"
+    },
+    "status": {
+     "verdict": "match",
+     "found": "NT"
+    }
+   }
+  },
+  "african-penguin": {
+   "title": "African penguin",
+   "wikipediaTitle": "African penguin",
+   "revid": 1376229001,
+   "checks": {
+    "scientificName": {
+     "verdict": "match",
+     "found": "spheniscus demersus"
+    },
+    "status": {
+     "verdict": "match",
+     "found": "CR"
+    }
+   }
+  },
+  "whooping-crane": {
+   "title": "Whooping crane",
+   "wikipediaTitle": "Whooping crane",
+   "revid": 1376258578,
+   "checks": {
+    "scientificName": {
+     "verdict": "match",
+     "found": "grus americana"
+    },
+    "status": {
+     "verdict": "match",
+     "found": "EN"
+    },
+    "adultWeight": {
+     "verdict": "no-match",
+     "found": [
+      null
+     ]
+    }
+   }
+  },
+  "peregrine-falcon": {
+   "title": "Peregrine falcon",
+   "wikipediaTitle": "Peregrine falcon",
+   "revid": 1379357278,
+   "checks": {
+    "scientificName": {
+     "verdict": "match",
+     "found": "falco peregrinus"
+    },
+    "status": {
+     "verdict": "match",
+     "found": "LC"
+    }
+   }
+  },
+  "philippine-eagle": {
+   "title": "Philippine eagle",
+   "wikipediaTitle": "Philippine eagle",
+   "revid": 1376370335,
+   "checks": {
+    "scientificName": {
+     "verdict": "match",
+     "found": "pithecophaga jefferyi"
+    },
+    "status": {
+     "verdict": "match",
+     "found": "CR"
+    }
+   }
+  },
+  "scarlet-macaw": {
+   "title": "Scarlet macaw",
+   "wikipediaTitle": "Scarlet macaw",
+   "revid": 1379302842,
+   "checks": {
+    "scientificName": {
+     "verdict": "match",
+     "found": "ara macao"
+    },
+    "status": {
+     "verdict": "match",
+     "found": "LC"
+    }
+   }
+  },
+  "hyacinth-macaw": {
+   "title": "Hyacinth macaw",
+   "wikipediaTitle": "Hyacinth macaw",
+   "revid": 1378893498,
+   "checks": {
+    "scientificName": {
+     "verdict": "match",
+     "found": "anodorhynchus hyacinthinus"
+    },
+    "status": {
+     "verdict": "match",
+     "found": "VU"
+    }
+   }
+  },
+  "harpy-eagle": {
+   "title": "Harpy eagle",
+   "wikipediaTitle": "Harpy eagle",
+   "revid": 1372475120,
+   "checks": {
+    "scientificName": {
+     "verdict": "match",
+     "found": "harpia harpyja"
+    },
+    "status": {
+     "verdict": "match",
+     "found": "VU"
+    },
+    "adultWeight": {
+     "verdict": "match",
+     "found": [
+      "4.4 to 4.8 kg",
+      "7.3 to 8.3 kg"
+     ]
+    }
+   }
+  },
+  "spoon-billed-sandpiper": {
+   "title": "Spoon-billed sandpiper",
+   "wikipediaTitle": "Spoon-billed sandpiper",
+   "revid": 1376992883,
+   "checks": {
+    "scientificName": {
+     "verdict": "match",
+     "found": "calidris pygmaea"
+    },
+    "status": {
+     "verdict": "match",
+     "found": "CR"
+    }
+   }
+  },
+  "snowy-owl": {
+   "title": "Snowy owl",
+   "wikipediaTitle": "Snowy owl",
+   "revid": 1374913931,
+   "checks": {
+    "scientificName": {
+     "verdict": "match",
+     "found": "bubo scandiacus"
+    },
+    "status": {
+     "verdict": "match",
+     "found": "VU"
+    }
+   }
+  },
+  "greater-flamingo": {
+   "title": "Greater flamingo",
+   "wikipediaTitle": "Greater flamingo",
+   "revid": 1379504532,
+   "checks": {
+    "scientificName": {
+     "verdict": "match",
+     "found": "phoenicopterus roseus}} the most northern breeding populations are at the korgalzhyn nature reserve by lake tengiz in central kazakhstan at around 50°n latitude, where several thousand pairs breed. {{cite web / phoenicopterus roseus"
+    },
+    "status": {
+     "verdict": "match",
+     "found": "LC"
+    }
+   }
+  },
+  "shoebill": {
+   "title": "Shoebill",
+   "wikipediaTitle": "Shoebill",
+   "revid": 1380224781,
+   "checks": {
+    "scientificName": {
+     "verdict": "match",
+     "found": "balaeniceps rex"
+    },
+    "status": {
+     "verdict": "match",
+     "found": "VU"
+    }
+   }
+  },
+  "resplendent-quetzal": {
+   "title": "Resplendent quetzal",
+   "wikipediaTitle": "Resplendent quetzal",
+   "revid": 1370716141,
+   "checks": {
+    "scientificName": {
+     "verdict": "match",
+     "found": "pharomachrus mocinno"
+    },
+    "status": {
+     "verdict": "match",
+     "found": "NT"
+    }
+   }
+  },
+  "andean-condor": {
+   "title": "Andean condor",
+   "wikipediaTitle": "Andean condor",
+   "revid": 1376617052,
+   "checks": {
+    "scientificName": {
+     "verdict": "match",
+     "found": "vultur gryphus"
+    },
+    "status": {
+     "verdict": "match",
+     "found": "VU"
+    }
+   }
+  },
+  "green-sea-turtle": {
+   "title": "Green sea turtle",
+   "wikipediaTitle": "Green sea turtle",
+   "revid": 1380412424,
+   "checks": {
+    "scientificName": {
+     "verdict": "match",
+     "found": "chelonia mydas"
+    },
+    "status": {
+     "verdict": "no-match",
+     "found": "LC"
+    }
+   }
+  },
+  "leatherback-sea-turtle": {
+   "title": "Leatherback sea turtle",
+   "wikipediaTitle": "Leatherback sea turtle",
+   "revid": 1379959082,
+   "checks": {
+    "scientificName": {
+     "verdict": "match",
+     "found": "dermochelys coriacea"
+    },
+    "status": {
+     "verdict": "match",
+     "found": "VU"
+    }
+   }
+  },
+  "hawksbill-sea-turtle": {
+   "title": "Hawksbill sea turtle",
+   "wikipediaTitle": "Hawksbill sea turtle",
+   "revid": 1379048114,
+   "checks": {
+    "scientificName": {
+     "verdict": "match",
+     "found": "testudo imbricata linnaeus, 1766 / eretmochelys imbricata"
+    },
+    "status": {
+     "verdict": "match",
+     "found": "CR"
+    },
+    "longestLifespan": {
+     "verdict": "no-match",
+     "found": [
+      null
+     ]
+    }
+   }
+  },
+  "loggerhead-sea-turtle": {
+   "title": "Loggerhead sea turtle",
+   "wikipediaTitle": "Loggerhead sea turtle",
+   "revid": 1379927033,
+   "checks": {
+    "scientificName": {
+     "verdict": "match",
+     "found": "caretta caretta"
+    },
+    "status": {
+     "verdict": "match",
+     "found": "VU"
+    }
+   }
+  },
+  "komodo-dragon": {
+   "title": "Komodo dragon",
+   "wikipediaTitle": "Komodo dragon",
+   "revid": 1376697946,
+   "checks": {
+    "scientificName": {
+     "verdict": "match",
+     "found": "varanus komodoensis"
+    },
+    "status": {
+     "verdict": "match",
+     "found": "EN"
+    },
+    "adultWeight": {
+     "verdict": "match",
+     "found": [
+      "70 kg"
+     ]
+    }
+   }
+  },
+  "saltwater-crocodile": {
+   "title": "Saltwater crocodile",
+   "wikipediaTitle": "Saltwater crocodile",
+   "revid": 1379184670,
+   "checks": {
+    "scientificName": {
+     "verdict": "match",
+     "found": "crocodylus porosus"
+    },
+    "status": {
+     "verdict": "match",
+     "found": "LC"
+    }
+   }
+  },
+  "nile-crocodile": {
+   "title": "Nile crocodile",
+   "wikipediaTitle": "Nile crocodile",
+   "revid": 1379012913,
+   "checks": {
+    "scientificName": {
+     "verdict": "match",
+     "found": "crocodylus niloticus"
+    },
+    "status": {
+     "verdict": "match",
+     "found": "LC"
+    }
+   }
+  },
+  "gharial": {
+   "title": "Gharial",
+   "wikipediaTitle": "Gharial",
+   "revid": 1379136018,
+   "checks": {
+    "scientificName": {
+     "verdict": "match",
+     "found": "gavialis gangeticus"
+    },
+    "status": {
+     "verdict": "match",
+     "found": "CR"
+    }
+   }
+  },
+  "axolotl": {
+   "title": "Axolotl",
+   "wikipediaTitle": "Axolotl",
+   "revid": 1379478357,
+   "checks": {
+    "scientificName": {
+     "verdict": "match",
+     "found": "ambystoma mexicanum"
+    },
+    "status": {
+     "verdict": "match",
+     "found": "CR"
+    },
+    "adultWeight": {
+     "verdict": "no-match",
+     "found": [
+      null
+     ]
+    }
+   }
+  },
+  "king-cobra": {
+   "title": "King cobra",
+   "wikipediaTitle": "King cobra",
+   "revid": 1380394042,
+   "checks": {
+    "scientificName": {
+     "verdict": "match",
+     "found": "ophiophagus hannah"
+    },
+    "status": {
+     "verdict": "match",
+     "found": "VU"
+    }
+   }
+  },
+  "panamanian-golden-frog": {
+   "title": "Panamanian golden frog",
+   "wikipediaTitle": "Panamanian golden frog",
+   "revid": 1379632706,
+   "checks": {
+    "scientificName": {
+     "verdict": "match",
+     "found": "atelopus zeteki"
+    },
+    "status": {
+     "verdict": "no-match",
+     "found": null
+    }
+   }
+  },
+  "whale-shark": {
+   "title": "Whale shark",
+   "wikipediaTitle": "Whale shark",
+   "revid": 1378179477,
+   "checks": {
+    "scientificName": {
+     "verdict": "match",
+     "found": "rhincodon typus"
+    },
+    "status": {
+     "verdict": "match",
+     "found": "EN"
+    },
+    "adultWeight": {
+     "verdict": "no-match",
+     "found": [
+      null
+     ]
+    }
+   }
+  },
+  "great-white-shark": {
+   "title": "Great white shark",
+   "wikipediaTitle": "Great white shark",
+   "revid": 1380372675,
+   "checks": {
+    "scientificName": {
+     "verdict": "match",
+     "found": "carcharodon carcharias"
+    },
+    "status": {
+     "verdict": "match",
+     "found": "VU"
+    },
+    "gestation": {
+     "verdict": "no-match",
+     "found": [
+      null
+     ]
+    },
+    "adultWeight": {
+     "verdict": "no-match",
+     "found": [
+      null
+     ]
+    }
+   }
+  },
+  "great-hammerhead": {
+   "title": "Great hammerhead",
+   "wikipediaTitle": "Great hammerhead",
+   "revid": 1369909833,
+   "checks": {
+    "scientificName": {
+     "verdict": "match",
+     "found": "sphyrna mokarran"
+    },
+    "status": {
+     "verdict": "match",
+     "found": "CR"
+    }
+   }
+  },
+  "giant-manta-ray": {
+   "title": "Giant oceanic manta ray",
+   "wikipediaTitle": "Giant oceanic manta ray",
+   "revid": 1372043644,
+   "checks": {
+    "scientificName": {
+     "verdict": "match",
+     "found": "mobula birostris"
+    },
+    "status": {
+     "verdict": "match",
+     "found": "EN"
+    }
+   }
+  },
+  "atlantic-salmon": {
+   "title": "Atlantic salmon",
+   "wikipediaTitle": "Atlantic salmon",
+   "revid": 1377885658,
+   "checks": {
+    "scientificName": {
+     "verdict": "match",
+     "found": "salmo salar"
+    },
+    "status": {
+     "verdict": "match",
+     "found": "NT"
+    }
+   }
+  },
+  "chinook-salmon": {
+   "title": "Chinook salmon",
+   "wikipediaTitle": "Chinook salmon",
+   "revid": 1376309908,
+   "checks": {
+    "scientificName": {
+     "verdict": "match",
+     "found": "oncorhynchus tshawytscha"
+    },
+    "status": {
+     "verdict": "no-match",
+     "found": "LC"
+    },
+    "longestLifespan": {
+     "verdict": "no-match",
+     "found": [
+      null
+     ]
+    },
+    "adultWeight": {
+     "verdict": "no-match",
+     "found": [
+      null
+     ]
+    }
+   }
+  },
+  "sockeye-salmon": {
+   "title": "Sockeye salmon",
+   "wikipediaTitle": "Sockeye salmon",
+   "revid": 1374925949,
+   "checks": {
+    "scientificName": {
+     "verdict": "match",
+     "found": "oncorhynchus nerka"
+    },
+    "status": {
+     "verdict": "match",
+     "found": "LC"
+    }
+   }
+  },
+  "atlantic-bluefin-tuna": {
+   "title": "Atlantic bluefin tuna",
+   "wikipediaTitle": "Atlantic bluefin tuna",
+   "revid": 1377916760,
+   "checks": {
+    "scientificName": {
+     "verdict": "match",
+     "found": "thunnus thynnus (linnaeus, 1758) / thunnus thynnus"
+    },
+    "status": {
+     "verdict": "match",
+     "found": "LC"
+    }
+   }
+  },
+  "southern-bluefin-tuna": {
+   "title": "Southern bluefin tuna",
+   "wikipediaTitle": "Southern bluefin tuna",
+   "revid": 1377200632,
+   "checks": {
+    "scientificName": {
+     "verdict": "match",
+     "found": "thunnus maccoyii"
+    },
+    "status": {
+     "verdict": "match",
+     "found": "EN"
+    }
+   }
+  },
+  "european-eel": {
+   "title": "European eel",
+   "wikipediaTitle": "European eel",
+   "revid": 1375874598,
+   "checks": {
+    "scientificName": {
+     "verdict": "match",
+     "found": "anguilla anguilla"
+    },
+    "status": {
+     "verdict": "match",
+     "found": "CR"
+    }
+   }
+  },
+  "giant-squid": {
+   "title": "Giant squid",
+   "wikipediaTitle": "Giant squid",
+   "revid": 1379689328,
+   "checks": {
+    "scientificName": {
+     "verdict": "match",
+     "found": "architeuthis dux"
+    },
+    "status": {
+     "verdict": "match",
+     "found": "LC"
+    },
+    "adultWeight": {
+     "verdict": "no-match",
+     "found": [
+      null
+     ]
+    }
+   }
+  },
+  "coelacanth": {
+   "title": "West Indian Ocean coelacanth",
+   "wikipediaTitle": "West Indian Ocean coelacanth",
+   "revid": 1375975644,
+   "checks": {
+    "scientificName": {
+     "verdict": "match",
+     "found": "latimeria chalumnae"
+    },
+    "status": {
+     "verdict": "match",
+     "found": "CR"
+    }
+   }
+  },
+  "monarch-butterfly": {
+   "title": "Monarch butterfly",
+   "wikipediaTitle": "Monarch butterfly",
+   "revid": 1380059724,
+   "checks": {
+    "scientificName": {
+     "verdict": "match",
+     "found": "danaus plexippus"
+    },
+    "status": {
+     "verdict": "match",
+     "found": "LC"
+    }
+   }
+  },
+  "western-honey-bee": {
+   "title": "Western honey bee",
+   "wikipediaTitle": "Western honey bee",
+   "revid": 1378342627,
+   "checks": {
+    "scientificName": {
+     "verdict": "match",
+     "found": "apis mellifera"
+    },
+    "status": {
+     "verdict": "match",
+     "found": "DD"
+    },
+    "longestLifespan": {
+     "verdict": "no-match",
+     "found": [
+      null
+     ]
+    }
+   }
+  },
+  "coconut-crab": {
+   "title": "Coconut crab",
+   "wikipediaTitle": "Coconut crab",
+   "revid": 1380101237,
+   "checks": {
+    "scientificName": {
+     "verdict": "match",
+     "found": "birgus latro"
+    },
+    "status": {
+     "verdict": "match",
+     "found": "VU"
+    }
+   }
+  },
+  "giant-otter": {
+   "title": "Giant otter",
+   "wikipediaTitle": "Giant otter",
+   "revid": 1379614963,
+   "checks": {
+    "scientificName": {
+     "verdict": "match",
+     "found": "pteronura brasiliensis"
+    },
+    "status": {
+     "verdict": "match",
+     "found": "EN"
+    },
+    "longestLifespan": {
+     "verdict": "no-match",
+     "found": [
+      null
+     ]
+    },
+    "gestation": {
+     "verdict": "match",
+     "found": [
+      "65 to 70 days"
+     ]
+    },
+    "adultWeight": {
+     "verdict": "match",
+     "found": [
+      "26 to 32 kg",
+      "22 to 26 kg"
+     ]
+    }
+   }
+  }
+ }
+}

@@ -4,7 +4,9 @@ import { storyPlace } from '../lib/space-stories';
 import { swipeIntent } from '../lib/story-swipe';
 import Icon from './Icon';
 import { CountryTeaser } from './CountryFacts';
+import { AnimalTeaser } from './AnimalFacts';
 import type { CountryInfo } from '../hooks/useCountryFacts';
+import type { AnimalInfo } from '../hooks/useAnimalFacts';
 import { CATEGORY_COLORS } from '../types';
 import type { Story } from '../types';
 import { dateLabel, eventLabel, provenanceLabel, qualifierLabels } from '../lib/story-utils';
@@ -31,9 +33,9 @@ function SwipeDots({ position }: { position: { index: number; total: number } })
 interface CardProps {
   story: Story; saved: boolean; position: { index: number; total: number } | null; enterFrom: 'next' | 'previous' | null;
   onSave: () => void; onClose: () => void; onStep: (direction: 1 | -1) => void; onReadSample: () => void;
-  country?: CountryInfo | null; onOpenCountry?: () => void;
+  country?: CountryInfo | null; onOpenCountry?: () => void; animal?: AnimalInfo | null;
 }
-export default function SelectedStoryCard({ story, saved, position, enterFrom, onSave, onClose, onStep, onReadSample, country = null, onOpenCountry = () => {} }: CardProps) {
+export default function SelectedStoryCard({ story, saved, position, enterFrom, onSave, onClose, onStep, onReadSample, country = null, onOpenCountry = () => {}, animal = null }: CardProps) {
   const event = eventLabel(story), qualifiers = qualifierLabels(story);
   // On phones the card starts as a slim strip so the globe keeps its room, and the tab opens the full card.
   // The photo and its credit hide together, while the byline, date and license stay visible. Other screens always show the full card.
@@ -61,6 +63,7 @@ export default function SelectedStoryCard({ story, saved, position, enterFrom, o
         {qualifiers.map(text => <div key={text} className="event-meta">{text}</div>)}
         <StoryImageCredit story={story} />
         {country && <CountryTeaser info={country} onOpen={onOpenCountry} />}
+        {animal && <AnimalTeaser info={animal} />}
         {story.mapArea && <div className="story-attribution"><a href={story.mapArea.referenceUrl} target="_blank" rel="noopener noreferrer">Map reference <Icon name="external" /></a></div>}
         <div className="actions">{story.isDemo ? <button className="primary" onClick={onReadSample}>Read story <Icon name="external" /></button> : <a className="primary" href={story.sourceUrl!} target="_blank" rel="noopener noreferrer">Read story <Icon name="external" /></a>}
           <div className="stepper">{position && <button className="secondary" onClick={() => onStep(-1)}><span className="flip"><Icon name="arrow" /></span> Previous location</button>}<button className="secondary" onClick={() => onStep(1)}>Next location <Icon name="arrow" /></button></div></div>
