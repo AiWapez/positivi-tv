@@ -8,7 +8,10 @@
  */
 import type { Story } from '../types';
 
-export const NO_PLACE_LABEL = 'No place on Earth';
+/** What a space story is about, shown where a place would go. Never a place: these stories have none. */
+export type SpaceTopic = 'Sun and space weather' | 'Deep space' | 'Space exploration';
+const SUN_WORDS = /\b(?:solar (?:flares?|storms?)|sunspots?)\b/i;
+const DEEP_SPACE_WORDS = /\b(?:galax(?:y|ies)|telescopes?|Webb|Hubble|exoplanets?|nebula\w*|black holes?|supernovae?)\b/i;
 /** How far from the middle of the globe the stars float (the surface is at 1). Low enough to stay in the picture, high enough to clear the pins. */
 export const SKY_STAR_RADIUS = 1.6;
 
@@ -23,9 +26,15 @@ export function isSpaceStory(story: SpaceStoryFields): boolean {
   return fromNasa && SPACE_WORDS.test(story.title);
 }
 
-/** What to show where the story's place goes: the honest label for a space story, otherwise the story's own place. */
+/** The topic of a space story, read only from its headline: the Sun, deep space (telescopes, galaxies, black holes), or otherwise exploring our own solar system. */
+export function spaceTopic(title: string): SpaceTopic {
+  if (SUN_WORDS.test(title)) return 'Sun and space weather';
+  return DEEP_SPACE_WORDS.test(title) ? 'Deep space' : 'Space exploration';
+}
+
+/** What to show where the story's place goes: the topic for a space story (it has no place), otherwise the story's own place. */
 export function storyPlace(story: SpaceStoryFields & { location: string }): string {
-  return isSpaceStory(story) ? NO_PLACE_LABEL : story.location;
+  return isSpaceStory(story) ? spaceTopic(story.title) : story.location;
 }
 
 /**
@@ -96,10 +105,3 @@ export function hiddenByEarth(camera: Vec, point: Vec, radius = 1): boolean {
   return near > 0 && near < 1;
 }
 
-/** The space stories among these, in the order given. */
-export function spaceStories<T extends SpaceStoryFields>(stories: T[]): T[] { return stories.filter(isSpaceStory); }
-
-/** Wording for the button that turns the globe to the space stars. */
-export function spaceButtonLabel(count: number): string {
-  return count === 1 ? 'Show the space story, a star with no place on Earth' : `Show ${count} space stories, stars with no place on Earth`;
-}

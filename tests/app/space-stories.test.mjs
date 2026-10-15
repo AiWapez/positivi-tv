@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
-import { NO_PLACE_LABEL, SKY_STAR_RADIUS, isSpaceStory, storyPlace, skyPosition, hiddenByEarth, spaceStories, spaceButtonLabel } from '../../src/lib/space-stories.ts';
+import { SKY_STAR_RADIUS, isSpaceStory, storyPlace, spaceTopic, skyPosition, hiddenByEarth } from '../../src/lib/space-stories.ts';
 
 const story = (title, extra = {}) => ({ id: 'nasa-1', title, lat: null, lng: null, sourceName: 'NASA', isDemo: false, location: 'Location not specified', ...extra });
 
@@ -34,8 +34,11 @@ test('whole words only, so a place or a name does not trigger a star', () => {
   assert.equal(isSpaceStory(story('Venus Williams opens a school')), true, 'a known limit: a person named Venus on a NASA story');
 });
 
-test('the place shown is the honest label for a space story and the story\'s own place otherwise', () => {
-  assert.equal(storyPlace(story('Rover on Mars')), NO_PLACE_LABEL);
+test('a space story shows its topic where a place would go, and any other story keeps its own place', () => {
+  assert.equal(storyPlace(story('Rover on Mars')), 'Space exploration');
+  assert.equal(storyPlace(story('Webb telescope finds a distant galaxy')), 'Deep space');
+  assert.equal(storyPlace(story('A solar storm lights the sky')), 'Sun and space weather');
+  assert.notEqual(storyPlace(story('Rover on Mars')), 'No place on Earth');
   assert.equal(storyPlace(story('Rover on Mars', { lat: 1, lng: 2, location: 'Cape Canaveral' })), 'Cape Canaveral');
   assert.equal(storyPlace(story('New ocean data', { location: 'Location not specified' })), 'Location not specified');
 });
@@ -62,17 +65,10 @@ test('the Earth hides a star behind it and not one beside or in front of it', ()
   assert.equal(hiddenByEarth(camera, camera), false);
 });
 
-test('only the space stories are picked from a list, in order, and the button words match the count', () => {
-  const list = [story('Rover on Mars', { id: 'nasa-a' }), story('Ocean data', { id: 'nasa-b' }), story('Comet nears', { id: 'nasa-c' })];
-  assert.deepEqual(spaceStories(list).map(s => s.id), ['nasa-a', 'nasa-c']);
-  assert.match(spaceButtonLabel(1), /space story/);
-  assert.match(spaceButtonLabel(3), /3 space stories/);
-});
-
-test('the globe draws space stories as stars and the app adds the button, with no new network origin', () => {
+test('the globe draws space stories as stars, with no star button in the controls', () => {
   const globe = readFileSync(new URL('../../src/lib/globe.js', import.meta.url), 'utf8'), app = readFileSync(new URL('../../src/App.tsx', import.meta.url), 'utf8');
   assert.match(globe, /isSpaceStory/); assert.match(globe, /hiddenByEarth/); assert.match(globe, /pin-star/);
-  assert.match(app, /spaceButtonLabel/); assert.match(app, /NO_PLACE_LABEL|storyPlace/);
+  assert.doesNotMatch(app, /sky-button|spaceButtonLabel/); assert.match(app, /storyPlace/);
 });
 
 test('the camera for a space star puts it in the dark beside the globe, on the left, inside a phone screen, for any story', async () => {
@@ -87,4 +83,10 @@ test('the camera for a space star puts it in the dark beside the globe, on the l
     assert.ok(Math.abs(shown.degrees - SKY_APPARENT_DEGREES) < 0.3, `${id}: ${shown.degrees}`);
     assert.equal(shown.left, true, `${id} should be on the left`);
   }
+});
+
+test('the topic comes from the headline alone, and the first matching group wins', () => {
+  assert.equal(spaceTopic('Hubble sees a comet'), 'Deep space');
+  assert.equal(spaceTopic('Sunspots and a black hole'), 'Sun and space weather');
+  assert.equal(spaceTopic('Artemis crew trains for the Moon'), 'Space exploration');
 });
