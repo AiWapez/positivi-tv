@@ -13,7 +13,7 @@ export const STAR_RADIUS = 18;
 export const STAR_COUNTS = { faint: 8000, medium: 2000, bright: 360 } as const;
 /** Share of the faint stars pulled into the band. */
 export const BAND_SHARE = 0.4;
-export const STAR_SIZES = { faint: 0.032, medium: 0.05, bright: 0.085, brilliant: 0.13, belt: 0.17 } as const;
+export const STAR_SIZES = { faint: 0.032, medium: 0.05, bright: 0.085, brilliant: 0.13 } as const;
 export const STAR_OPACITY = { faint: 0.78, medium: 0.92, bright: 1, brilliant: 1 } as const;
 /** A few stars that stand out clearly from the rest, like the brightest stars in a real sky. */
 export const BRILLIANT_COUNT = 24;
@@ -64,25 +64,33 @@ export function buildStarLayers(seed = 31, view?: SkyView): StarLayer[] {
     layer(STAR_COUNTS.medium, STAR_SIZES.medium, STAR_OPACITY.medium, random, [0.8, 1], 0.2),
     layer(STAR_COUNTS.bright, STAR_SIZES.bright, STAR_OPACITY.bright, random, [0.9, 1], 0),
     brilliant,
-    ...(view ? [beltLayer(view)] : []),
+    ...(view ? orionLayers(view) : []),
   ];
 }
 
 /**
- * Orion's belt: Alnitak, Alnilam and Mintaka, from their published positions (J2000, right ascension and declination in degrees).
- * The shape and the proportions are real. The sky around it is made up, so the belt is turned to sit where it can be seen from the
- * opening view, and it is drawn 2.6 times wider than life so the three stars read as a line on a phone.
+ * Orion: the three belt stars (Alnitak, Alnilam, Mintaka) and the four corners of the hourglass (Betelgeuse and Bellatrix on top,
+ * Saiph and Rigel at the bottom), from their published positions (J2000, right ascension and declination in degrees). The shape and the
+ * proportions are real. The sky around it is made up, so the figure is turned to sit where it can be seen from the opening view, and it
+ * is drawn a little smaller than life (the real figure is about 18 degrees tall, more than fits beside the globe).
+ * `size` is the dot size (bigger is brighter) and `color` its tint: Betelgeuse is orange, the others blue-white.
  */
-export const ORION_BELT = [
-  { name: 'Alnitak', ra: 84.0533, dec: -1.9426 },
-  { name: 'Alnilam', ra: 83.0017, dec: -1.2019 },
-  { name: 'Mintaka', ra: 82.0013, dec: -0.2991 },
+export const ORION = [
+  { name: 'Alnitak', ra: 84.0533, dec: -1.9426, size: 0.14, color: [0.82, 0.9, 1] },
+  { name: 'Alnilam', ra: 83.0017, dec: -1.2019, size: 0.14, color: [0.82, 0.9, 1] },
+  { name: 'Mintaka', ra: 82.0013, dec: -0.2991, size: 0.14, color: [0.82, 0.9, 1] },
+  { name: 'Betelgeuse', ra: 88.7929, dec: 7.4071, size: 0.2, color: [1, 0.72, 0.45] },
+  { name: 'Bellatrix', ra: 81.2828, dec: 6.3497, size: 0.17, color: [0.82, 0.9, 1] },
+  { name: 'Rigel', ra: 78.6345, dec: -8.2016, size: 0.22, color: [0.8, 0.9, 1] },
+  { name: 'Saiph', ra: 86.9391, dec: -9.6697, size: 0.17, color: [0.82, 0.9, 1] },
 ] as const;
-export const BELT_SCALE = 2.6;
-/** Turns the line of the belt about the direction it is seen in, so it runs along the edge of the globe rather than towards it. */
-export const BELT_ROLL_DEGREES = -67;
-/** Where the belt appears from the opening view, in degrees right of centre and above centre (negative is left or below). Outside the disc of the globe. */
-export const BELT_APPEARANCE = { right: -16, up: 12 } as const;
+/** The first three entries of ORION are the belt. */
+export const BELT_STARS = 3;
+export const ORION_SCALE = 0.45;
+/** Turns the figure about the direction it is seen in, so it stands along the edge of the globe. */
+export const ORION_ROLL_DEGREES = 170;
+/** Where the middle of the belt appears from the opening view, in degrees right of centre and above centre (negative is left or below). */
+export const ORION_APPEARANCE = { right: -15, up: 15 } as const;
 export interface SkyView { /** Direction the camera looks along at the opening view. */ direction: Rgb; /** Which way is up on screen. */ up: Rgb }
 
 const dot = (a: Rgb, b: Rgb) => a[0] * b[0] + a[1] * b[1] + a[2] * b[2];
@@ -98,27 +106,31 @@ function rotate(v: Rgb, axis: Rgb, angle: number): Rgb {
   return [v[0] * c + k[0] * s + axis[0] * d, v[1] * c + k[1] * s + axis[1] * d, v[2] * c + k[2] * s + axis[2] * d];
 }
 
-/** Unit directions of the three belt stars, turned and widened as described above. Pure, so the shape can be tested. */
-export function beltDirections(view: SkyView): Rgb[] {
+export interface OrionOptions { scale?: number; roll?: number; right?: number; up?: number }
+
+/** Unit directions of the seven Orion stars, in the order of ORION, widened, turned and placed as described above. Pure, so the shape can be tested. */
+export function orionDirections(view: SkyView, options: OrionOptions = {}): Rgb[] {
+  const scale = options.scale ?? ORION_SCALE, roll = options.roll ?? ORION_ROLL_DEGREES, appearRight = options.right ?? ORION_APPEARANCE.right, appearUp = options.up ?? ORION_APPEARANCE.up;
   const forward = unit(view.direction), right = unit(cross(forward, view.up)), upward = cross(right, forward);
-  // Where on the sky the middle of the belt should sit. Stars are far behind the globe, so this is the direction from the sky's centre.
-  // The camera sits 3.45 in front of the centre and the sky is 18 behind it, so an apparent angle needs the camera distance in the sum.
-  const lateral = (STAR_RADIUS + 3.45) * Math.tan(rad(BELT_APPEARANCE.right)), vertical = (STAR_RADIUS + 3.45) * Math.tan(rad(BELT_APPEARANCE.up));
+  // The camera sits 3.45 in front of the sky's centre and the sky is 18 behind it, so an apparent angle needs both distances in the sum.
+  const lateral = (STAR_RADIUS + 3.45) * Math.tan(rad(appearRight)), vertical = (STAR_RADIUS + 3.45) * Math.tan(rad(appearUp));
   const target = unit([forward[0] * STAR_RADIUS + right[0] * lateral + upward[0] * vertical, forward[1] * STAR_RADIUS + right[1] * lateral + upward[1] * vertical, forward[2] * STAR_RADIUS + right[2] * lateral + upward[2] * vertical]);
-  const real = ORION_BELT.map(star => equatorial(star.ra, star.dec));
-  const centre = unit([real[0][0] + real[1][0] + real[2][0], real[0][1] + real[1][1] + real[2][1], real[0][2] + real[1][2] + real[2][2]]);
-  // Widen about the middle (in the plane at the middle), then bring the middle onto the target.
-  const widened = real.map(v => unit([centre[0] + (v[0] - centre[0]) * BELT_SCALE, centre[1] + (v[1] - centre[1]) * BELT_SCALE, centre[2] + (v[2] - centre[2]) * BELT_SCALE]));
+  const real = ORION.map(star => equatorial(star.ra, star.dec)), belt = real.slice(0, BELT_STARS);
+  const centre = unit([belt[0][0] + belt[1][0] + belt[2][0], belt[0][1] + belt[1][1] + belt[2][1], belt[0][2] + belt[1][2] + belt[2][2]]);
+  const resized = real.map(v => unit([centre[0] + (v[0] - centre[0]) * scale, centre[1] + (v[1] - centre[1]) * scale, centre[2] + (v[2] - centre[2]) * scale]));
   const axis = cross(centre, target), length = Math.hypot(axis[0], axis[1], axis[2]);
   const angle = Math.acos(Math.max(-1, Math.min(1, dot(centre, target))));
-  const turned = length < 1e-9 ? widened : widened.map(v => rotate(v, [axis[0] / length, axis[1] / length, axis[2] / length], angle));
-  // Tilt the line of the belt so it runs on a slant across the corner rather than straight up the edge.
-  return turned.map(v => rotate(v, target, rad(BELT_ROLL_DEGREES)));
+  const turned = length < 1e-9 ? resized : resized.map(v => rotate(v, [axis[0] / length, axis[1] / length, axis[2] / length], angle));
+  return turned.map(v => rotate(v, target, rad(roll)));
 }
 
-/** The belt as its own layer of three large, slightly blue-white stars, so the line of three reads clearly. */
-function beltLayer(view: SkyView): StarLayer {
-  const belt = beltDirections(view), positions = new Float32Array(belt.length * 3), colors = new Float32Array(belt.length * 3);
-  belt.forEach((v, i) => { positions.set([v[0] * STAR_RADIUS, v[1] * STAR_RADIUS, v[2] * STAR_RADIUS], i * 3); colors.set([0.82, 0.9, 1], i * 3); });
-  return { positions, colors, size: STAR_SIZES.belt, opacity: 1 };
+/** Orion as one small layer per dot size (a Points object has one size), each star keeping its own tint. */
+function orionLayers(view: SkyView): StarLayer[] {
+  const directions = orionDirections(view), sizes = [...new Set(ORION.map(star => star.size))].sort((a, b) => a - b);
+  return sizes.map(size => {
+    const stars = ORION.map((star, i) => ({ star, v: directions[i] })).filter(entry => entry.star.size === size);
+    const positions = new Float32Array(stars.length * 3), colors = new Float32Array(stars.length * 3);
+    stars.forEach(({ star, v }, i) => { positions.set([v[0] * STAR_RADIUS, v[1] * STAR_RADIUS, v[2] * STAR_RADIUS], i * 3); colors.set(star.color, i * 3); });
+    return { positions, colors, size, opacity: 1 };
+  });
 }

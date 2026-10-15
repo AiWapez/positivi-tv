@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
-import { buildStarLayers, beltDirections, seededRandom, STAR_COUNTS, STAR_RADIUS, STAR_SIZES, STAR_OPACITY, BRILLIANT_COUNT, BELT_SCALE, BELT_APPEARANCE, ORION_BELT } from '../../src/lib/stars.ts';
+import { buildStarLayers, orionDirections, seededRandom, STAR_COUNTS, STAR_RADIUS, STAR_SIZES, STAR_OPACITY, BRILLIANT_COUNT, ORION_SCALE, ORION_APPEARANCE, ORION } from '../../src/lib/stars.ts';
 import { MAX_ZOOM_DISTANCE } from '../../src/lib/globe-detail.ts';
 
 const FORWARD = (() => { const phi = 70 * Math.PI / 180, theta = 185 * Math.PI / 180, v = [-Math.sin(phi) * Math.cos(theta), Math.cos(phi), Math.sin(phi) * Math.sin(theta)]; return v.map(x => -x); })();
@@ -17,52 +17,60 @@ test('the sky has four layers with the promised star counts, faintest first, and
   assert.ok(BRILLIANT_COUNT <= 40, 'brilliant stars stay rare');
 });
 
-test("Orion's belt is its own layer of three stars, the biggest in the sky, only when an opening view is given", () => {
+test("Orion is drawn as small layers, one per dot size, only when an opening view is given, and its stars are the biggest in the sky", () => {
   assert.equal(buildStarLayers(31).length, 4);
-  const layers = buildStarLayers(31, VIEW);
-  assert.equal(layers.length, 5);
-  assert.equal(layers[4].positions.length / 3, 3);
-  assert.equal(layers[4].size, STAR_SIZES.belt);
-  assert.ok(STAR_SIZES.belt > STAR_SIZES.brilliant);
+  const layers = buildStarLayers(31, VIEW), orion = layers.slice(4);
+  assert.ok(orion.length >= 2);
+  assert.equal(orion.reduce((n, l) => n + l.positions.length / 3, 0), ORION.length);
+  for (const l of orion) { assert.ok(l.size > STAR_SIZES.brilliant); assert.equal(l.colors.length, l.positions.length); }
 });
 
-test("Orion's belt keeps the real shape: three stars in an even line, about 3 times wider than life", () => {
-  const [a, b, c] = beltDirections(VIEW);
-  const realAB = Math.hypot(ORION_BELT[0].ra - ORION_BELT[1].ra, ORION_BELT[0].dec - ORION_BELT[1].dec); // roughly 1.3 degrees on the sky
+test("Orion's belt keeps the real shape: three stars in an even line, scaled with the rest of the figure", () => {
+  const [a, b, c] = orionDirections(VIEW);
   const ab = angleBetween(a, b), bc = angleBetween(b, c), ac = angleBetween(a, c);
-  assert.ok(Math.abs(ab - 1.35 * BELT_SCALE) < 0.35, `Alnitak to Alnilam ${ab}`);
-  assert.ok(Math.abs(bc - 1.42 * BELT_SCALE) < 0.35, `Alnilam to Mintaka ${bc}`);
+  assert.ok(Math.abs(ab - 1.35 * ORION_SCALE) < 0.2, `Alnitak to Alnilam ${ab}`);
+  assert.ok(Math.abs(bc - 1.42 * ORION_SCALE) < 0.2, `Alnilam to Mintaka ${bc}`);
   assert.ok(Math.abs(ab + bc - ac) < 0.1, 'the three stars lie on one line');
-  assert.ok(realAB > 0);
 });
 
-test("Orion's belt shows in the upper left, beside the globe of the opening view, outside the globe's disc, on the sky sphere", () => {
-  const forward = FORWARD, camera = forward.map(x => -x * 3.45), upHint = [0, 1, 0];
+test('Orion has the classic hourglass: Betelgeuse and Bellatrix on top, Saiph and Rigel below, the belt in the middle', () => {
+  const d = Object.fromEntries(ORION.map((star, i) => [star.name, orionDirections(VIEW)[i]]));
+  const real = 17.9 * ORION_SCALE; // Betelgeuse to Rigel is about 17.9 degrees on the real sky
+  assert.ok(Math.abs(angleBetween(d.Betelgeuse, d.Rigel) - real) < 1.2, `Betelgeuse to Rigel ${angleBetween(d.Betelgeuse, d.Rigel)}`);
+  assert.ok(Math.abs(angleBetween(d.Bellatrix, d.Saiph) - 16.0 * ORION_SCALE) < 1.2);
+  // The belt sits between the top and bottom pairs: going top to bottom through Alnilam adds up to about the straight distance.
+  const through = angleBetween(d.Betelgeuse, d.Alnilam) + angleBetween(d.Alnilam, d.Rigel);
+  assert.ok(through - angleBetween(d.Betelgeuse, d.Rigel) < 2, 'the belt lies between the shoulders and the feet');
+  // Betelgeuse is the orange one.
+  assert.ok(ORION.find(s => s.name === 'Betelgeuse').color[0] > ORION.find(s => s.name === 'Betelgeuse').color[2]);
+  assert.deepEqual(ORION.map(s => s.name), ['Alnitak', 'Alnilam', 'Mintaka', 'Betelgeuse', 'Bellatrix', 'Rigel', 'Saiph']);
+});
+
+test("Orion shows in the upper left of the opening view, outside the globe's disc at every start and story distance, every star inside the view, on the sky sphere", () => {
+  const forward = FORWARD, upHint = [0, 1, 0];
   const cross = (p, q) => [p[1] * q[2] - p[2] * q[1], p[2] * q[0] - p[0] * q[2], p[0] * q[1] - p[1] * q[0]], norm = v => { const l = Math.hypot(...v); return v.map(x => x / l); };
   const right = norm(cross(forward, upHint)), up = cross(right, forward);
-  const stars = beltDirections(VIEW).map(v => v.map(x => x * STAR_RADIUS));
-  let sumX = 0, sumY = 0;
-  for (const star of stars) {
-    const toStar = star.map((x, i) => x - camera[i]), depth = toStar[0] * forward[0] + toStar[1] * forward[1] + toStar[2] * forward[2];
-    sumX += Math.atan2(toStar[0] * right[0] + toStar[1] * right[1] + toStar[2] * right[2], depth) * 180 / Math.PI;
-    sumY += Math.atan2(toStar[0] * up[0] + toStar[1] * up[1] + toStar[2] * up[2], depth) * 180 / Math.PI;
-    assert.ok(Math.abs(Math.hypot(...star) - STAR_RADIUS) < 1e-3);
-    const ax = Math.atan2(toStar[0] * right[0] + toStar[1] * right[1] + toStar[2] * right[2], depth) * 180 / Math.PI, ay = Math.atan2(toStar[0] * up[0] + toStar[1] * up[1] + toStar[2] * up[2], depth) * 180 / Math.PI;
-    assert.ok(Math.hypot(ax, ay) > Math.asin(1 / 3.45) * 180 / Math.PI + 1.5, `a belt star is ${Math.hypot(ax, ay)} degrees from the centre, too close to the globe`);
-    assert.ok(Math.abs(ax) < 19.5 && Math.abs(ay) < 19.5, 'every belt star is inside the view, even on a phone');
-  }
-  assert.ok(Math.abs(sumX / 3 - BELT_APPEARANCE.right) < 1.5, `across ${sumX / 3}`);
-  assert.ok(Math.abs(sumY / 3 - BELT_APPEARANCE.up) < 1.5, `up ${sumY / 3}`);
-  assert.ok(Math.hypot(BELT_APPEARANCE.right, BELT_APPEARANCE.up) > Math.asin(1 / 3.45) * 180 / Math.PI + 1, 'clear of the globe');
-});
-
-test('every star sits on the sky sphere, far behind the camera at its furthest zoom', () => {
-  assert.ok(STAR_RADIUS > MAX_ZOOM_DISTANCE * 3);
-  for (const { positions } of buildStarLayers()) {
-    for (let i = 0; i < positions.length; i += 3) {
-      const length = Math.hypot(positions[i], positions[i + 1], positions[i + 2]);
-      assert.ok(Math.abs(length - STAR_RADIUS) < 1e-3, `star ${i / 3} is ${length} from the centre`);
-    }
+  const stars = orionDirections(VIEW).map(v => v.map(x => x * STAR_RADIUS));
+  // 3.7 and 3.45 are the phone and desktop start, 3.05 is where the camera ends after the flight to a story.
+  for (const distance of [3.05, 3.45, 3.7]) {
+    const camera = forward.map(x => -x * distance), seen = [];
+    let sumX = 0, sumY = 0;
+    stars.forEach((star, i) => {
+      const toStar = star.map((x, k) => x - camera[k]), depth = toStar[0] * forward[0] + toStar[1] * forward[1] + toStar[2] * forward[2];
+      const ax = Math.atan2(toStar[0] * right[0] + toStar[1] * right[1] + toStar[2] * right[2], depth) * 180 / Math.PI, ay = Math.atan2(toStar[0] * up[0] + toStar[1] * up[1] + toStar[2] * up[2], depth) * 180 / Math.PI;
+      if (i < 3) { sumX += ax; sumY += ay; }
+      seen.push([ax, ay]);
+      assert.ok(Math.abs(Math.hypot(...star) - STAR_RADIUS) < 1e-3);
+      assert.ok(Math.hypot(ax, ay) > Math.asin(1 / distance) * 180 / Math.PI + 0.7, `${ORION[i].name} is ${Math.hypot(ax, ay)} degrees from the centre at distance ${distance}, too close to the globe`);
+      assert.ok(Math.abs(ax) < 19.5 && Math.abs(ay) < 19, `${ORION[i].name} is outside the view on a phone (${ax}, ${ay})`);
+    });
+    // Upright, as seen from the northern hemisphere: Betelgeuse and Bellatrix above the belt, Rigel and Saiph below, Betelgeuse left of Bellatrix, Saiph left of Rigel, Alnitak left of Mintaka.
+    const [alnitak, alnilam, mintaka, betelgeuse, bellatrix, rigel, saiph] = seen;
+    assert.ok(betelgeuse[1] > alnilam[1] && bellatrix[1] > alnilam[1], 'the shoulders are above the belt');
+    assert.ok(rigel[1] < alnilam[1] && saiph[1] < alnilam[1], 'the feet are below the belt');
+    assert.ok(betelgeuse[0] < bellatrix[0] && saiph[0] < rigel[0] && alnitak[0] < mintaka[0], 'east is on the left, as in the real sky');
+    assert.ok(Math.abs(sumX / 3 - ORION_APPEARANCE.right) < 1.5, `across ${sumX / 3}`);
+    assert.ok(Math.abs(sumY / 3 - ORION_APPEARANCE.up) < 1.5, `up ${sumY / 3}`);
   }
 });
 
