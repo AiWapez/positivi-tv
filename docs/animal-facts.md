@@ -27,7 +27,7 @@ Honest limits: the second source is not independent in the strongest sense, beca
 
 `animalForStory` in `src/lib/animal-facts.ts` reads only the headline, only for Planet and Science stories. It finds whole words, allows a plural, and tries the longest phrase first. It returns an animal only when the headline names exactly one animal from the list. Several things are on purpose:
 
-- A general word does not pick a species: "elephant" and "African elephant" (two species share that name) match nothing, and the list has the northern giraffe only, not all giraffes.
+- A general word does not pick a species: "elephant" and "African elephant" (two species share that name) match nothing, and giraffes are not on the list (both sources give one category for all giraffes together, and Wikipedia's own text says the northern giraffe is the most endangered, so the category for that exact animal is not confirmed).
 - `data/animal-facts/blockers.json` holds phrases that contain an animal word but are not that animal ("sea lion", "Tiger Global", "leopard seal") and subspecies or populations that have their own category ("Sumatran tiger", "southern resident orca", "Cook Inlet beluga"). Their words are used up before the shorter animal name can match, so those headlines get no whole-species card.
 - A sports team or a company named after an animal is in a different category, so it never gets a card.
 

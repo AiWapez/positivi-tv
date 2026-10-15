@@ -36,6 +36,7 @@ test('every fact in the file passed the second-source check or was kept by a wri
   }
   assert.equal(entry('green-sea-turtle'), undefined, 'Wikidata and Wikipedia disagree on its category, so only its name was left');
   assert.equal(entry('chinook-salmon'), undefined, 'Wikidata has no category for it');
+  assert.equal(entry('northern-giraffe'), undefined, 'the category both sources give is for all giraffes together, so this exact animal has none');
   assert.equal(entry('bald-eagle').weight, undefined, 'a regional figure is not shown as the whole species');
   assert.equal(entry('bald-eagle').scientificName, 'Haliaeetus leucocephalus');
   assert.equal(kept('x', 'status', { species: { x: { checks: { status: { verdict: 'match' } } } } }, { decisions: { x: { status: { keep: false } } } }), false);
@@ -101,7 +102,8 @@ test('a headline gets an animal only when it names exactly one, in a Planet or S
   assert.equal(idOf('Tigers and tiger cubs thrive'), 'tiger', 'the same animal twice is still one animal');
   assert.equal(idOf('Elephants are protected by a new law'), null, 'a general word does not pick a species');
   assert.equal(idOf('African elephants gain a new corridor'), null, 'two African species share that name');
-  assert.equal(idOf('Giraffes return to a reserve'), null, 'the list only has the northern giraffe');
+  assert.equal(idOf('Giraffes return to a reserve'), null, 'giraffes are not on the list');
+  assert.equal(idOf('Northern giraffes return to a reserve'), null, 'the northern giraffe has no card either');
   assert.equal(idOf('Tigers in the city win the cup', 'Community'), null, 'only Planet and Science stories');
   assert.equal(idOf('Tigers return', 'Health'), null);
   assert.equal(idOf('A wonderful day for everyone'), null);

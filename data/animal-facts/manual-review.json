@@ -32,6 +32,12 @@
     "keep": false,
     "note": "The second source gives a wide range (7 to 14.1 kg) and only \"estimations\" of the average. Not firm enough. Left out."
    }
+  },
+  "northern-giraffe": {
+   "status": {
+    "keep": false,
+    "note": "Both sources give Vulnerable, but that is the category for all giraffes together. Wikipedia's own text says the northern giraffe is the most endangered giraffe species, so the category for this exact animal is not confirmed. With no category left, only its name remained, so it has no card."
+   }
   }
  }
 }
