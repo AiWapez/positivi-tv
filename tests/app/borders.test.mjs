@@ -122,5 +122,5 @@ test('the asset notes and the About panel credit the border data', () => {
   const notes = readFileSync(new URL('../../public/ASSETS.md', import.meta.url), 'utf8');
   assert.match(notes, /borders\.json/); assert.match(notes, /Natural Earth/); assert.match(notes, /public domain/);
   const app = readFileSync(new URL('../../src/App.tsx', import.meta.url), 'utf8');
-  assert.match(app, /Country borders: Natural Earth/);
+  assert.match(app, /Country borders and place names: Natural Earth/);
 });

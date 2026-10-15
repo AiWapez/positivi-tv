@@ -4,6 +4,7 @@ import { CATEGORY_COLORS as categories } from '../types/index.ts';
 import { GLOBE_FOV_DEGREES, START_DISTANCE, touchWindowDiameter } from './globe-touch.ts';
 import { BASE_EARTH_URL, MAX_ZOOM_DISTANCE, MIN_ZOOM_DISTANCE, SHARP_EARTH_URL, bordersOpacity, shouldLoadBorders, shouldLoadSharpEarth } from './globe-detail.ts';
 import { BORDERS_URL, borderSegments, decodeBorders } from './borders.ts';
+import { CITY_FONT_PX, COUNTRY_FONT_PX, PLACES_URL, chooseLabels, decodePlaces, facingOpacity, labelBox, labelWidth, nameOpacity, shouldLoadPlaces } from './places.ts';
 
 const point = (lat, lng, r = 1) => {
   const phi = (90 - lat) * Math.PI / 180, theta = (lng + 180) * Math.PI / 180;
@@ -14,6 +15,8 @@ export async function createGlobe({ host, stage, markerHost, touchHost, getMode,
   const scene = new THREE.Scene(), camera = new THREE.PerspectiveCamera(GLOBE_FOV_DEGREES, 1, .1, 100);
   const markers = new Map(), reduced = matchMedia('(prefers-reduced-motion: reduce)');
   const markDirty = () => { dirty = true; };
+  // Country and city names live in their own layer under the story pins. They are decoration only: the layer never takes touches and screen readers skip it.
+  const labelHost = document.createElement('div'); labelHost.className = 'place-labels'; labelHost.setAttribute('aria-hidden', 'true'); markerHost.before(labelHost);
   const cancelTravel = () => { flight = null; };
   // On touch screens only a round area the size of the globe on screen listens for fingers, so the page can scroll anywhere outside it.
   let touchSize = 0;
@@ -26,7 +29,7 @@ export async function createGlobe({ host, stage, markerHost, touchHost, getMode,
     renderer?.domElement.removeEventListener('webglcontextlost', contextLost);
     const textures = new Set(); scene.traverse(node => { node.geometry?.dispose(); const materials = Array.isArray(node.material) ? node.material : [node.material]; for (const material of materials) if (material) { if (material.map) textures.add(material.map); material.dispose(); } });
     for (const texture of textures) texture.dispose();
-    for (const marker of markers.values()) marker.el.remove(); markers.clear();
+    for (const marker of markers.values()) marker.el.remove(); markers.clear(); labelHost.remove();
     renderer?.dispose(); renderer?.domElement.remove();
   }
   try {
@@ -65,6 +68,49 @@ export async function createGlobe({ host, stage, markerHost, touchHost, getMode,
         borderLayer.visible = false; scene.add(borderLayer); borderShownAt = performance.now(); setBorders('ready'); dirty = true;
       }).catch(() => { if (!disposed) setBorders('failed'); });
     };
+    // Country and city names (Natural Earth, bundled with the app) are fetched once, the first time the reader zooms in. Which names show, and where,
+    // is worked out on every drawn frame so that no name covers another name or a story pin. A failed fetch simply shows no names and is not retried.
+    let placeState = 'idle', places = [], drawn = []; host.dataset.places = placeState;
+    const setPlaces = state => { placeState = state; host.dataset.places = state; };
+    const loadPlaces = () => {
+      if (!shouldLoadPlaces({ distance: camera.position.length(), requested: placeState !== 'idle' })) return;
+      setPlaces('loading');
+      fetch(PLACES_URL).then(response => { if (!response.ok) throw new Error(`places ${response.status}`); return response.json(); }).then(file => {
+        if (disposed) return;
+        const decoded = decodePlaces(file); if (!decoded.length) throw new Error('no places');
+        places = decoded.map(place => ({ ...place, unit: point(place.lat, place.lng, 1), width: 0, el: null })); setPlaces('ready'); dirty = true;
+      }).catch(() => { if (!disposed) setPlaces('failed'); });
+    };
+    const ruler = document.createElement('canvas').getContext('2d'); let family = '';
+    const measure = (text, weight, size) => { if (!ruler) return text.length * size * .62; family ||= getComputedStyle(labelHost).fontFamily; ruler.font = `${weight} ${size}px ${family}`; return ruler.measureText(text).width; };
+    const widthOf = place => place.kind === 'country' ? labelWidth('country', measure(place.name.toUpperCase(), 600, COUNTRY_FONT_PX), place.name.length) : labelWidth('city', measure(place.name, 500, CITY_FONT_PX), place.name.length);
+    const toward = new THREE.Vector3(), onScreen = new THREE.Vector3();
+    // Buttons, the view switch and the story card sit on top of the globe on some screens. Names keep out from under them, so none is half hidden.
+    const overlayBoxes = () => {
+      const base = stage.getBoundingClientRect(), boxes = [];
+      for (const el of stage.parentElement?.querySelectorAll('.view-switch, .map-summary, .map-controls, .globe-status, .globe-footer, .credit, #selected') ?? []) {
+        const r = el.getBoundingClientRect(); if (r.width && r.height) boxes.push({ left: r.left - base.left, right: r.right - base.left, top: r.top - base.top, bottom: r.bottom - base.top });
+      }
+      return boxes;
+    };
+    const drawPlaces = obstacles => {
+      const distance = camera.position.length(), bounds = { left: 0, top: 0, right: stage.clientWidth, bottom: stage.clientHeight }, candidates = [];
+      if (placeState === 'ready') for (const place of places) {
+        const strength = nameOpacity(place.kind, place.tier, distance); if (strength <= 0) continue;
+        toward.copy(camera.position).sub(place.unit);
+        const alpha = strength * facingOpacity(place.unit.dot(toward) / toward.length()); if (alpha < .03) continue;
+        onScreen.copy(place.unit).project(camera); if (onScreen.z >= 1) continue;
+        const x = Math.round((onScreen.x * .5 + .5) * bounds.right), y = Math.round((-onScreen.y * .5 + .5) * bounds.bottom);
+        place.width ||= widthOf(place);
+        candidates.push({ place, alpha, x, y, box: labelBox(place.kind, x, y, place.width) });
+      }
+      const kept = chooseLabels(candidates, obstacles, bounds), shown = new Set();
+      for (const { place, alpha, x, y } of kept) {
+        if (!place.el) { place.el = document.createElement('span'); place.el.className = `place place-${place.kind}`; place.el.textContent = place.name; place.el.hidden = true; labelHost.appendChild(place.el); drawn.push(place); }
+        place.el.style.transform = `translate(${x}px,${y}px)`; place.el.style.opacity = alpha.toFixed(2); place.el.hidden = false; shown.add(place);
+      }
+      for (const place of drawn) if (!shown.has(place) && !place.el.hidden) place.el.hidden = true;
+    };
     scene.add(new THREE.AmbientLight(0xffffff, 2.1)); const sunlight = new THREE.DirectionalLight(0xdcefff, 2); scene.add(sunlight);
     scene.add(new THREE.Mesh(new THREE.SphereGeometry(1.025, 64, 48), new THREE.ShaderMaterial({ transparent: true, depthWrite: false, blending: THREE.AdditiveBlending,
       uniforms: { glowColor: { value: new THREE.Color('#339FFF') } },
@@ -88,18 +134,27 @@ export async function createGlobe({ host, stage, markerHost, touchHost, getMode,
         camera.position.copy(from.applyQuaternion(new THREE.Quaternion().slerp(q, ease)).multiplyScalar(THREE.MathUtils.lerp(flight.from.length(), flight.to.length(), ease)));
         if (t === 1) flight = null; dirty = true;
       }
-      controls.update(); upgradeEarth(); loadBorders(); if (!dirty) return; dirty = false;
+      controls.update(); upgradeEarth(); loadBorders(); loadPlaces(); if (!dirty) return; dirty = false;
+      const covered = placeState === 'ready' ? overlayBoxes() : [];
       if (borderLayer) {
         const arrival = reduced.matches ? 1 : Math.min(1, (now - borderShownAt) / 450), opacity = bordersOpacity(camera.position.length()) * arrival;
         borderLayer.material.opacity = opacity; borderLayer.visible = opacity > 0.005; if (arrival < 1) dirty = true;
       }
       sunlight.position.copy(camera.position).add(new THREE.Vector3(-2, 2, 1)); camera.updateMatrixWorld(); renderer.render(scene, camera); fitTouch();
+      const obstacles = [...covered];
       for (const marker of markers.values()) {
         const normal = marker.p.clone().normalize(), view = camera.position.clone().sub(marker.p).normalize(), screen = marker.p.clone().project(camera);
         const visible = normal.dot(view) > .025 && Math.abs(screen.x) < 1 && Math.abs(screen.y) < 1 && screen.z < 1;
         marker.el.hidden = !visible;
-        if (visible) { marker.el.style.left = `${(screen.x * .5 + .5) * stage.clientWidth}px`; marker.el.style.top = `${(-screen.y * .5 + .5) * stage.clientHeight}px`; }
+        if (visible) {
+          const x = (screen.x * .5 + .5) * stage.clientWidth, y = (-screen.y * .5 + .5) * stage.clientHeight;
+          marker.el.style.left = `${x}px`; marker.el.style.top = `${y}px`;
+          // Names keep clear of every pin, and of the label that opens beside the selected pin (it sits left of the pin: see .pin-label in the styles).
+          obstacles.push({ left: x - 17, right: x + 17, top: y - 17, bottom: y + 17 });
+          if (marker.el.getAttribute('aria-pressed') === 'true') { const w = measure(String(marker.location ?? ''), 400, 12) + 26; obstacles.push({ left: x - 21 - w, right: x - 21, top: y - 13, bottom: y + 17 }); }
+        }
       }
+      drawPlaces(obstacles);
     }
     frameId = requestAnimationFrame(frame);
     return {
@@ -112,10 +167,10 @@ export async function createGlobe({ host, stage, markerHost, touchHost, getMode,
           if (!marker) {
             const el = document.createElement('button'); el.className = 'pin'; el.dataset.story = s.id; el.hidden = true;
             const dot = document.createElement('span'); dot.className = 'pin-dot'; const label = document.createElement('span'); label.className = 'pin-label'; label.textContent = s.location;
-            el.append(dot, label); el.onclick = () => onSelect(s.id); markerHost.appendChild(el); marker = { el, p: point(s.lat, s.lng, 1.015) }; markers.set(s.id, marker);
+            el.append(dot, label); el.onclick = () => onSelect(s.id); markerHost.appendChild(el); marker = { el, p: point(s.lat, s.lng, 1.015), location: s.location }; markers.set(s.id, marker);
           }
           // A new story version can move or rename its pin; keep the marker in step with the current data.
-          marker.p = point(s.lat, s.lng, 1.015); marker.el.querySelector('.pin-label').textContent = s.location;
+          marker.p = point(s.lat, s.lng, 1.015); marker.location = s.location; marker.el.querySelector('.pin-label').textContent = s.location;
           marker.el.style.setProperty('--pin-color', categories[s.category]); marker.el.setAttribute('aria-label', `${s.location}: ${s.title}${s.isDemo ? '. Design sample.' : s.provenance === 'publisher_feed' ? '. Approximate area, not an exact event site.' : ''}${read[s.id] ? ' Read.' : ''}`); marker.el.setAttribute('aria-pressed', String(selected === s.id));
           // Opened stories dim until the next daily update removes them.
           marker.el.classList.toggle('read', !!read[s.id]);

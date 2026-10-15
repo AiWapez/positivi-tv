@@ -85,3 +85,10 @@ html{scroll-behavior:auto}body{overflow-x:hidden}svg{display:block;width:20px;he
 .explorer:not(:fullscreen):not(.expanded) .selected .stepper{justify-content:space-between}
 }
 @media(prefers-reduced-motion:reduce){.selected[data-enter]{animation:none!important}.card-pager i{transition:none}}
+
+/* Country and city names on the globe: decoration only, drawn under the story pins, never in the way of a touch. */
+.place-labels{position:absolute;inset:0;overflow:hidden;pointer-events:none;-webkit-user-select:none;user-select:none}
+.place{position:absolute;left:0;top:0;height:14px;margin-top:-7px;line-height:14px;white-space:nowrap;color:#f2f7ff;text-shadow:0 0 2px #04101c,0 0 4px #04101c,0 1px 7px #04101c}
+.place-country{font-size:10.5px;font-weight:600;letter-spacing:.09em;text-transform:uppercase;translate:-50% 0;color:#dbe8ff}
+.place-city{font-size:11px;font-weight:500;margin-left:7px}
+.place-city:before{content:"";position:absolute;left:-9.5px;top:50%;width:5px;height:5px;margin-top:-2.5px;border-radius:50%;background:#f2f7ff;box-shadow:0 0 0 1px #04101ccc}
