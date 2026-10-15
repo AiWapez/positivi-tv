@@ -2,7 +2,8 @@ import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { CATEGORY_COLORS as categories } from '../types/index.ts';
 import { GLOBE_FOV_DEGREES, START_DISTANCE, touchWindowDiameter } from './globe-touch.ts';
-import { BASE_EARTH_URL, MAX_ZOOM_DISTANCE, MIN_ZOOM_DISTANCE, SHARP_EARTH_URL, shouldLoadSharpEarth } from './globe-detail.ts';
+import { BASE_EARTH_URL, MAX_ZOOM_DISTANCE, MIN_ZOOM_DISTANCE, SHARP_EARTH_URL, bordersOpacity, shouldLoadBorders, shouldLoadSharpEarth } from './globe-detail.ts';
+import { BORDERS_URL, borderSegments, decodeBorders } from './borders.ts';
 
 const point = (lat, lng, r = 1) => {
   const phi = (90 - lat) * Math.PI / 180, theta = (lng + 180) * Math.PI / 180;
@@ -49,6 +50,21 @@ export async function createGlobe({ host, stage, markerHost, touchHost, getMode,
         const lighter = earth.map; earth.map = prepare(picture); lighter?.dispose(); setSharp('sharp'); dirty = true;
       }).catch(() => { if (!disposed) setSharp('failed'); });
     };
+    // Country borders (Natural Earth, bundled with the app) are fetched once, the first time the reader zooms in, and fade in as the camera comes closer.
+    // A failed fetch simply draws no borders and is not retried.
+    let borderState = 'idle', borderLayer = null, borderShownAt = 0; host.dataset.borders = borderState;
+    const setBorders = state => { borderState = state; host.dataset.borders = state; };
+    const loadBorders = () => {
+      if (!shouldLoadBorders({ distance: camera.position.length(), requested: borderState !== 'idle' })) return;
+      setBorders('loading');
+      fetch(BORDERS_URL).then(response => { if (!response.ok) throw new Error(`borders ${response.status}`); return response.json(); }).then(file => {
+        if (disposed) return;
+        const positions = borderSegments(decodeBorders(file)); if (!positions.length) throw new Error('no borders');
+        const geometry = new THREE.BufferGeometry(); geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+        borderLayer = new THREE.LineSegments(geometry, new THREE.LineBasicMaterial({ color: 0xf4f7ff, transparent: true, opacity: 0, depthWrite: false }));
+        borderLayer.visible = false; scene.add(borderLayer); borderShownAt = performance.now(); setBorders('ready'); dirty = true;
+      }).catch(() => { if (!disposed) setBorders('failed'); });
+    };
     scene.add(new THREE.AmbientLight(0xffffff, 2.1)); const sunlight = new THREE.DirectionalLight(0xdcefff, 2); scene.add(sunlight);
     scene.add(new THREE.Mesh(new THREE.SphereGeometry(1.025, 64, 48), new THREE.ShaderMaterial({ transparent: true, depthWrite: false, blending: THREE.AdditiveBlending,
       uniforms: { glowColor: { value: new THREE.Color('#339FFF') } },
@@ -72,7 +88,11 @@ export async function createGlobe({ host, stage, markerHost, touchHost, getMode,
         camera.position.copy(from.applyQuaternion(new THREE.Quaternion().slerp(q, ease)).multiplyScalar(THREE.MathUtils.lerp(flight.from.length(), flight.to.length(), ease)));
         if (t === 1) flight = null; dirty = true;
       }
-      controls.update(); upgradeEarth(); if (!dirty) return; dirty = false;
+      controls.update(); upgradeEarth(); loadBorders(); if (!dirty) return; dirty = false;
+      if (borderLayer) {
+        const arrival = reduced.matches ? 1 : Math.min(1, (now - borderShownAt) / 450), opacity = bordersOpacity(camera.position.length()) * arrival;
+        borderLayer.material.opacity = opacity; borderLayer.visible = opacity > 0.005; if (arrival < 1) dirty = true;
+      }
       sunlight.position.copy(camera.position).add(new THREE.Vector3(-2, 2, 1)); camera.updateMatrixWorld(); renderer.render(scene, camera); fitTouch();
       for (const marker of markers.values()) {
         const normal = marker.p.clone().normalize(), view = camera.position.clone().sub(marker.p).normalize(), screen = marker.p.clone().project(camera);
