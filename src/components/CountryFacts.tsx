@@ -18,6 +18,6 @@ export function CountryPage({ info }: { info: CountryInfo }) {
     <h2 id="dialog-title">{info.name}</h2>
     {!!info.relevant.length && <section className="country-section"><h3>Most relevant to this story</h3><dl>{info.relevant.map(f => <div key={f.label}><dt>{f.label}</dt><dd>{f.text}</dd></div>)}</dl></section>}
     {info.groups.map(group => <section className="country-section" key={group.topic}><h3>{group.topic}</h3><dl>{group.facts.map(f => <div key={f.label}><dt>{f.label}</dt><dd>{f.text}</dd></div>)}</dl></section>)}
-    <p className="country-source">Source: <a href={info.source.archive} target="_blank" rel="noopener noreferrer">{info.source.name}</a>, public domain. {info.source.note} Facts are shown as the Factbook wrote them, so a figure may be out of date.</p>
+    <p className="country-source">Source: <a href={info.source.archive} target="_blank" rel="noopener noreferrer">{info.source.name}</a>, public domain. The archive's data is dedicated under <a href="https://creativecommons.org/publicdomain/zero/1.0/" target="_blank" rel="noopener noreferrer">CC0 1.0</a>. {info.source.note} Facts are shown as the Factbook wrote them, so a figure may be out of date. The CIA doesn't endorse PositiviTV.</p>
   </>;
 }

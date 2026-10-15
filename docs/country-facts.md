@@ -5,6 +5,7 @@ When a story has a place on Earth, its card shows up to three "Good to know" fac
 ## Source and terms record
 
 - **Source:** the CIA World Factbook, a US government publication in the public domain. The CIA closed the Factbook in February 2026, so the facts come from the frozen public archive "factbook.json" (github.com/factbook/factbook.json), whose data is dedicated CC0 1.0. The build is pinned to one commit (`144d6977b2b01ac1cbd220de754c0a005616760b`, September 2026) and refuses to run on any other.
+- **License check (15 October 2026):** the LICENSE.md file at the pinned commit is the full CC0 1.0 Universal text, which confirms the dedication. The on-screen source line names the archive, says public domain, links the CC0 dedication, repeats that the numbers are frozen, and says the CIA doesn't endorse PositiviTV.
 - **Nothing is typed by hand.** Every sentence is the Factbook's own text with the markup removed. Each number keeps the year the Factbook gave it, for example "(2023 est.)". A fact longer than its limit is left out, never shortened.
 - **Left out on purpose:** military, terrorism, refugee, religion and ethnic-group fields. The list of fields used is `FACTS` in `scripts/build-country-facts.mjs`.
 - **Frozen:** these numbers will not update. The page says so plainly. If the Factbook is ever replaced by another source, that source needs its own terms check before it is used.
