@@ -25,7 +25,7 @@ test('the committed file is exactly what the data files build, and every animal 
     if (s.status) assert.ok(Object.values(STATUS_WORDS).includes(s.status), `${s.id}: ${s.status}`);
   }
   assert.equal(file.source.license, 'CC0 1.0');
-  assert.equal(file.source.credit, `Facts: Wikidata (CC0), checked by PositiviTV on ${longDate(file.source.checkedOn)}.`);
+  assert.equal(file.source.credit, `Facts: Wikidata (CC0), matched automatically against Wikipedia on ${longDate(file.source.checkedOn)}.`);
 });
 
 test('every fact in the file passed the second-source check or was kept by a written decision, and a written drop always wins', () => {

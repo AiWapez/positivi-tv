@@ -103,7 +103,7 @@ export function build() {
   const file = {
     source: {
       name: 'Wikidata', url: 'https://www.wikidata.org/', license: 'CC0 1.0', licenseUrl: 'https://creativecommons.org/publicdomain/zero/1.0/',
-      checkedOn, credit: `Facts: Wikidata (CC0), checked by PositiviTV on ${longDate(checkedOn)}.`,
+      checkedOn, credit: `Facts: Wikidata (CC0), matched automatically against Wikipedia on ${longDate(checkedOn)}.`,
       note: 'Each sentence is written by PositiviTV from a Wikidata value that a second source (English Wikipedia) also gave. Conservation categories are the IUCN Red List category words only.',
     },
     blockers,
