@@ -197,3 +197,20 @@ test('a stream error while reading the snapshot is a failure, not "no snapshot":
   blob.objects.get(SNAPSHOT_PATH).body = '{broken'; clock = 100;
   assert((await reader()).snapshot, 'last good snapshot kept after an invalid read');
 }));
+
+test('feeds on the same publisher host are fetched one after another with a 10-second gap; other hosts are unaffected', async () => {
+  const { runPublisherRefresh, HOST_SPACING_MS } = await import('../../server/publisher-refresh.ts');
+  assert.equal(HOST_SPACING_MS, 10000);
+  const twoAlpha = [...feeds(), { ...feeds()[0], id: 'alpha2', url: 'https://alpha.example.org/feed/good/' }];
+  const src = sources({ alpha2: { ...sources().alpha, id: 'alpha2' } });
+  const map = { ...xml, 'https://alpha.example.org/feed/good/': rss([item('alpha.example.org', 'park', 'Village opens a new park')]) };
+  const { fetcher } = fakeFetcher(map);
+  const events = [];
+  const logged = async (url, options) => { if (url.endsWith('/feed/') || url.endsWith('/good/')) events.push('fetch ' + url); return fetcher(url, options); };
+  const outcome = await runPublisherRefresh({ feeds: twoAlpha, sources: src, control: control(), store: createPublisherStore(memoryBlob()), fetcher: logged,
+    now: () => NOW, pause: async ms => { events.push('pause ' + ms); } });
+  assert.equal(outcome.code, 200, JSON.stringify(outcome.body));
+  const alpha = events.filter(e => e.includes('alpha') || e.startsWith('pause'));
+  assert.deepEqual(alpha, ['fetch https://alpha.example.org/feed/', 'pause 10000', 'fetch https://alpha.example.org/feed/good/']);
+  assert.deepEqual(Object.keys(outcome.body.sources).sort(), ['alpha', 'alpha2', 'beta']);
+});

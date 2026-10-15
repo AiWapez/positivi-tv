@@ -145,3 +145,15 @@ test('an id the reviewed edition ever gave a status (including withdrawn) is nev
   assert(!feed.stories.some(x => x.id === first.id)); assert.equal(feed.manifest.stories[first.id].status, 'withdrawn');
   for (const story of feed.stories) assert(statusMatchesProvenance(story, feed.manifest.stories[story.id].status));
 });
+
+test('the extra Mongabay and Global Voices feeds reuse the already-cleared licenses and stay on the same sites', () => {
+  const s = feedConfig.sources, f = Object.fromEntries(feedConfig.feeds.map(x => [x.id, x]));
+  assert.deepEqual(s['mongabay-upbeat'].publisherFeed.license, s.mongabay.publisherFeed.license);
+  assert.equal(new URL(f['mongabay-upbeat'].url).hostname, 'news.mongabay.com');
+  assert.equal(f['mongabay-upbeat'].supplementalUrl, undefined);
+  for (const id of ['globalvoices-featured', 'globalvoices-africa']) {
+    assert.deepEqual(s[id].publisherFeed.license, s['globalvoices-main'].publisherFeed.license, id);
+    assert.equal(new URL(f[id].url).hostname, 'globalvoices.org', id);
+    assert.deepEqual(s[id].publisherFeed.blockedCredits, s['globalvoices-main'].publisherFeed.blockedCredits, id);
+  }
+});
