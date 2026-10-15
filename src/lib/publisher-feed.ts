@@ -19,6 +19,11 @@ export interface PublisherFeedPermission {
   permittedFields: string[]; attribution: string; exceptions: string; notes?: string;
   /** The one country this publisher reports on. Used for a pin only when the headline names no place, and always labelled. */
   defaultCountry?: string;
+  /**
+   * Switch for using the location tags and map coordinates this publisher attaches to its posts (see server/publisher-place.ts).
+   * Off unless true. Turning it on also needs the publisher metadata request to ask for those fields and General Counsel's approval.
+   */
+  placeFromPublisherTags?: boolean;
   requiresAuthor?: boolean;
   license?: { name: string; url: string };
   blockedCredits?: string[];
@@ -119,7 +124,7 @@ export function projectPublisherFeed(snapshot: PublisherSnapshot | null, control
         ...(item.mapArea ? { mapArea: { ...item.mapArea } } : {}),
       };
       if (control.locationResolver === 'off') {
-        Object.assign(row, { location: 'Location not specified', lat: null, lng: null, locationPrecision: 'unknown', labels: row.labels.filter(l => l !== 'country_from_headline' && l !== 'country_from_publisher' && l !== 'area_from_feed') }); delete row.mapArea;
+        Object.assign(row, { location: 'Location not specified', lat: null, lng: null, locationPrecision: 'unknown', labels: row.labels.filter(l => !['country_from_headline', 'country_from_publisher', 'country_from_publisher_tag', 'area_from_feed', 'area_from_publisher'].includes(l)) }); delete row.mapArea;
       }
       Object.assign(row, photoFields(photoForStory(row, options.subjectPhotos ?? false)));
       if (!validPublicStory(row)) continue;

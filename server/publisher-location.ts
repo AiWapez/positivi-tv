@@ -73,6 +73,16 @@ const ORIGIN = /(?<![\p{L}])(?:based|born|made|headquartered|founded|raised|regi
 /** A headline opening exactly with "In X," sets the scene; any other opening clause ("Famous in France, ...") does not. */
 const SCENE_OPENING = /^\s*(?:in|across|throughout|around)\s+(?:the\s+)?$/i;
 
+const slugify = (s: string) => s.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
+const BY_SLUG = new Map(COUNTRIES.flatMap(([name, lat, lng, aliases = []]) => [name, ...aliases].map(alias => [slugify(alias), { name, lat, lng }] as const)));
+/** A country the finder knows, by the URL-style slug a publisher uses for a location tag ("south-africa"). Exact match only. */
+export function countryBySlug(slug: string): CountryMatch | null {
+  const c = BY_SLUG.get(slug);
+  return c ? { ...c } : null;
+}
+/** Every country name the finder knows (without aliases). */
+export const COUNTRY_NAMES: readonly string[] = COUNTRIES.map(c => c[0]);
+
 /** A country the finder knows, by its exact name. Used for a publisher's fixed home country, never for guessing from text. */
 export function countryByName(name: string): CountryMatch | null {
   const c = COUNTRIES.find(([n]) => n === name);

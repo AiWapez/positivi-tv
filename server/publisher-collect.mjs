@@ -34,6 +34,11 @@ export async function collectPublisherFeed(feed, now, fetcher, pause = delay) {
   if (!succeeded) throw failure ?? new Error('Publisher unavailable');
   // Preserve RSS priority, its byline and corrected versions when both endpoints describe one URL.
   const unique = new Map();
-  for (const candidate of candidates) if (!unique.has(candidate.id)) unique.set(candidate.id, candidate);
+  for (const candidate of candidates) {
+    const kept = unique.get(candidate.id);
+    if (!kept) unique.set(candidate.id, candidate);
+    // The RSS row wins, but it carries no place facts; the publisher metadata row for the same URL can add them.
+    else if (!kept.placeTags && candidate.placeTags) unique.set(candidate.id, { ...kept, placeTags: candidate.placeTags });
+  }
   return { candidates: [...unique.values()], ...(warning ? { warning } : {}) };
 }

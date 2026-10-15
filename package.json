@@ -18,6 +18,8 @@
     "borders:check": "node scripts/build-borders.mjs --check",
     "places:build": "node scripts/build-places.mjs",
     "places:check": "node scripts/build-places.mjs --check",
+    "boxes:build": "node scripts/build-country-boxes.mjs",
+    "boxes:check": "node scripts/build-country-boxes.mjs --check",
     "facts:build": "node scripts/build-country-facts.mjs --archive",
     "facts:check": "node scripts/build-country-facts.mjs --check --archive"
   },
