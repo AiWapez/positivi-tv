@@ -7,6 +7,7 @@ Downloaded October 14, 2026. These are illustrative assets, not evidence for any
 | earth.jpg | Lighter Earth picture (2048 x 1024, about 340 KB) that every visitor loads first. A LANCZOS downscale of `earth-sharp.jpg`, so both pictures show exactly the same Earth. |
 | earth-sharp.jpg | Sharp Earth picture (4096 x 2048, about 1.4 MB), fetched only once someone zooms in close. See "Earth imagery" below. |
 | borders.json | Country borders (about 105 KB, about 33 KB compressed), built by `scripts/build-borders.mjs` from Natural Earth 4.1.0 at 1:50m via the npm package `world-atlas@2.0.2`. See "Country borders" below. |
+| places.json | Country names, national capitals and cities of 2 million people or more (about 16 KB, about 8 KB compressed), built by `scripts/build-places.mjs` from two Natural Earth 5.1.2 files at 1:50m. See "Country and city names" below. |
 | coast.jpg | https://images.unsplash.com/photo-1510414842594-a61c69b5ae57?w=700&q=85&fit=crop |
 | wind.jpg | https://images.unsplash.com/photo-1466611653911-95081537e5b7?w=700&q=85&fit=crop |
 | city.jpg | https://images.unsplash.com/photo-1518391846015-55a9cc003b25?w=700&q=85&fit=crop |
@@ -28,6 +29,18 @@ Earth source context (replaced October 15, 2026): the earlier `earth.jpg` came f
 `borders.json` holds only the lines that two countries share (coastlines are left out because the Earth picture already shows them). It is generated, not hand edited: `npm run borders:build` rewrites it and `npm run borders:check` (also part of the test suite) fails if the committed file differs from what the script produces. The data comes from Natural Earth, which states that "All versions of Natural Earth raster + vector map data found on this website are in the public domain" and that crediting the authors is unnecessary (https://www.naturalearthdata.com/about/terms-of-use/, read October 15, 2026). The app credits it anyway in the About panel. The packages `world-atlas` (ISC) and `topojson-client` (ISC) are development tools only; nothing from them ships to phones except the finished file.
 
 Natural Earth shows boundaries as they are on the ground today and says it is not responsible for accuracy. Some borders are disputed, and the About panel says boundaries are approximate. If General Counsel wants different wording or a map-disclaimer, that is a copy change in `src/App.tsx`.
+
+## Country and city names (checked 15 October 2026)
+
+`places.json` is generated, not hand edited, from two files in the Natural Earth GitHub mirror at tag v5.1.2 (`ne_50m_admin_0_countries.geojson` and `ne_50m_populated_places.geojson`). `scripts/build-places.mjs` checks each file against the SHA-256 recorded in the script before using it, so a changed upstream file stops the build. `npm run places:build` downloads the two files and rewrites the output; `npm run places:check` fails if the committed file differs. The data is public domain under the same Natural Earth terms quoted above, and the terms add that the names in more than 20 languages come from Wikidata, "which is under a CC0 (public domain) license" (https://www.naturalearthdata.com/about/terms-of-use/, read October 15, 2026). Nothing is fetched from any other service, and the finished file is served from the app like the borders.
+
+The rules that decide what gets a name are fixed in the script and written into the file:
+
+- **Countries:** only places with an ISO 3166-1 country code get a name, at the spot Natural Earth gives for it. Places without one (Kosovo, Somaliland, Northern Cyprus and the Siachen Glacier in this data) are not labelled, and nobody adds or removes a label by hand. Names are Natural Earth's English names, with a short table of exceptions for names too long for a map label (for example "United States of America" is shown as "United States").
+- **Cities:** every place Natural Earth marks as a national capital, plus every other place of 2 million people or more, without research stations, historic places or weather stations and without places whose country has no ISO code. Three city names are changed on purpose: "Washington" becomes "Washington, D.C.", Natural Earth's out-of-date "Nur-Sultan" becomes "Astana" (renamed back in September 2022) and "Melekeok" becomes "Ngerulmud" (Palau's government has sat there since 2006).
+- **Not claimed:** the globe never says which city is a country's capital. The capital rule only decides which small cities are included.
+
+Natural Earth disclaims accuracy, and country names, capitals and the status of some places are disputed. This policy is rule based on purpose, so it can be explained once and applied evenly, but it means the globe shows what Natural Earth shows, including entries some readers may disagree with (for example the city of Jerusalem is labelled, and Taiwan and Palestine are labelled as places). The About panel says names are approximate. General Counsel should confirm this policy before launch.
 
 Keep appropriate imagery credits in the final product. The Three.js MIT license covers its code; it does not automatically license every third-party image. Review each asset's original usage terms before redistribution or public launch, and replace illustrative images with licensed article-specific imagery. Unsplash usage terms: https://unsplash.com/license. No third-party publisher endorsement is claimed.
 

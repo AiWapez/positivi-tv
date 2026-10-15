@@ -15,7 +15,9 @@
     "release:check": "node scripts/release-check.mjs",
     "feeds:local": "node scripts/sync-local-feeds.mjs",
     "borders:build": "node scripts/build-borders.mjs",
-    "borders:check": "node scripts/build-borders.mjs --check"
+    "borders:check": "node scripts/build-borders.mjs --check",
+    "places:build": "node scripts/build-places.mjs",
+    "places:check": "node scripts/build-places.mjs --check"
   },
   "dependencies": {
     "@vercel/blob": "2.8.2",
