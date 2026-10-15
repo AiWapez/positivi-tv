@@ -54,3 +54,17 @@ html{scroll-behavior:auto}body{overflow-x:hidden}svg{display:block;width:20px;he
 #globe canvas{touch-action:pan-y}
 .explorer:not(:fullscreen):not(.expanded) .globe-touch{inset:auto;left:50%;top:50%;width:var(--touch-d,100%);height:var(--touch-d,100%);transform:translate(-50%,-50%);border-radius:50%}
 }
+/* Phones: an opened story starts as a slim strip with a tab, so the globe keeps its room. The tab opens the full card. */
+.card-tab{display:none}
+@media(max-width:767px){
+.explorer:not(:fullscreen):not(.expanded) .selected .card-tab{display:flex;align-items:center;gap:8px;min-height:44px;margin:-6px 104px 2px -4px;padding:0 6px;border:0;background:none;color:var(--muted);font-size:12px;font-weight:600;letter-spacing:.2px;cursor:pointer}
+.explorer:not(:fullscreen):not(.expanded) .selected .card-tab:after{content:"";width:7px;height:7px;border-right:2px solid currentColor;border-bottom:2px solid currentColor;transform:translateY(-2px) rotate(45deg);transition:transform .2s ease}
+.explorer:not(:fullscreen):not(.expanded) .selected .card-tab[aria-expanded="true"]:after{transform:translateY(2px) rotate(-135deg)}
+.explorer:not(:fullscreen):not(.expanded) .selected .save-toggle,.explorer:not(:fullscreen):not(.expanded) .selected .close{top:8px}
+.explorer:not(:fullscreen):not(.expanded) .selected.is-compact{padding-bottom:12px}
+.explorer:not(:fullscreen):not(.expanded) .selected.is-compact>img,.explorer:not(:fullscreen):not(.expanded) .selected.is-compact>.story-art,.explorer:not(:fullscreen):not(.expanded) .selected.is-compact .card-more{display:none}
+.explorer:not(:fullscreen):not(.expanded) .selected.is-compact .selected-body{padding-top:0}
+.explorer:not(:fullscreen):not(.expanded) .selected.is-compact h2{font-size:18px;line-height:1.3;margin:6px 0}
+.explorer:not(:fullscreen):not(.expanded) .selected.is-compact .story-attribution{padding-top:2px;padding-bottom:0}
+}
+@media(prefers-reduced-motion:reduce){.card-tab:after{transition:none}}

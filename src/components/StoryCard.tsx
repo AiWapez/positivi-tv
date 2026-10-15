@@ -20,17 +20,23 @@ export function StoryButton({ story, selected, onSelect, read = false }: { story
 }
 export default function SelectedStoryCard({ story, saved, onSave, onClose, onNext, onReadSample }: { story: Story; saved: boolean; onSave: () => void; onClose: () => void; onNext: () => void; onReadSample: () => void }) {
   const event = eventLabel(story), qualifiers = qualifierLabels(story);
-  return <article id="selected" className="selected" aria-label="Selected story">
+  // On phones the card starts as a slim strip so the globe keeps its room, and the tab opens the full card.
+  // The photo and its credit hide together, while the byline, date and license stay visible. Other screens always show the full card.
+  const [open, setOpen] = useState(false);
+  return <article id="selected" className={`selected${open ? '' : ' is-compact'}`} aria-label="Selected story">
+    <button className="card-tab" onClick={() => setOpen(value => !value)} aria-expanded={open} aria-controls="selected-more">{open ? 'Hide details' : 'Show details'}</button>
     <button className="save-toggle" onClick={onSave} aria-label={saved ? 'Remove from saved' : 'Save story'} aria-pressed={saved}><Icon name="bookmark" /></button>
     <button className="close" onClick={onClose} aria-label="Close selected story"><Icon name="close" /></button>
     <StoryArt story={story} /><div className="selected-body"><div className="eyebrow"><i className="dot" style={{ background: CATEGORY_COLORS[story.category] }} />{story.location} · {story.category}</div>{story.attribution && <div className="meta">By {story.attribution.author} · {story.sourceName}</div>}<h2>{story.title}</h2><div className="meta">{dateLabel(story)}</div>
       {story.attribution && <div className="story-attribution"><a href={story.attribution.licenseUrl} target="_blank" rel="license noopener noreferrer">{story.attribution.licenseName}</a> · Headline unchanged</div>}
-      {!story.isDemo && <div className="event-meta">{provenanceLabel(story)}</div>}
-      {event && <div className="event-meta">{event}</div>}
-      {qualifiers.map(text => <div key={text} className="event-meta">{text}</div>)}
-      <StoryImageCredit story={story} />
-      {story.mapArea && <div className="story-attribution"><a href={story.mapArea.referenceUrl} target="_blank" rel="noopener noreferrer">Map reference <Icon name="external" /></a></div>}
-      <div className="actions">{story.isDemo ? <button className="primary" onClick={onReadSample}>Read story <Icon name="external" /></button> : <a className="primary" href={story.sourceUrl!} target="_blank" rel="noopener noreferrer">Read story <Icon name="external" /></a>}<button className="secondary" onClick={onNext}>Next location <Icon name="arrow" /></button></div>
+      <div id="selected-more" className="card-more">
+        {!story.isDemo && <div className="event-meta">{provenanceLabel(story)}</div>}
+        {event && <div className="event-meta">{event}</div>}
+        {qualifiers.map(text => <div key={text} className="event-meta">{text}</div>)}
+        <StoryImageCredit story={story} />
+        {story.mapArea && <div className="story-attribution"><a href={story.mapArea.referenceUrl} target="_blank" rel="noopener noreferrer">Map reference <Icon name="external" /></a></div>}
+        <div className="actions">{story.isDemo ? <button className="primary" onClick={onReadSample}>Read story <Icon name="external" /></button> : <a className="primary" href={story.sourceUrl!} target="_blank" rel="noopener noreferrer">Read story <Icon name="external" /></a>}<button className="secondary" onClick={onNext}>Next location <Icon name="arrow" /></button></div>
+      </div>
     </div>
   </article>;
 }
