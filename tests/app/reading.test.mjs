@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { parseReadMap, isRecent, feedUpdatedAt, retiredFromGlobe, globeStories, unreadFirst, RECENT_DAYS } from '../../src/lib/reading.ts';
+import { parseReadMap, isRecent, feedUpdatedAt, unreadFirst, RECENT_DAYS } from '../../src/lib/reading.ts';
 
 const NOW = Date.parse('2026-10-15T15:00:00Z'), DAY = 86400000;
 const iso = t => new Date(t).toISOString();
@@ -14,19 +14,11 @@ test('new this week means first collected within 7 days; older stories wait for 
   assert.equal(isRecent({ fetchedAt: 'not a date' }, NOW), false);
 });
 
-test('an opened story keeps a dimmed pin until a newer daily update arrives, then leaves the globe', () => {
-  const readAt = NOW - 2 * 3600000, read = { a: iso(readAt) };
-  assert.equal(retiredFromGlobe({ id: 'a' }, read, readAt - 3600000), false, 'snapshot older than the read: pin stays');
-  assert.equal(retiredFromGlobe({ id: 'a' }, read, readAt + 3600000), true, 'next update after the read: pin removed');
-  assert.equal(retiredFromGlobe({ id: 'a' }, read, null), false, 'no update time known: never removed');
-  assert.equal(retiredFromGlobe({ id: 'b' }, read, readAt + 3600000), false, 'unread stories always stay');
-});
-
-test('a week away: every unopened story is still on the globe; read ones are gone after updates', () => {
-  const stories = ['a', 'b', 'c', 'd'].map(id => story(id, 3)), read = { b: iso(NOW - 6 * DAY) };
-  const pins = globeStories(stories, read, NOW - DAY, null).map(s => s.id);
-  assert.deepEqual(pins, ['a', 'c', 'd']);
-  assert.deepEqual(globeStories(stories, read, NOW - DAY, 'b').map(s => s.id), ['a', 'b', 'c', 'd'], 'the selected story keeps its pin');
+test('read stories keep their pins: the globe no longer removes a pin after an update', async () => {
+  const { readFileSync } = await import('node:fs');
+  const reading = readFileSync(new URL('../../src/lib/reading.ts', import.meta.url), 'utf8'), app = readFileSync(new URL('../../src/App.tsx', import.meta.url), 'utf8');
+  assert.doesNotMatch(reading, /retiredFromGlobe|globeStories/);
+  assert.match(app, /const pins = view;/);
 });
 
 test('the list shows unread stories first and keeps each group in order', () => {

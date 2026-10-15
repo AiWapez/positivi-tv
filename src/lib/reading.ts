@@ -3,8 +3,7 @@ import type { Story } from '../types';
 /**
  * Device-local reading state. Nothing here is sent to a server.
  * - A story counts as "new this week" for 7 days after PositiviTV first collected it.
- * - Opening a story marks it read. Its pin dims right away and leaves the globe once a newer daily
- *   update has arrived, so pins a reader has not opened keep waiting for them.
+ * - Opening a story marks it read. Its pin dims right away and stays on the globe, so the globe never looks emptier than the list.
  */
 export const RECENT_DAYS = 7;
 const DAY = 86400000;
@@ -32,17 +31,6 @@ export function isRecent(story: Pick<Story, 'fetchedAt'>, now: number, days = RE
 export function feedUpdatedAt(feed: { updatedAt: string | null; publisherFeed?: { generatedAt: string | null } }): number | null {
   const times = [feed.publisherFeed?.generatedAt, feed.updatedAt].map(v => (v ? Date.parse(v) : NaN)).filter(Number.isFinite);
   return times.length ? Math.max(...times) : null;
-}
-
-/** A read story leaves the globe only after an update newer than the moment it was read. */
-export function retiredFromGlobe(story: Pick<Story, 'id'>, read: ReadMap, updatedAt: number | null): boolean {
-  const at = read[story.id];
-  return !!at && updatedAt !== null && updatedAt > Date.parse(at);
-}
-
-/** Pins to draw. The currently selected story always keeps its pin. */
-export function globeStories<T extends Pick<Story, 'id'>>(stories: T[], read: ReadMap, updatedAt: number | null, selectedId: string | null): T[] {
-  return stories.filter(s => s.id === selectedId || !retiredFromGlobe(s, read, updatedAt));
 }
 
 /** Unread first, each group keeping its original order. */
