@@ -19,7 +19,7 @@ What it does not promise: accuracy of the underlying reporting, that every liste
 
 ## 2. What a visitor sees
 
-Each automatic card shows the source name, "Published <date>", "From publisher feeds", "Event date not confirmed; this is recently published reporting.", and, where applicable, "Research finding, not yet an outcome in use" or "Pin: approximate country centre from the headline" (or, for a publisher with one home country, "Pin: approximate country centre; this publisher reports on this country, and the headline names no place"). The headline is unmodified. Images are never imported; the existing category artwork is used. The About dialog and the Terms panel explain both lanes.
+Each automatic card shows the source name, "Published <date>", "From publisher feeds", "Event date not confirmed; this is recently published reporting.", and, where applicable, "Research finding, not yet an outcome in use" or "Pin: approximate country centre from the headline" (or, for a publisher with one home country, "Approximate pin: placed in <country> because this publisher covers <country>. The headline doesn't name a place."). The headline is unmodified. Images are never imported; the existing category artwork is used. The About dialog and the Terms panel explain both lanes.
 
 ## 3. Dates (decision: show as recently published reporting)
 
