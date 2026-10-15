@@ -29,7 +29,7 @@ Three dates are kept separate:
 - `fetchedAt`: when PositiviTV first retrieved the item. Later runs keep the original value; it starts the retention clock.
 - `eventDate`: always `null` in this lane. Rules cannot establish when an event happened.
 
-Nothing is ever filled with "now". The selected policy is to display these items explicitly as recently published reporting (label `event_date_unconfirmed`, required by validation) rather than omit them. To reduce old events reported as new, headlines containing a year before the current year, retrospective wording (anniversary, years ago, looking back) or a description phrase such as "inaugurated in 2019" are excluded. This is a heuristic: an old event described without a year can still pass, which is why the label is mandatory. Items leave the lane 7 days after publication (`windowDays`) or when the source's retention period ends, whichever is first.
+Nothing is ever filled with "now". The selected policy is to display these items explicitly as recently published reporting (label `event_date_unconfirmed`, required by validation) rather than omit them. To reduce old events reported as new, headlines containing a year before the current year, retrospective wording (anniversary, years ago, looking back) or a description phrase such as "inaugurated in 2019" are excluded. This is a heuristic: an old event described without a year can still pass, which is why the label is mandatory. Items leave the lane 30 days after publication (`windowDays`) or when the source's retention period ends, whichever is first. Since October 15, 2026 every enabled source keeps items for 30 days.
 
 ## 4. Screening rules and their limits
 
@@ -163,3 +163,7 @@ No new article fetching, geocoding API or paid service is added. Feed descriptio
 ## Coverage and image amendment
 
 The current policy is `publisher-feed-0.4.1` (0.4.1 adds rejection of unresolved trafficked-animal journeys; see coverage and photos), with a 30-day publication window and policy-scoped private snapshot paths. It supplements Mongabay RSS with bounded keyless metadata and real byline records. Public cards may use only the checked local illustration catalog. See [coverage and photos](coverage-and-photos.md) for the exact boundaries and attribution rules. Earlier no-image and fixed snapshot-path descriptions above describe the original candidate.
+
+## Reader view: new this week, previous stories and read state (October 15, 2026)
+
+The reader opens on stories PositiviTV first collected in the last 7 days. A "Previous positive stories" button shows everything still inside the 30-day window. Opening a story marks it read in that browser only (`positivitv.read.v1` in local storage, capped and pruned after 120 days); its pin dims at once and leaves the globe after the next daily update, so unopened stories keep waiting. Read stories stay in the list, after unread ones, labelled "Read". The Privacy panel explains this and offers "Clear reading history". Nothing about reading is sent to a server, and each device keeps its own history. A screening-policy version change starts a fresh snapshot, so every story then counts as newly collected for 7 days; read state is kept because story IDs do not change.

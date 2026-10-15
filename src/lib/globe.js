@@ -67,7 +67,7 @@ export async function createGlobe({ host, stage, markerHost, getMode, onError, o
     }
     frameId = requestAnimationFrame(frame);
     return {
-      update(items, selected) {
+      update(items, selected, read = {}) {
         const located = items.filter(s => Number.isFinite(s.lat) && s.lat >= -90 && s.lat <= 90 && Number.isFinite(s.lng) && s.lng >= -180 && s.lng <= 180);
         const ids = new Set(located.map(s => s.id));
         for (const [id, marker] of markers) if (!ids.has(id)) { marker.el.remove(); markers.delete(id); }
@@ -80,7 +80,9 @@ export async function createGlobe({ host, stage, markerHost, getMode, onError, o
           }
           // A new story version can move or rename its pin; keep the marker in step with the current data.
           marker.p = point(s.lat, s.lng, 1.015); marker.el.querySelector('.pin-label').textContent = s.location;
-          marker.el.style.setProperty('--pin-color', categories[s.category]); marker.el.setAttribute('aria-label', `${s.location}: ${s.title}${s.isDemo ? '. Design sample.' : s.provenance === 'publisher_feed' ? '. Approximate area, not an exact event site.' : ''}`); marker.el.setAttribute('aria-pressed', String(selected === s.id));
+          marker.el.style.setProperty('--pin-color', categories[s.category]); marker.el.setAttribute('aria-label', `${s.location}: ${s.title}${s.isDemo ? '. Design sample.' : s.provenance === 'publisher_feed' ? '. Approximate area, not an exact event site.' : ''}${read[s.id] ? ' Read.' : ''}`); marker.el.setAttribute('aria-pressed', String(selected === s.id));
+          // Opened stories dim until the next daily update removes them.
+          marker.el.classList.toggle('read', !!read[s.id]);
         }
         resize(); dirty = true;
       },

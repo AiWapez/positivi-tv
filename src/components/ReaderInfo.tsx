@@ -1,7 +1,7 @@
 import Icon from './Icon';
 
-export default function ReaderInfo({ page, savedCount, onClear }: {
-  page: 'privacy' | 'terms'; savedCount: number; onClear: () => void;
+export default function ReaderInfo({ page, savedCount, onClear, readCount = 0, onClearRead }: {
+  page: 'privacy' | 'terms'; savedCount: number; onClear: () => void; readCount?: number; onClearRead?: () => void;
 }) {
   if (page === 'terms') return <>
     <p className="eyebrow">Reading PositiviTV</p><h2 id="dialog-title">Free to explore.</h2>
@@ -19,9 +19,11 @@ export default function ReaderInfo({ page, savedCount, onClear }: {
     <p>This release has no sign-up, behavioral analytics, advertising trackers, session recordings or public submissions. Search and category choices stay in this page; we do not send them to a personalization service.</p>
     <h3>Favorites stay on this device</h3><p>Saving a story stores its ID in your browser. We do not sync favorites to a server. Other people using this browser may see them. Clearing browser storage also removes them.</p>
     <button className="secondary" disabled={!savedCount} onClick={onClear}>Clear saved stories ({savedCount})</button>
+    <h3>Reading history stays on this device</h3><p>Opening a story marks it read in your browser. Its pin dims, then makes room for new ones after the next daily update. Stories you have not opened stay on the globe. We do not send this history to a server, and each browser or device keeps its own. Clearing it brings every pin back.</p>
+    <button className="secondary" disabled={!readCount || !onClearRead} onClick={onClearRead}>Clear reading history ({readCount})</button>
     <h3>What still travels over the internet</h3><p>Your browser requests the website’s files and story feed from our hosting provider, Vercel. Hosting infrastructure can process IP addresses and request metadata to deliver and protect the service. No website can promise that simply removing accounts removes all data processing.</p>
     <p>The globe texture, font, story photos and sample pictures load from this website. Opening a publisher, GitHub or an imagery credit takes you to a separate website with its own privacy practices.</p>
     <h3>Younger readers</h3><p>You do not need to give us your age, name, email, photo or location to read. Please do not put personal information in a public issue report. Accounts, uploads and any optional analytics will need a separate privacy and safety review before they are introduced.</p>
-    <p className="filter-note">Updated October 14, 2026. This notice describes this release, including the labelled sample edition.</p>
+    <p className="filter-note">Updated October 15, 2026. This notice describes this release, including the labelled sample edition.</p>
   </>;
 }

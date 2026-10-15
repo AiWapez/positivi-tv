@@ -7,6 +7,8 @@ import StoryDialog from './components/StoryDialog';
 import ReaderInfo from './components/ReaderInfo';
 import { useSavedStories } from './hooks/useSavedStories';
 import { useStoryFeed } from './hooks/useStoryFeed';
+import { useReadStories } from './hooks/useReadStories';
+import { feedUpdatedAt, globeStories, isRecent, unreadFirst } from './lib/reading';
 import { CATEGORY_COLORS } from './types';
 import type { Story, Filters, CategoryFilter } from './types';
 import { filterStories, nextStory, dateLabel } from './lib/story-utils';
@@ -17,6 +19,10 @@ export default function App() {
   const [demo, setDemo] = useState(() => new URLSearchParams(location.search).get('demo') === '1');
   const { feed, loading, error, refresh, confirm } = useStoryFeed();
   const { saved, toggle, clear, storageWarning } = useSavedStories();
+  const { read, markRead, clearRead } = useReadStories();
+  const [showPrevious, setShowPrevious] = useState(false);
+  // Stories opened during this visit keep their list position; they move below unread ones next visit.
+  const [visitStart] = useState(() => Date.now());
   const [filters, setFilters] = useState<Filters>({ category: 'All', query: '', period: '30', savedOnly: false });
   const [mode, setMode] = useState<'globe' | 'list'>('globe'), [selectedId, setSelected] = useState<string | null>(demo ? 'portugal' : null);
   const [dialog, setDialog] = useState<'about' | 'filters' | 'sample' | 'privacy' | 'terms' | null>(null), [message, setMessage] = useState('');
@@ -24,30 +30,42 @@ export default function App() {
   const globe = useRef<GlobeControls>(null), explorer = useRef<HTMLElement>(null), discovery = useRef<HTMLButtonElement>(null);
   const items: Story[] = demo ? demoStories as Story[] : feed.stories;
   const visible = useMemo(() => filterStories(items, filters, saved, demo ? Date.parse(DEMO_DATE) : Date.now()), [items, filters, saved, demo]);
-  const selected = visible.find(s => s.id === selectedId) ?? null;
+  // New this week = first collected in the last 7 days. Older stories wait behind "Previous positive stories".
+  const clock = demo ? Date.parse(DEMO_DATE) : Date.now();
+  const recent = visible.filter(s => isRecent(s, clock));
+  const view = filters.savedOnly || showPrevious ? visible : recent;
+  const olderCount = filters.savedOnly ? 0 : visible.length - recent.length;
+  const listed = demo ? view : unreadFirst(view, Object.fromEntries(Object.entries(read).filter(([, at]) => Date.parse(at) < visitStart)));
+  const pins = demo ? view : globeStories(view, read, feedUpdatedAt(feed), selectedId);
+  const unreadCount = view.filter(s => !read[s.id]).length;
+  const selected = view.find(s => s.id === selectedId) ?? null;
   const openedLiveEdition = useRef(false);
   useEffect(() => {
     if (demo || openedLiveEdition.current || !feed.stories.length) return;
     openedLiveEdition.current = true;
-    setSelected((feed.stories.find(s => s.lat !== null && s.lng !== null) ?? feed.stories[0]).id);
+    const fresh = feed.stories.filter(s => isRecent(s, Date.now()));
+    const pick = fresh.find(s => s.lat !== null && s.lng !== null && !read[s.id]) ?? fresh.find(s => s.lat !== null && s.lng !== null) ?? fresh[0];
+    if (pick) setSelected(pick.id);
   }, [demo, feed.stories]);
   useEffect(() => {
     if (!globeReady || !selected) return;
     if (selected.lat !== null && selected.lng !== null) globe.current?.flyTo(selected.lat, selected.lng);
     else globe.current?.reset();
   }, [globeReady, selected?.id, selected?.version]);
-  function reset() { setFilters({ category: 'All', query: '', period: '30', savedOnly: false }); setMessage('Filters reset.'); }
+  function reset() { setFilters({ category: 'All', query: '', period: '30', savedOnly: false }); setShowPrevious(false); setMessage('Filters reset.'); }
   function changeMode(next: 'globe' | 'list') { setMode(next); setFilters(f => ({ ...f, savedOnly: false })); }
   async function select(id: string) {
-    const s = visible.find(s => s.id === id); if (!s) return;
+    const s = view.find(s => s.id === id); if (!s) return;
     if (!s.isDemo && !await confirm(s)) { setMessage('That story is no longer available in the current edition.'); return; }
-    setSelected(id); setMode('globe');
+    setSelected(id); setMode('globe'); if (!s.isDemo) markRead(id);
     setMessage(`Selected ${s.title}, ${s.location}.${s.isDemo ? ' Design sample.' : ''}`);
     if (matchMedia('(max-width: 767px)').matches) explorer.current?.scrollIntoView({ behavior: 'auto', block: 'start' });
   }
   function discover(random = false) {
-    const mapped = visible.filter(s => s.lat !== null && s.lng !== null);
-    const pool = mode === 'globe' && mapped.some(s => s.id !== selectedId) ? mapped : visible;
+    // Prefer stories this reader has not opened yet.
+    const fresh = view.filter(s => !read[s.id] || s.id === selectedId), base = fresh.some(s => s.id !== selectedId) ? fresh : view;
+    const mapped = base.filter(s => s.lat !== null && s.lng !== null);
+    const pool = mode === 'globe' && mapped.some(s => s.id !== selectedId) ? mapped : base;
     const s = nextStory(pool, selectedId, random); if (s) void select(s.id);
   }
   function toggleSave(s: Story) { toggle(s.id); setMessage(saved.has(s.id) ? 'Story removed from saved.' : 'Story saved.'); }
@@ -71,7 +89,12 @@ export default function App() {
     return () => { nodes.forEach(el => { el.inert = false; }); document.body.classList.remove('globe-expanded'); document.removeEventListener('keydown', key); };
   }, [expanded, dialog]);
   const hasFilters = filters.query || filters.category !== 'All' || filters.period !== '30' || filters.savedOnly;
-  const empty = <div className="empty"><span className="empty-icon"><Icon name={filters.savedOnly ? 'bookmark' : 'globe'} /></span><h3>{filters.savedOnly ? 'Keep a little good.' : hasFilters ? 'No stories match just yet.' : 'Good things are on their way.'}</h3><p>{filters.savedOnly ? 'Save a story to find it here. Your filters still apply.' : hasFilters ? 'Try a different search or a wider date range.' : 'New stories will appear here. You can explore the design with clearly labelled samples.'}</p>{hasFilters ? <button className="secondary" onClick={reset}>Reset filters</button> : <button className="secondary" onClick={() => switchDemo(true)}>Explore sample edition</button>}</div>;
+  const previousToggle = !demo && !filters.savedOnly && (showPrevious || olderCount > 0)
+    ? <button className="previous-toggle" aria-pressed={showPrevious} onClick={() => { setShowPrevious(!showPrevious); setMessage(showPrevious ? 'Showing new stories from this week.' : 'Showing previous positive stories too.'); }}>{showPrevious ? 'Back to this week' : `Previous positive stories · ${olderCount}`}<Icon name="arrow" /></button> : null;
+  const heading = filters.savedOnly ? 'Saved stories' : demo ? 'Illustrative stories' : showPrevious ? 'All recent stories' : 'New this week';
+  const unreadNote = !demo && unreadCount < view.length ? ` · ${unreadCount} unread` : '';
+  const quietWeek = !demo && !filters.savedOnly && !showPrevious && !view.length && olderCount > 0 && !hasFilters;
+  const empty = quietWeek ? <div className="empty"><span className="empty-icon"><Icon name="globe" /></span><h3>No new stories this week yet.</h3><p>Earlier good news is still waiting for you.</p>{previousToggle}</div> : <div className="empty"><span className="empty-icon"><Icon name={filters.savedOnly ? 'bookmark' : 'globe'} /></span><h3>{filters.savedOnly ? 'Keep a little good.' : hasFilters ? 'No stories match just yet.' : 'Good things are on their way.'}</h3><p>{filters.savedOnly ? 'Save a story to find it here. Your filters still apply.' : hasFilters ? 'Try a different search or a wider date range.' : 'New stories will appear here. You can explore the design with clearly labelled samples.'}</p>{hasFilters ? <button className="secondary" onClick={reset}>Reset filters</button> : <button className="secondary" onClick={() => switchDemo(true)}>Explore sample edition</button>}</div>;
   return <>
     <a href="#search" className="skip">Skip to stories</a><div className="app">
       <header className="topbar"><a className="brand" href="/" aria-label="PositiviTV home"><img className="sun" src="/assets/sun.svg" alt="" width="42" height="42" /><span>Positivi<span className="brand-end">TV</span></span></a>
@@ -85,25 +108,25 @@ export default function App() {
       <main className="workspace"><aside className="sidebar" aria-label="Find stories"><div className="intro"><h1>A world of good.</h1><p>Discover the brighter side of our planet.</p></div><label className="search"><Icon name="search" /><input id="search" type="search" placeholder="Search a place or topic" aria-label="Search a place or topic" value={filters.query} onChange={e => setFilters(f => ({ ...f, query: e.target.value }))} /></label>
         <div className="categories" role="group" aria-label="Filter by category">{Object.entries(CATEGORY_COLORS).map(([name,color]) => <button key={name} className={`chip ${filters.category === name ? 'active' : ''}`} aria-pressed={filters.category === name} onClick={() => setFilters(f => ({ ...f, category: name as CategoryFilter }))}>{name !== 'All' && <i className="dot" style={{ background: color }} />}{name}</button>)}</div>
         <label className="period"><Icon name="calendar" /><select aria-label="Story date range" value={filters.period} onChange={e => setFilters(f => ({ ...f, period: e.target.value as Filters['period'] }))}>{Object.entries(periods).map(([value,label]) => <option key={value} value={value}>{label}</option>)}</select></label>
-        <div className="mobile-tools"><span className="mobile-disclosure">{demo ? 'Design samples' : loading ? 'Checking edition…' : `${items.length} stories`}</span><button className="filter-button" aria-haspopup="dialog" onClick={() => setDialog('filters')}><Icon name="sliders" />{periods[filters.period]}</button></div>
-        <div className="list-heading"><span>{filters.savedOnly ? 'Saved' : demo ? 'Illustrative' : 'Current'} stories · {visible.length}</span><button className="text-button" onClick={reset}>Reset</button></div><div className="story-list">{visible.length ? visible.map(s => <StoryButton key={s.id} story={s} selected={selected?.id === s.id} onSelect={select} />) : !demo && loading ? <div className="empty" role="status">Checking the latest stories…</div> : empty}</div>
+        <div className="mobile-tools"><span className="mobile-disclosure">{demo ? 'Design samples' : loading ? 'Checking edition…' : `${heading} · ${view.length}${unreadNote}`}</span><button className="filter-button" aria-haspopup="dialog" onClick={() => setDialog('filters')}><Icon name="sliders" />{periods[filters.period]}</button></div>
+        <div className="list-heading"><span>{heading} · {view.length}{unreadNote}</span><button className="text-button" onClick={reset}>Reset</button></div>{!quietWeek && previousToggle}<div className="story-list">{view.length ? listed.map(s => <StoryButton key={s.id} story={s} read={!!read[s.id]} selected={selected?.id === s.id} onSelect={select} />) : !demo && loading ? <div className="empty" role="status">Checking the latest stories…</div> : empty}</div>
         <p className="sample-note">{demo ? 'These stories and dates are illustrative, not reported news.' : 'Original publishers and dates. Each story says whether PositiviTV reviewed it or it came automatically from publisher feeds. Unlocated stories have no map pin.'}{storageWarning && <span role="status"> Saves are available for this session; browser storage is unavailable.</span>}</p>
       </aside>
       <section className={`explorer ${mode === 'list' ? 'list-mode' : ''} ${!selected ? 'no-selection' : ''} ${expanded && !document.fullscreenElement ? 'expanded' : ''}`} ref={explorer} aria-label="Interactive news globe">
         <div className="view-switch" role="group" aria-label="Choose view">{(['globe','list'] as const).map(view => <button key={view} className={mode === view ? 'active' : ''} aria-pressed={mode === view} onClick={() => setMode(view)}><Icon name={view} />{view === 'globe' ? 'Globe' : 'List'}</button>)}</div>
-        {mode === 'globe' && !!visible.length && <div className="map-summary"><span>{visible.filter(s => s.lat !== null).length} mapped worldwide · Rotate to explore</span>{visible.some(s => s.lat === null) && <button onClick={() => setMode('list')}>{visible.filter(s => s.lat === null).length} more in list <Icon name="arrow" /></button>}</div>}
-        <GlobeScene ref={globe} stories={visible} selected={selected?.id ?? null} mode={mode} onSelect={select} onReady={setGlobeReady} onError={() => setGlobeFailed(true)} />
-        {mode === 'globe' && (!globeReady || !visible.length) && <div className="globe-status" role="status">{globeFailed ? <>The globe couldn’t load. Every story is still available in the list.<button className="primary" onClick={() => setMode('list')}>Browse stories <Icon name="arrow" /></button></> : !globeReady ? 'Loading our world…' : loading && !demo ? 'Checking the latest stories…' : empty}</div>}
+        {mode === 'globe' && !!view.length && <div className="map-summary"><span>{pins.filter(s => s.lat !== null).length} mapped worldwide · Rotate to explore</span>{view.some(s => s.lat === null) && <button onClick={() => setMode('list')}>{view.filter(s => s.lat === null).length} more in list <Icon name="arrow" /></button>}</div>}
+        <GlobeScene ref={globe} stories={pins} read={demo ? {} : read} selected={selected?.id ?? null} mode={mode} onSelect={select} onReady={setGlobeReady} onError={() => setGlobeFailed(true)} />
+        {mode === 'globe' && (!globeReady || !view.length) && <div className="globe-status" role="status">{globeFailed ? <>The globe couldn’t load. Every story is still available in the list.<button className="primary" onClick={() => setMode('list')}>Browse stories <Icon name="arrow" /></button></> : !globeReady ? 'Loading our world…' : loading && !demo ? 'Checking the latest stories…' : empty}</div>}
         <div className="map-controls" role="group" aria-label="Globe controls" hidden={mode === 'list'}><button aria-label="Zoom in" disabled={!globeReady} onClick={() => globe.current?.zoom(.85)}><Icon name="plus" /></button><button aria-label="Zoom out" disabled={!globeReady} onClick={() => globe.current?.zoom(1/.85)}><Icon name="minus" /></button><button aria-label="Reset globe orientation" disabled={!globeReady} onClick={() => globe.current?.reset()}><Icon name="compass" /></button><button aria-label={expanded ? 'Exit expanded globe' : 'Expand globe'} onClick={() => void expand()}><Icon name="expand" /></button></div>
-        <div className="list-view" hidden={mode !== 'list'}><div className="list-view-heading"><div><p className="eyebrow">A little perspective</p><h2>Good news, wherever you look.</h2></div><span className="meta">{visible.length} stories{demo ? ' · Design samples' : ''}</span></div><div id="list-grid">{visible.length ? visible.map(s => <StoryButton key={s.id} story={s} selected={selected?.id === s.id} onSelect={select} />) : empty}</div></div>
+        <div className="list-view" hidden={mode !== 'list'}><div className="list-view-heading"><div><p className="eyebrow">A little perspective</p><h2>Good news, wherever you look.</h2></div><span className="meta">{heading} · {view.length}{unreadNote}{demo ? ' · Design samples' : ''}</span></div>{!quietWeek && previousToggle}<div id="list-grid">{view.length ? listed.map(s => <StoryButton key={s.id} story={s} read={!!read[s.id]} selected={selected?.id === s.id} onSelect={select} />) : empty}</div></div>
         {selected && mode === 'globe' && <SelectedStoryCard story={selected} saved={saved.has(selected.id)} onSave={() => toggleSave(selected)} onClose={() => { setSelected(null); discovery.current?.focus(); }} onNext={() => discover()} onReadSample={() => setDialog('sample')} />}
-        <div className="globe-footer"><span className="hint"><Icon name="mouse" />Drag to rotate · Scroll to zoom · Select a pin</span><button className="surprise" ref={discovery} disabled={!visible.length} onClick={() => discover(true)}><Icon name="shuffle" />Take me somewhere good</button></div><a className="credit" href="https://visibleearth.nasa.gov/images/57723/the-blue-marble" target="_blank" rel="noopener noreferrer">Earth imagery: NASA / Blue Marble</a>
+        <div className="globe-footer"><span className="hint"><Icon name="mouse" />Drag to rotate · Scroll to zoom · Select a pin</span><button className="surprise" ref={discovery} disabled={!view.length} onClick={() => discover(true)}><Icon name="shuffle" />Take me somewhere good</button></div><a className="credit" href="https://visibleearth.nasa.gov/images/57723/the-blue-marble" target="_blank" rel="noopener noreferrer">Earth imagery: NASA / Blue Marble</a>
       </section></main>
       <footer className="reader-footer" aria-label="Reader information"><span>Good news. Open to everyone.</span><div><button onClick={() => setDialog('about')}>About</button><button onClick={() => setDialog('privacy')}>Privacy</button><button onClick={() => setDialog('terms')}>Terms &amp; sources</button></div></footer>
       <nav className="mobile-nav" aria-label="Mobile navigation"><button className={mode === 'globe' && !filters.savedOnly ? 'active' : ''} aria-pressed={mode === 'globe' && !filters.savedOnly} onClick={() => changeMode('globe')}><Icon name="globe" />Explore</button><button className={mode === 'list' && !filters.savedOnly ? 'active' : ''} aria-pressed={mode === 'list' && !filters.savedOnly} onClick={() => changeMode('list')}><Icon name="stories" />Stories</button><button className={filters.savedOnly ? 'active' : ''} aria-pressed={filters.savedOnly} onClick={() => { setFilters(f => ({ ...f, savedOnly: true })); setMode('list'); }}><Icon name="bookmark" />Saved<span className="sr-only">{saved.size} saved</span></button></nav>
     </div>
     <StoryDialog open={dialog !== null} onClose={() => setDialog(null)}>
-      {(dialog === 'privacy' || dialog === 'terms') && <ReaderInfo page={dialog} savedCount={saved.size} onClear={() => { clear(); setMessage('Saved stories cleared from this device.'); }} />}
+      {(dialog === 'privacy' || dialog === 'terms') && <ReaderInfo page={dialog} savedCount={saved.size} onClear={() => { clear(); setMessage('Saved stories cleared from this device.'); }} readCount={Object.keys(read).length} onClearRead={() => { clearRead(); setMessage('Reading history cleared from this device.'); }} />}
       {dialog === 'about' && <><p className="eyebrow">PositiviTV</p><h2 id="dialog-title">A world of good.</h2><p>Constructive stories, with their sources intact. A free window onto the brighter side of our planet, built to explore and share.</p><div className="sample-callout"><strong>Two clearly labelled kinds of story</strong><p><b>Reviewed by PositiviTV</b> stories were checked for constructive outcomes, evidence and event dates before an editor approved them. <b>From publisher feeds</b> stories were picked automatically from permitted publisher feeds by simple, conservative rules. They are not individually reviewed, the rules can make mistakes, and their event dates are not confirmed. Refresh reads the latest saved stories; it never starts a new search or fabricates stories.</p></div><p>Earth: NASA / Blue Marble. Sample photos: Unsplash. Inter: Rasmus Andersson, SIL Open Font License. Globe: Three.js, MIT.</p><div className="about-actions"><a className="primary" href={repo} target="_blank" rel="noopener noreferrer">View on GitHub <Icon name="external" /></a><button className="secondary" onClick={() => switchDemo(!demo)}>{demo ? 'Live news' : 'Try sample edition'}</button></div></>}
       {dialog === 'filters' && <><p className="eyebrow">Your view of the world</p><h2 id="dialog-title">Choose a date range.</h2><div className="date-options">{Object.entries(periods).map(([value,label]) => <button key={value} className={`date-option ${filters.period === value ? 'active' : ''}`} aria-pressed={filters.period === value} onClick={() => { setFilters(f => ({ ...f, period: value as Filters['period'] })); setDialog(null); }}><Icon name="calendar" />{label}</button>)}</div><p className="filter-note">{demo ? 'Fixed sample dates around October 14, 2026.' : 'Filters use original publication dates. Event dates and archive labels remain visible on each story.'}</p></>}
       {dialog === 'sample' && selected?.isDemo && <><StoryArt story={selected} /><p className="eyebrow">{selected.location} · {selected.category}</p><h2 id="dialog-title">{selected.title}</h2><p>{selected.summary}</p><div className="sample-callout"><strong>Design sample</strong><p>This fictional story has no publisher or original article. {dateLabel(selected)} is a fixed example date.</p></div><p className="image-credit">{selected.imageCredit}</p><button className="primary" onClick={() => toggleSave(selected)} aria-pressed={saved.has(selected.id)}><Icon name="bookmark" />{saved.has(selected.id) ? 'Remove from saved' : 'Save story'}</button></>}
