@@ -17,7 +17,9 @@
     "borders:build": "node scripts/build-borders.mjs",
     "borders:check": "node scripts/build-borders.mjs --check",
     "places:build": "node scripts/build-places.mjs",
-    "places:check": "node scripts/build-places.mjs --check"
+    "places:check": "node scripts/build-places.mjs --check",
+    "facts:build": "node scripts/build-country-facts.mjs --archive",
+    "facts:check": "node scripts/build-country-facts.mjs --check --archive"
   },
   "dependencies": {
     "@vercel/blob": "2.8.2",
