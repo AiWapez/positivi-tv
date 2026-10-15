@@ -1,17 +1,21 @@
 import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { CATEGORY_COLORS as categories } from '../types/index.ts';
+import { GLOBE_FOV_DEGREES, START_DISTANCE, touchWindowDiameter } from './globe-touch.ts';
 
 const point = (lat, lng, r = 1) => {
   const phi = (90 - lat) * Math.PI / 180, theta = (lng + 180) * Math.PI / 180;
   return new THREE.Vector3(-r * Math.sin(phi) * Math.cos(theta), r * Math.cos(phi), r * Math.sin(phi) * Math.sin(theta));
 };
-export async function createGlobe({ host, stage, markerHost, getMode, onError, onSelect }) {
+export async function createGlobe({ host, stage, markerHost, touchHost, getMode, onError, onSelect }) {
   let renderer, controls, observer, frameId = 0, disposed = false, dirty = true, last = 0, flight = null;
-  const scene = new THREE.Scene(), camera = new THREE.PerspectiveCamera(40, 1, .1, 100);
+  const scene = new THREE.Scene(), camera = new THREE.PerspectiveCamera(GLOBE_FOV_DEGREES, 1, .1, 100);
   const markers = new Map(), reduced = matchMedia('(prefers-reduced-motion: reduce)');
   const markDirty = () => { dirty = true; };
   const cancelTravel = () => { flight = null; };
+  // On touch screens only a round area the size of the globe on screen listens for fingers, so the page can scroll anywhere outside it.
+  let touchSize = 0;
+  const fitTouch = () => { if (!touchHost) return; const size = touchWindowDiameter(camera.position.length(), host.clientHeight, host.clientWidth); if (size && size !== touchSize) { touchSize = size; touchHost.style.setProperty('--touch-d', `${size}px`); } };
   const contextLost = event => { event.preventDefault(); onError(new Error('WebGL context was lost. Use the list or reload to restore Earth.')); };
   function dispose() {
     if (disposed) return; disposed = true; cancelAnimationFrame(frameId); observer?.disconnect();
@@ -26,8 +30,8 @@ export async function createGlobe({ host, stage, markerHost, getMode, onError, o
   try {
     renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true, powerPreference: 'low-power' });
     renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.75)); renderer.outputColorSpace = THREE.SRGBColorSpace;
-    host.appendChild(renderer.domElement); camera.position.copy(point(20, 5, 3.45));
-    controls = new OrbitControls(camera, renderer.domElement);
+    host.appendChild(renderer.domElement); camera.position.copy(point(20, 5, matchMedia('(max-width: 767px)').matches ? START_DISTANCE.phone : START_DISTANCE.default));
+    controls = new OrbitControls(camera, touchHost ?? renderer.domElement);
     controls.enablePan = false; controls.enableDamping = true; controls.dampingFactor = .07; controls.rotateSpeed = .55; controls.zoomSpeed = .65;
     controls.minDistance = 1.65; controls.maxDistance = 5; controls.minPolarAngle = .05; controls.maxPolarAngle = Math.PI - .05; controls.update(); controls.saveState();
     const texture = await new THREE.TextureLoader().loadAsync('/assets/earth.jpg');
@@ -43,7 +47,7 @@ export async function createGlobe({ host, stage, markerHost, getMode, onError, o
     const starGeometry = new THREE.BufferGeometry(); starGeometry.setAttribute('position', new THREE.Float32BufferAttribute(stars, 3));
     scene.add(new THREE.Points(starGeometry, new THREE.PointsMaterial({ color: 0xa8c8ec, size: .021, transparent: true, opacity: .48, depthWrite: false })));
     controls.addEventListener('start', cancelTravel); controls.addEventListener('change', markDirty);
-    const resize = () => { const w = host.clientWidth, h = host.clientHeight; if (!w || !h || disposed) return; renderer.setSize(w, h, false); camera.aspect = w / h; camera.updateProjectionMatrix(); dirty = true; };
+    const resize = () => { const w = host.clientWidth, h = host.clientHeight; if (!w || !h || disposed) return; renderer.setSize(w, h, false); camera.aspect = w / h; camera.updateProjectionMatrix(); fitTouch(); dirty = true; };
     observer = new ResizeObserver(resize); observer.observe(host); resize();
     renderer.domElement.addEventListener('webglcontextlost', contextLost);
     document.addEventListener('visibilitychange', markDirty); reduced.addEventListener('change', markDirty);
@@ -57,7 +61,7 @@ export async function createGlobe({ host, stage, markerHost, getMode, onError, o
         if (t === 1) flight = null; dirty = true;
       }
       controls.update(); if (!dirty) return; dirty = false;
-      sunlight.position.copy(camera.position).add(new THREE.Vector3(-2, 2, 1)); camera.updateMatrixWorld(); renderer.render(scene, camera);
+      sunlight.position.copy(camera.position).add(new THREE.Vector3(-2, 2, 1)); camera.updateMatrixWorld(); renderer.render(scene, camera); fitTouch();
       for (const marker of markers.values()) {
         const normal = marker.p.clone().normalize(), view = camera.position.clone().sub(marker.p).normalize(), screen = marker.p.clone().project(camera);
         const visible = normal.dot(view) > .025 && Math.abs(screen.x) < 1 && Math.abs(screen.y) < 1 && screen.z < 1;

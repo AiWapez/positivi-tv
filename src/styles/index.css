@@ -46,3 +46,11 @@ html{scroll-behavior:auto}body{overflow-x:hidden}svg{display:block;width:20px;he
 @media(max-width:767px){.category-dock{position:fixed;left:0;right:0;bottom:calc(66px + env(safe-area-inset-bottom));z-index:19;padding:8px 16px;background:#0B1929f0;backdrop-filter:blur(18px);border-top:1px solid #2B4358}.app{padding-bottom:calc(126px + env(safe-area-inset-bottom))}}
 .reader-footer{flex-direction:column;align-items:flex-start}.reader-footer>div{margin-left:-10px}.builder-credit{margin:2px 0 0;font-size:11px;color:var(--muted)}
 .about-tagline{color:var(--yellow)!important;font-weight:600;margin:-4px 0 8px}
+/* Touch window. The globe controls listen on this layer instead of the whole canvas. On touch screens the layer is a circle the size of the globe on screen, so a swipe beside, above or below the globe scrolls the page. Full screen and desktop keep the whole stage. */
+.globe-touch-clip{position:absolute;inset:0;overflow:hidden;pointer-events:none}
+.globe-touch{position:absolute;inset:0;pointer-events:auto;cursor:grab;touch-action:none}
+.globe-touch:active{cursor:grabbing}
+@media(pointer:coarse){
+#globe canvas{touch-action:pan-y}
+.explorer:not(:fullscreen):not(.expanded) .globe-touch{inset:auto;left:50%;top:50%;width:var(--touch-d,100%);height:var(--touch-d,100%);transform:translate(-50%,-50%);border-radius:50%}
+}
