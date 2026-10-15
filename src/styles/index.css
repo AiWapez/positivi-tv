@@ -34,3 +34,9 @@ html{scroll-behavior:auto}body{overflow-x:hidden}svg{display:block;width:20px;he
 .pin.read:not([aria-pressed=true]) .pin-dot{background:#8796a6;border-color:#d5dde6;box-shadow:none;opacity:.7}
 .story-entry.is-read .story{opacity:.62}.story-entry.is-read .story:hover,.story-entry.is-read .story[aria-pressed=true]{opacity:1}
 .previous-toggle{display:inline-flex;align-items:center;gap:8px;min-height:40px;padding:0 14px;margin:4px 0 10px;border:1px solid var(--border);border-radius:999px;background:#071320;color:var(--yellow);font-size:12px;font-weight:600;white-space:nowrap}.previous-toggle svg{width:14px;height:14px}.previous-toggle:hover{border-color:var(--yellow)}.previous-toggle[aria-pressed=true]{background:#ffe4380c}
+/* Compact category chips; the update note shows once per daily update and fades. */
+.chip{min-height:34px;padding:0 12px;font-size:12px;gap:6px}.chip .dot{width:7px;height:7px}.categories{gap:6px}
+@media(max-width:767px){.chip{min-height:32px;padding:0 11px}.categories{margin:10px 0 4px}}
+.map-summary{animation:summary-fade 7s ease forwards}.map-summary .summary-text{color:var(--muted)}
+@keyframes summary-fade{0%{opacity:0;transform:translateY(-4px)}6%{opacity:1;transform:none}85%{opacity:1}100%{opacity:0}}
+@media(prefers-reduced-motion:reduce){.map-summary{animation:none}}

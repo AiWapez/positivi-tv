@@ -21,6 +21,7 @@ export default function App() {
   const { saved, toggle, clear, storageWarning } = useSavedStories();
   const { read, markRead, clearRead } = useReadStories();
   const [showPrevious, setShowPrevious] = useState(false);
+  const [summaryVisible, setSummaryVisible] = useState(false);
   // Stories opened during this visit keep their list position; they move below unread ones next visit.
   const [visitStart] = useState(() => Date.now());
   const [filters, setFilters] = useState<Filters>({ category: 'All', query: '', period: '30', savedOnly: false });
@@ -39,6 +40,17 @@ export default function App() {
   const pins = demo ? view : globeStories(view, read, feedUpdatedAt(feed), selectedId);
   const unreadCount = view.filter(s => !read[s.id]).length;
   const selected = view.find(s => s.id === selectedId) ?? null;
+  // The globe summary appears once per daily update on this device, then fades away.
+  const updateId = demo ? '' : feed.revision;
+  useEffect(() => {
+    if (!updateId || !feed.stories.length) return;
+    let seen: string | null = null;
+    try { seen = localStorage.getItem('positivitv.update-seen.v1'); } catch { /* show it this visit only */ }
+    if (seen === updateId) return;
+    try { localStorage.setItem('positivitv.update-seen.v1', updateId); } catch { /* nothing stored */ }
+    setSummaryVisible(true);
+  }, [updateId, feed.stories.length]);
+  useEffect(() => { if (!summaryVisible) return; const t = setTimeout(() => setSummaryVisible(false), 7000); return () => clearTimeout(t); }, [summaryVisible]);
   const openedLiveEdition = useRef(false);
   useEffect(() => {
     if (demo || openedLiveEdition.current || !feed.stories.length) return;
@@ -114,7 +126,7 @@ export default function App() {
       </aside>
       <section className={`explorer ${mode === 'list' ? 'list-mode' : ''} ${!selected ? 'no-selection' : ''} ${expanded && !document.fullscreenElement ? 'expanded' : ''}`} ref={explorer} aria-label="Interactive news globe">
         <div className="view-switch" role="group" aria-label="Choose view">{(['globe','list'] as const).map(view => <button key={view} className={mode === view ? 'active' : ''} aria-pressed={mode === view} onClick={() => setMode(view)}><Icon name={view} />{view === 'globe' ? 'Globe' : 'List'}</button>)}</div>
-        {mode === 'globe' && !!view.length && <div className="map-summary"><span>{pins.filter(s => s.lat !== null).length} mapped worldwide · Rotate to explore</span>{view.some(s => s.lat === null) && <button onClick={() => setMode('list')}>{view.filter(s => s.lat === null).length} more in list <Icon name="arrow" /></button>}</div>}
+        {mode === 'globe' && summaryVisible && !!view.length && <div className="map-summary" role="status"><button className="summary-text" onClick={() => setSummaryVisible(false)} aria-label={`New update, ${pins.filter(s => s.lat !== null).length} on the globe. Tap to dismiss.`}>New update · {pins.filter(s => s.lat !== null).length} on the globe</button>{view.some(s => s.lat === null) && <button onClick={() => { setSummaryVisible(false); setMode('list'); }}>{view.filter(s => s.lat === null).length} more in list <Icon name="arrow" /></button>}</div>}
         <GlobeScene ref={globe} stories={pins} read={demo ? {} : read} selected={selected?.id ?? null} mode={mode} onSelect={select} onReady={setGlobeReady} onError={() => setGlobeFailed(true)} />
         {mode === 'globe' && (!globeReady || !view.length) && <div className="globe-status" role="status">{globeFailed ? <>The globe couldn’t load. Every story is still available in the list.<button className="primary" onClick={() => setMode('list')}>Browse stories <Icon name="arrow" /></button></> : !globeReady ? 'Loading our world…' : loading && !demo ? 'Checking the latest stories…' : empty}</div>}
         <div className="map-controls" role="group" aria-label="Globe controls" hidden={mode === 'list'}><button aria-label="Zoom in" disabled={!globeReady} onClick={() => globe.current?.zoom(.85)}><Icon name="plus" /></button><button aria-label="Zoom out" disabled={!globeReady} onClick={() => globe.current?.zoom(1/.85)}><Icon name="minus" /></button><button aria-label="Reset globe orientation" disabled={!globeReady} onClick={() => globe.current?.reset()}><Icon name="compass" /></button><button aria-label={expanded ? 'Exit expanded globe' : 'Expand globe'} onClick={() => void expand()}><Icon name="expand" /></button></div>
