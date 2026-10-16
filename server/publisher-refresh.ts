@@ -1,7 +1,7 @@
 import { collectPublisherFeed } from './publisher-collect.mjs';
 import { fetchPermittedFeed } from './collect.mjs';
 import { buildSnapshot } from './publisher-snapshot.ts';
-import type { FeedCandidate, SourceResult } from './publisher-snapshot.ts';
+import type { FeedCandidate, ScreenedRecord, SourceResult } from './publisher-snapshot.ts';
 import { conflictError } from './publisher-store.ts';
 import type { PublisherStore } from './publisher-store.ts';
 import type { PublisherFeedControl, PublisherSources } from '../src/lib/publisher-feed.ts';
@@ -13,6 +13,8 @@ export interface RefreshDeps {
   fetcher?: Parameters<typeof fetchPermittedFeed>[1];
   now?: () => string;
   pause?: (ms: number) => Promise<void>;
+  /** Where screening-sample lines go. Defaults to console.log (the private run log). Injected only by tests. */
+  log?: (line: string) => void;
 }
 export type RefreshOutcome =
   | { code: 200; body: { revision: string; listed: number; sources: Record<string, { status: string; listed: number; carried: number }> } }
@@ -22,6 +24,27 @@ export type RefreshOutcome =
 
 /** Minimum gap between two feed requests to the same publisher host in one run (matches the 10-second robots.txt crawl delays we honor). */
 export const HOST_SPACING_MS = 10_000;
+
+/** Prefix and chunk size of the private run-log lines written while the screening sample is on. */
+export const SCREENING_LOG_PREFIX = 'screening-sample';
+export const SCREENING_LOG_CHUNK = 5;
+
+/** True only while `control.screeningLogUntil` (UTC date, midnight) is still in the future. Missing or malformed means off. */
+export function screeningLogActive(control: PublisherFeedControl, now: string): boolean {
+  const until = control.screeningLogUntil;
+  if (typeof until !== 'string' || !/^\d{4}-\d{2}-\d{2}$/.test(until)) return false;
+  const end = Date.parse(until + 'T00:00:00Z'), time = Date.parse(now);
+  return Number.isFinite(end) && Number.isFinite(time) && time < end;
+}
+
+/** Small chunks, so one run log line stays short and no single line carries the whole sample. */
+export function screeningLogLines(records: ScreenedRecord[], now: string): string[] {
+  const parts = Math.ceil(records.length / SCREENING_LOG_CHUNK), lines: string[] = [];
+  for (let i = 0; i < records.length; i += SCREENING_LOG_CHUNK) {
+    lines.push(`${SCREENING_LOG_PREFIX} ${JSON.stringify({ run: now, part: i / SCREENING_LOG_CHUNK + 1, of: parts, total: records.length, records: records.slice(i, i + SCREENING_LOG_CHUNK) })}`);
+  }
+  return lines;
+}
 
 /** Bounded parallelism so a slow publisher cannot hold every slot. */
 async function mapLimit<T, R>(items: T[], limit: number, fn: (item: T) => Promise<R>): Promise<R[]> {
@@ -80,7 +103,14 @@ export async function runPublisherRefresh(deps: RefreshDeps): Promise<RefreshOut
       return { code: 502, body: { error: 'Every source failed; the previous snapshot was kept.',
         sources: Object.fromEntries(results.map(r => [r.sourceId, r.ok ? 'ok' : r.code])) } };
     }
-    const snapshot = buildSnapshot(previous?.snapshot ?? null, results, sources, control, now, deps.feeds.map(f => f.id));
+    // Temporary and self-expiring: see docs/publisher-feed.md, "Screening sample". It only observes; it never changes the snapshot.
+    const sample: ScreenedRecord[] = [];
+    const snapshot = buildSnapshot(previous?.snapshot ?? null, results, sources, control, now, deps.feeds.map(f => f.id),
+      screeningLogActive(control, now) ? record => { sample.push(record); } : undefined);
+    if (sample.length) {
+      try { const write = deps.log ?? ((line: string) => console.log(line)); for (const line of screeningLogLines(sample, now)) write(line); }
+      catch { /* logging can never fail a collection run */ }
+    }
     try { await store.writeCurrent(snapshot, previous?.etag ?? null); }
     catch (error) { if (conflictError(error)) return { code: 409, body: { error: 'Another run replaced the snapshot first; nothing was overwritten.' } }; throw error; }
     return { code: 200, body: { revision: snapshot.revision, listed: snapshot.items.length,
