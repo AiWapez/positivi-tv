@@ -14,6 +14,13 @@ export interface FeedCandidate { id: string; sourceId: string; url: string; titl
   /** Location tags and map coordinates from the publisher's metadata (server/publisher-place-tags.mjs). Used only when the source's switch is on. */
   placeTags?: PlaceTags }
 export type SourceResult = { sourceId: string; ok: true; candidates: FeedCandidate[]; code?: string } | { sourceId: string; ok: false; code: string };
+/**
+ * What the headline rules decided for one candidate that reached them (it passed the link, date, window, author and rights
+ * checks first). `summary` is the shortened description the lane already stores, and only for sources whose terms allow storing
+ * one; it is null for every other source, so no description from Mongabay or Global Voices ever appears here.
+ */
+export interface ScreenedRecord { id: string; source: string; url: string; title: string; published: string; summary: string | null;
+  decision: 'list' | 'exclude'; reasons: string[]; labels: string[]; category: string | null }
 
 const DAY = 86400000;
 const STOP = new Set(['the', 'and', 'for', 'with', 'from', 'into', 'after', 'over', 'that', 'this', 'its', 'are', 'was', 'were', 'has',
@@ -54,7 +61,7 @@ const sameContent = (a: PublisherItem, b: PublisherItem) => a.title === b.title 
  *   visible. No copy adds a count, evidence level or corroboration claim.
  */
 export function buildSnapshot(previous: PublisherSnapshot | null, results: SourceResult[], sources: PublisherSources,
-  control: PublisherFeedControl, now: string, order: string[] = Object.keys(sources)): PublisherSnapshot {
+  control: PublisherFeedControl, now: string, order: string[] = Object.keys(sources), onScreened?: (record: ScreenedRecord) => void): PublisherSnapshot {
   const time = Date.parse(now);
   if (!Number.isFinite(time)) throw new TypeError('Invalid now');
   const usable = previous && previous.policy === PUBLISHER_FEED_POLICY && Array.isArray(previous.items) ? previous : null;
@@ -90,6 +97,12 @@ export function buildSnapshot(previous: PublisherSnapshot | null, results: Sourc
         if (permission.blockedCredits?.some(credit => `${author} ${c.rights ?? ''} ${c.body ?? ''}`.toLowerCase().includes(credit.toLowerCase()))) { count('THIRD_PARTY_CREDIT'); continue; }
         if (/all rights reserved|permission required|not for republication/i.test(c.rights ?? '')) { count('ITEM_RIGHTS_RESTRICTED'); continue; }
         const screen = screenHeadline({ title: c.title, description: c.body ?? '', defaultCategory: permission.category, now });
+        // Observation only. A failing observer can never change what is listed.
+        try {
+          onScreened?.({ id: c.id, source: sourceId, url, title: c.title, published: new Date(Date.parse(c.publishedAt)).toISOString(),
+            summary: permission.summary ? shortSummary(c.body ?? '') : null, decision: screen.decision, reasons: [...screen.reasons],
+            labels: [...screen.labels], category: screen.category });
+        } catch { /* ignored */ }
         if (screen.decision === 'exclude') { for (const r of screen.reasons) count(r); continue; }
         const headlinePlace = control.locationResolver === 'supported_feed' ? locateFeedOutcome(c.title, c.body ?? '')
           : control.locationResolver === 'headline_country' ? (() => { const p = countryFromHeadline(c.title); return p ? { ...p, precision: 'country' as const } : null; })() : null;

@@ -186,6 +186,32 @@ No new article fetching, geocoding API or paid service is added. Feed descriptio
 
 The current policy is `publisher-feed-0.4.1` (0.4.1 adds rejection of unresolved trafficked-animal journeys; see coverage and photos), with a 30-day publication window and policy-scoped private snapshot paths. It supplements Mongabay RSS with bounded keyless metadata and real byline records. Public cards may use only the checked local illustration catalog. See [coverage and photos](coverage-and-photos.md) for the exact boundaries and attribution rules. Earlier no-image and fixed snapshot-path descriptions above describe the original candidate.
 
+## Screening sample (temporary)
+
+Why: the headline rules in `server/publisher-screen.ts` have only been tuned on small samples. `docs/goodsignal-spec.md` section 13 asks for roughly 300 real candidates, rejects included, labelled by a person, before anyone claims the screening works. The daily job used to count rejected stories and discard them, so no such set existed.
+
+How it works:
+
+- `config/publisher-feed.json` has `screeningLogUntil`, a UTC date. While a scheduled run happens before midnight (UTC) at the start of that date, the run writes what the headline rules decided into the private run log (`console.log`, lines starting `screening-sample`). Vercel Hobby keeps runtime logs for one hour, so nothing is stored long term. A missing or malformed value means off. The switch expires by itself; extending it needs a new config change and a merge. Set to `2026-10-19` it covers the runs of October 16, 17 and 18.
+- Nothing is written to Blob, no endpoint reads it, and no secret is involved. Each line carries at most 5 records: `id` (source id plus a hash of the canonical link), `source`, `url`, `title`, `published`, `summary`, `decision` (`list` or `exclude`), `reasons`, `labels` and `category`.
+- Only candidates that reached the headline rules are recorded: they passed the link, date, window, author and rights checks first. A story that is dropped earlier (for example, a missing author at Mongabay or Global Voices) never reaches the rules and is not in the sample, so the sample measures the rules, not those earlier checks.
+- `summary` is the shortened plain-text description the lane already stores, and only for sources whose terms allow storing one (NASA, NSF, NOAA). It is `null` for Mongabay and Global Voices, so no description from those sources is logged. The rules still read the real description in memory when deciding, as they always did.
+- The observer is a callback (`onScreened`) on the pure snapshot builder. A test checks that the snapshot is identical with and without it, that a throwing observer changes nothing, and that a failing log cannot fail a run.
+
+How the sample is used (General Counsel rulings of October 15, 2026, draft pending licensed attorney review): the Builder reads the lines from the run log within the hour and puts the stories on a private page that only Alex can open, one story at a time, with Keep, Reject and Unsure buttons and the rules' decision hidden until he answers. The source name and link are shown with each story. The report compares his labels with the rules' decisions, with uncertainty ranges, against a plain keyword filter and a newest-first list. The overlap labelled as a second opinion is labelled by an AI, not a second person, and the report must say so. The stories are deleted from the private page when scoring is finished, and no later than 30 days after collection; the actual deletion date is recorded below. The public repository keeps only hashed IDs, Alex's labels and the rules' decisions, never headline text. Any second one-time pull through a fetch service needs a new General Counsel ruling; this log is the route that uses our own fetcher.
+
+Deletion date of the private page: not yet collected.
+
+### October 15, 2026: one-time pull through a fetch service (stopped, nothing obtained)
+
+Alex gave the go for a one-time pull under the General Counsel's conditions. What happened, for the record:
+
+- Service: the Exa web fetch tool. Its requests carry the service's own User-Agent, not a PositiviTV one, and our own fetcher's protections (domain allowlist, size limits, robots.txt check) did not apply, so they were honoured by hand.
+- robots.txt, read at about 23:53 UTC: NASA allows all; NSF does not disallow `/rss/rss_www_news.xml`; Mongabay allows all; Global Voices has `Crawl-delay: 10` and does not disallow the feed paths; NOAA's robots.txt could not be read through the service (error `CRAWL_UNEXPECTED_CONTENT_TYPE`), so NOAA was skipped.
+- Feeds requested, at about 23:54 UTC, one request each: NASA (`https://www.nasa.gov/feed/`) and NSF (`https://www.nsf.gov/rss/rss_www_news.xml`). Both came back with the service's own error `CRAWL_UNEXPECTED_CONTENT_TYPE` (it refuses feed content types) and returned no content.
+- Because the conditions say to stop on any error response, nothing more was requested: no Mongabay, Global Voices or NOAA feed was ever requested, and no retry was made.
+- Nothing was stored, so there is nothing to delete. The screening sample above is the route that replaced this pull.
+
 ## Reader view: new this week, previous stories and read state (October 15, 2026)
 
 The reader opens on stories PositiviTV first collected in the last 7 days. A "Previous positive stories" button shows everything still inside the 30-day window. Opening a story marks it read in that browser only (`positivitv.read.v1` in local storage, capped and pruned after 120 days); its pin dims at once and stays on the globe (an earlier version removed read pins after the next daily update; that was changed because the globe then looked empty after a few days of testing). Read stories stay in the list, after unread ones, labelled "Read". The Privacy panel explains this and offers "Clear reading history". Nothing about reading is sent to a server, and each device keeps its own history. A screening-policy version change starts a fresh snapshot, so every story then counts as newly collected for 7 days; read state is kept because story IDs do not change.

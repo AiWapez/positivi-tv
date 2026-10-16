@@ -40,6 +40,11 @@ export interface PublisherFeedControl {
   windowDays: number; maxItems: number; maxPerSource: number; staleAfterHours: number;
   locationResolver: 'headline_country' | 'supported_feed' | 'off';
   withdrawn: Withdrawal[];
+  /**
+   * Temporary, self-expiring: while the current time is before this UTC date (YYYY-MM-DD, midnight), a scheduled run
+   * writes what it screened into the private run log (see docs/publisher-feed.md, "Screening sample"). Absent or malformed means off.
+   */
+  screeningLogUntil?: string;
 }
 export interface PublisherItem {
   id: string; version: number; sourceId: string; url: string; title: string; summary: string | null;
