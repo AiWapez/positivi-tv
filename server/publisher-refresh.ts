@@ -25,9 +25,14 @@ export type RefreshOutcome =
 /** Minimum gap between two feed requests to the same publisher host in one run (matches the 10-second robots.txt crawl delays we honor). */
 export const HOST_SPACING_MS = 10_000;
 
-/** Prefix and chunk size of the private run-log lines written while the screening sample is on. */
+/** Prefix of the private run-log lines written while the screening sample is on. */
 export const SCREENING_LOG_PREFIX = 'screening-sample';
-export const SCREENING_LOG_CHUNK = 5;
+/**
+ * The most bytes one run-log line may hold. The tool that reads the run log cuts every message off at about 2,000 characters, and a cut
+ * line loses its last records for good (the first pull, on October 16, lost about a quarter of its candidates this way). 1,700 bytes leaves
+ * room for letters that take more than one byte and for anything the log adds around a line.
+ */
+export const SCREENING_LOG_MAX_LINE = 1700;
 
 /** True only while `control.screeningLogUntil` (UTC date, midnight) is still in the future. Missing or malformed means off. */
 export function screeningLogActive(control: PublisherFeedControl, now: string): boolean {
@@ -37,13 +42,23 @@ export function screeningLogActive(control: PublisherFeedControl, now: string): 
   return Number.isFinite(end) && Number.isFinite(time) && time < end;
 }
 
-/** Small chunks, so one run log line stays short and no single line carries the whole sample. */
+/**
+ * Packs the records, in order, into as few lines as fit under SCREENING_LOG_MAX_LINE bytes, so no line is ever cut off by the log reader.
+ * A record is never split. A single record that is too long for one line (not expected: titles and links are length-limited) goes on a line of
+ * its own, whole, and that line would be the only one at risk.
+ */
 export function screeningLogLines(records: ScreenedRecord[], now: string): string[] {
-  const parts = Math.ceil(records.length / SCREENING_LOG_CHUNK), lines: string[] = [];
-  for (let i = 0; i < records.length; i += SCREENING_LOG_CHUNK) {
-    lines.push(`${SCREENING_LOG_PREFIX} ${JSON.stringify({ run: now, part: i / SCREENING_LOG_CHUNK + 1, of: parts, total: records.length, records: records.slice(i, i + SCREENING_LOG_CHUNK) })}`);
+  const line = (batch: ScreenedRecord[], part: number, of: number) => `${SCREENING_LOG_PREFIX} ${JSON.stringify({ run: now, part, of, total: records.length, records: batch })}`;
+  // Sizes are measured with the widest possible part numbers, so numbering the lines afterwards can never push one over the limit.
+  const size = (batch: ScreenedRecord[]) => Buffer.byteLength(line(batch, 99999, 99999));
+  const groups: ScreenedRecord[][] = [];
+  let current: ScreenedRecord[] = [];
+  for (const record of records) {
+    if (current.length && size([...current, record]) > SCREENING_LOG_MAX_LINE) { groups.push(current); current = []; }
+    current.push(record);
   }
-  return lines;
+  if (current.length) groups.push(current);
+  return groups.map((batch, i) => line(batch, i + 1, groups.length));
 }
 
 /** Bounded parallelism so a slow publisher cannot hold every slot. */
