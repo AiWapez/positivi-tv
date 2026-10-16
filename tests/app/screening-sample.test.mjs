@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
-import { runPublisherRefresh, screeningLogActive, screeningLogLines, SCREENING_LOG_PREFIX, SCREENING_LOG_CHUNK } from '../../server/publisher-refresh.ts';
+import { runPublisherRefresh, screeningLogActive, screeningLogLines, SCREENING_LOG_PREFIX, SCREENING_LOG_MAX_LINE } from '../../server/publisher-refresh.ts';
 import { buildSnapshot } from '../../server/publisher-snapshot.ts';
 import { createPublisherStore } from '../../server/publisher-store.ts';
 import { NOW, ago, sources, feeds, control, rss, item, candidate, fakeFetcher, memoryBlob } from './publisher-fixtures.mjs';
@@ -52,18 +52,53 @@ test('an observer that throws cannot change or break the snapshot', () => {
   assert.deepEqual(buildSnapshot(null, results(), sources(), control(), NOW, undefined, () => { throw new Error('boom'); }), plain);
 });
 
-test('log lines are short chunks with a stable prefix and shape', () => {
+// A record the size of a real one: a long link, a long headline and the rules' reasons, about 450 characters once written out.
+const realistic = n => ({ id: `mongabay-${String(n).padStart(24, '0')}`, source: 'mongabay', url: `https://news.mongabay.com/2026/10/a-long-headline-about-restoring-a-river-and-the-people-who-live-beside-it-${n}/`,
+  title: `Villagers restore a river and bring its fish back after twenty years of work, story number ${n}`, published: NOW, summary: null,
+  decision: 'exclude', reasons: ['NO_COMPLETED_OUTCOME', 'PLAN_OR_UNCERTAIN', 'NEGATIVE_WITHOUT_RECOVERY', 'OPINION_OR_DISPUTE'], labels: [], category: null });
+const parse = line => JSON.parse(line.slice(SCREENING_LOG_PREFIX.length + 1));
+
+test('log lines have a stable prefix and shape, keep every record once and in order, and number themselves', () => {
   const records = Array.from({ length: 12 }, (_, n) => record(n));
   const lines = screeningLogLines(records, NOW);
-  assert.equal(lines.length, 3); assert.equal(SCREENING_LOG_CHUNK, 5);
+  assert(lines.length >= 1);
   lines.forEach((line, i) => {
     assert(line.startsWith(SCREENING_LOG_PREFIX + ' '));
-    const body = JSON.parse(line.slice(SCREENING_LOG_PREFIX.length + 1));
-    assert.equal(body.run, NOW); assert.equal(body.part, i + 1); assert.equal(body.of, 3); assert.equal(body.total, 12);
-    assert(body.records.length <= SCREENING_LOG_CHUNK);
+    const body = parse(line);
+    assert.equal(body.run, NOW); assert.equal(body.part, i + 1); assert.equal(body.of, lines.length); assert.equal(body.total, 12);
   });
-  assert.deepEqual(lines.flatMap(l => JSON.parse(l.slice(SCREENING_LOG_PREFIX.length + 1)).records.map(r => r.id)), records.map(r => r.id));
+  assert.deepEqual(lines.flatMap(l => parse(l).records.map(r => r.id)), records.map(r => r.id));
   assert.deepEqual(screeningLogLines([], NOW), []);
+});
+
+test('no log line is longer than the limit the log reader can show, so none is ever cut off', () => {
+  assert(SCREENING_LOG_MAX_LINE <= 1800, 'the log reader cuts a message off at about 2,000 characters; keep a clear margin');
+  for (const count of [1, 2, 7, 50, 174, 400]) {
+    const records = Array.from({ length: count }, (_, n) => realistic(n));
+    const lines = screeningLogLines(records, NOW);
+    for (const line of lines) {
+      assert(Buffer.byteLength(line) <= SCREENING_LOG_MAX_LINE, `${count} records: a line is ${Buffer.byteLength(line)} bytes`);
+      assert(line.length < 2000);
+      assert.doesNotThrow(() => parse(line), 'a whole line is always valid JSON, which a cut-off line is not');
+    }
+    assert.deepEqual(lines.flatMap(l => parse(l).records.map(r => r.id)), records.map(r => r.id), `${count} records: every record exactly once, in order`);
+    assert.deepEqual(lines.map(l => parse(l).part), lines.map((_, i) => i + 1));
+    assert(lines.every(l => parse(l).of === lines.length && parse(l).total === count));
+  }
+});
+
+test('lines are packed, not one record each, and letters that take several bytes are measured by bytes', () => {
+  const plain = Array.from({ length: 40 }, (_, n) => realistic(n));
+  assert(screeningLogLines(plain, NOW).length < 40 / 2, 'about three or four real records fit on a line');
+  const wide = plain.map((r, n) => ({ ...r, title: `河川を再生した村人たち、二十年ぶりに魚が戻る ‘${n}’ — 再生の物語を伝える見出し` }));
+  for (const line of screeningLogLines(wide, NOW)) assert(Buffer.byteLength(line) <= SCREENING_LOG_MAX_LINE);
+});
+
+test('a single record too long for a line is kept whole on a line of its own', () => {
+  const huge = { ...realistic(1), title: 'x'.repeat(3000) };
+  const lines = screeningLogLines([realistic(0), huge, realistic(2)], NOW);
+  assert.deepEqual(lines.map(l => parse(l).records.map(r => r.id)), [[realistic(0).id], [huge.id], [realistic(2).id]]);
+  assert.equal(parse(lines[1]).records[0].title.length, 3000);
 });
 
 test('a scheduled run writes the sample only while the switch is on, and never logs a non-storable description', async () => {
