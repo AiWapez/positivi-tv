@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
-import { buildStarLayers, orionDirections, seededRandom, STAR_COUNTS, STAR_RADIUS, STAR_SIZES, STAR_OPACITY, BRILLIANT_COUNT, ORION_SCALE, ORION_APPEARANCE, ORION } from '../../src/lib/stars.ts';
+import { buildStarLayers, orionDirections, figureSky, FIGURES, seededRandom, STAR_COUNTS, STAR_RADIUS, STAR_SIZES, STAR_OPACITY, BRILLIANT_COUNT, ORION_SCALE, ORION_APPEARANCE, ORION } from '../../src/lib/stars.ts';
 import { MAX_ZOOM_DISTANCE } from '../../src/lib/globe-detail.ts';
 
 const FORWARD = (() => { const phi = 70 * Math.PI / 180, theta = 185 * Math.PI / 180, v = [-Math.sin(phi) * Math.cos(theta), Math.cos(phi), Math.sin(phi) * Math.sin(theta)]; return v.map(x => -x); })();
@@ -17,12 +17,87 @@ test('the sky has four layers with the promised star counts, faintest first, and
   assert.ok(BRILLIANT_COUNT <= 40, 'brilliant stars stay rare');
 });
 
-test("Orion is drawn as small layers, one per dot size, only when an opening view is given, and its stars are the biggest in the sky", () => {
+test('the constellations are drawn as small layers, one per dot size, only when an opening view is given, and every dot is bigger than the scatter stars', () => {
   assert.equal(buildStarLayers(31).length, 4);
-  const layers = buildStarLayers(31, VIEW), orion = layers.slice(4);
-  assert.ok(orion.length >= 2);
-  assert.equal(orion.reduce((n, l) => n + l.positions.length / 3, 0), ORION.length);
-  for (const l of orion) { assert.ok(l.size > STAR_SIZES.brilliant); assert.equal(l.colors.length, l.positions.length); }
+  const layers = buildStarLayers(31, VIEW), figures = layers.slice(4);
+  assert.ok(figures.length >= 2 && figures.length <= 6, `${figures.length} extra layers`);
+  assert.equal(figures.reduce((n, l) => n + l.positions.length / 3, 0), FIGURES.reduce((n, f) => n + f.stars.length, 0));
+  for (const l of figures) { assert.ok(l.size > STAR_SIZES.bright); assert.equal(l.colors.length, l.positions.length); }
+  assert.deepEqual(figures.map(l => l.size), [...figures.map(l => l.size)].sort((a, b) => a - b), 'brighter dots are drawn later, on top');
+  assert.ok(Math.max(...figures.map(l => l.size)) > STAR_SIZES.brilliant, 'the brightest constellation stars stand out from the brilliant scatter');
+});
+
+test('the sky holds Orion first and ten more real constellations, each with enough stars to be recognised and no star used twice', () => {
+  assert.deepEqual(FIGURES.map(f => f.name), ['Orion', 'Ursa Major (the Big Dipper)', 'Cassiopeia', 'Ursa Minor (the Little Dipper)', 'Crux (the Southern Cross)', 'Scorpius', 'Leo', 'Cygnus (the Northern Cross)', 'Lyra', 'Taurus', 'Canis Major']);
+  const seen = new Set();
+  for (const f of FIGURES) {
+    assert.ok(f.stars.length >= 4 && f.stars.length <= 16, `${f.name} has ${f.stars.length} stars`);
+    assert.ok(f.scale >= 0.35 && f.scale <= 1.5, `${f.name} scale ${f.scale}`);
+    for (const star of f.stars) {
+      assert.ok(Number.isInteger(star.hip) && star.hip > 0 && !seen.has(star.hip), `${star.name} (HIP ${star.hip}) is listed twice`); seen.add(star.hip);
+      assert.ok(star.ra >= 0 && star.ra < 360 && star.dec >= -90 && star.dec <= 90 && Number.isFinite(star.mag), `${star.name} has an impossible position or magnitude`);
+      assert.ok([0.115, 0.14, 0.17, 0.2, 0.22].includes(star.size), `${star.name} size ${star.size}`);
+      assert.ok(star.color.length === 3 && star.color.every(v => v > 0.25 && v <= 1), `${star.name} colour`);
+    }
+  }
+});
+
+test('a brighter star is never drawn smaller than a fainter one in the same figure, and the brightest star of every figure has the biggest dot', () => {
+  for (const f of FIGURES) {
+    const brightest = f.stars.reduce((a, b) => b.mag < a.mag ? b : a), biggest = Math.max(...f.stars.map(s => s.size));
+    assert.equal(brightest.size, biggest, `${f.name}: ${brightest.name} should have the biggest dot`);
+    if (f.name === 'Orion') continue; // Orion's dot sizes were chosen by hand before the others existed and are kept as they were
+    for (const a of f.stars) for (const b of f.stars) if (a.mag < b.mag) assert.ok(a.size >= b.size, `${f.name}: ${a.name} (${a.mag}) is smaller than ${b.name} (${b.mag})`);
+  }
+});
+
+test("Orion's belt stars sit where the catalogue puts them (they were once a degree off)", () => {
+  const belt = Object.fromEntries(ORION.map(s => [s.name, s]));
+  const expected = { Alnitak: [85.1897, -1.9426], Alnilam: [84.0534, -1.2019], Mintaka: [83.0017, -0.2991], Betelgeuse: [88.7929, 7.4071], Bellatrix: [81.2828, 6.3497], Rigel: [78.6345, -8.2016], Saiph: [86.9391, -9.6696] };
+  for (const [name, [ra, dec]] of Object.entries(expected)) { assert.ok(Math.abs(belt[name].ra - ra) < 0.01 && Math.abs(belt[name].dec - dec) < 0.01, `${name} is at ${belt[name].ra}, ${belt[name].dec}`); }
+});
+
+test('every figure keeps its real shape at its drawn scale, and no two figures touch', () => {
+  const sky = figureSky(VIEW), rad = d => d * Math.PI / 180, vec = (r, d) => [Math.cos(rad(d)) * Math.cos(rad(r)), Math.cos(rad(d)) * Math.sin(rad(r)), Math.sin(rad(d))];
+  FIGURES.forEach((f, k) => {
+    assert.equal(sky[k].length, f.stars.length);
+    for (let i = 0; i < f.stars.length; i++) for (let j = i + 1; j < f.stars.length; j++) {
+      const real = angleBetween(vec(f.stars[i].ra, f.stars[i].dec), vec(f.stars[j].ra, f.stars[j].dec)) * f.scale, drawn = angleBetween(sky[k][i], sky[k][j]);
+      assert.ok(Math.abs(drawn - real) <= Math.max(0.05, real * 0.02), `${f.name}: ${f.stars[i].name} to ${f.stars[j].name} is ${drawn} degrees, expected ${real}`);
+    }
+    for (const v of sky[k]) assert.ok(Math.abs(Math.hypot(...v) - 1) < 1e-9);
+    const extent = Math.max(...sky[k].flatMap(a => sky[k].map(b => angleBetween(a, b))));
+    assert.ok(extent > 7 && extent < 12, `${f.name} is drawn ${extent} degrees across`);
+  });
+  for (let a = 0; a < sky.length; a++) for (let b = a + 1; b < sky.length; b++) for (const p of sky[a]) for (const q of sky[b]) assert.ok(angleBetween(p, q) > 5, `${FIGURES[a].name} and ${FIGURES[b].name} come within ${angleBetween(p, q)} degrees`);
+});
+
+test('the figures keep their real places relative to each other (one turn moves the whole sky)', () => {
+  const sky = figureSky(VIEW), rad = d => d * Math.PI / 180, vec = (r, d) => [Math.cos(rad(d)) * Math.cos(rad(r)), Math.cos(rad(d)) * Math.sin(rad(r)), Math.sin(rad(d))];
+  const middle = vs => { const t = vs.reduce((s, v) => [s[0] + v[0], s[1] + v[1], s[2] + v[2]], [0, 0, 0]), l = Math.hypot(...t); return t.map(x => x / l); };
+  const real = FIGURES.map(f => middle(f.stars.map(s => vec(s.ra, s.dec)))), drawn = sky.map(middle);
+  for (let a = 0; a < FIGURES.length; a++) for (let b = a + 1; b < FIGURES.length; b++) assert.ok(Math.abs(angleBetween(real[a], real[b]) - angleBetween(drawn[a], drawn[b])) < 1.5, `${FIGURES[a].name} to ${FIGURES[b].name}`);
+});
+
+test('turning the globe shows a constellation star outside the globe in roughly half of all views, on a phone and on a desktop', () => {
+  const sky = figureSky(VIEW).map(f => f.map(v => v.map(x => x * STAR_RADIUS)));
+  let state = 12345; const random = () => (state = (state * 1664525 + 1013904223) >>> 0) / 2 ** 32;
+  const unit = v => { const l = Math.hypot(...v); return v.map(x => x / l); }, cross = (p, q) => [p[1] * q[2] - p[2] * q[1], p[2] * q[0] - p[0] * q[2], p[0] * q[1] - p[1] * q[0]];
+  for (const [distance, aspect, low, high] of [[3.7, 390 / 370, 0.3, 0.7], [3.45, 1000 / 600, 0.35, 0.8]]) {
+    const halfHeight = Math.tan(20 * Math.PI / 180), halfWidth = halfHeight * aspect, globe = Math.asin(1 / distance); let shown = 0;
+    for (let k = 0; k < 1500; k++) {
+      const y = random() * 2 - 1, angle = random() * 2 * Math.PI, ring = Math.sqrt(1 - y * y), camera = [ring * Math.cos(angle) * distance, y * distance, ring * Math.sin(angle) * distance];
+      const forward = unit(camera.map(x => -x)), right = unit(cross(forward, [0, 1, 0])), up = cross(right, forward);
+      const visible = sky.some(figure => figure.some(star => {
+        const t = star.map((x, i) => x - camera[i]), depth = t[0] * forward[0] + t[1] * forward[1] + t[2] * forward[2];
+        if (depth <= 0) return false;
+        const x = (t[0] * right[0] + t[1] * right[1] + t[2] * right[2]) / depth, h = (t[0] * up[0] + t[1] * up[1] + t[2] * up[2]) / depth;
+        return Math.abs(x) <= halfWidth && Math.abs(h) <= halfHeight && Math.atan(Math.hypot(x, h)) > globe;
+      }));
+      if (visible) shown++;
+    }
+    assert.ok(shown / 1500 > low && shown / 1500 < high, `${(100 * shown / 1500).toFixed(0)}% of views at distance ${distance}`);
+  }
 });
 
 test("Orion's belt keeps the real shape: three stars in an even line, scaled with the rest of the figure", () => {
@@ -75,7 +150,7 @@ test("Orion shows in the upper left of the opening view, outside the globe's dis
 });
 
 test('colours stay pale and within range, and positions are finite', () => {
-  for (const { positions, colors } of buildStarLayers()) {
+  for (const { positions, colors } of buildStarLayers(31, VIEW)) {
     assert.equal(colors.length, positions.length);
     for (const v of positions) assert.ok(Number.isFinite(v));
     for (const v of colors) assert.ok(v > 0.25 && v <= 1, `colour value ${v}`);

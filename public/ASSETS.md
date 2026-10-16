@@ -11,6 +11,7 @@ Downloaded October 14, 2026. These are illustrative assets, not evidence for any
 | coast.jpg | https://images.unsplash.com/photo-1510414842594-a61c69b5ae57?w=700&q=85&fit=crop |
 | wind.jpg | https://images.unsplash.com/photo-1466611653911-95081537e5b7?w=700&q=85&fit=crop |
 | city.jpg | https://images.unsplash.com/photo-1518391846015-55a9cc003b25?w=700&q=85&fit=crop |
+| Star positions | The positions of 76 real stars in `src/lib/constellations.ts`, from the Hipparcos catalogue as distributed in the npm package `d3-celestial@0.7.35` (BSD-3-Clause). Nothing is downloaded when the app runs. See "Star positions" below. |
 | Three.js code | npm package three@0.180.0; https://github.com/mrdoob/three.js/tree/r180 |
 | Reference concept | Generated for this PositiviTV conversation; first design only. |
 
@@ -49,6 +50,31 @@ Natural Earth disclaims accuracy, and country names, capitals and the status of 
 Keep appropriate imagery credits in the final product. The Three.js MIT license covers its code; it does not automatically license every third-party image. Review each asset's original usage terms before redistribution or public launch, and replace illustrative images with licensed article-specific imagery. Unsplash usage terms: https://unsplash.com/license. No third-party publisher endorsement is claimed.
 
 The source photos are not the exact generated thumbnails inside the reference image. A pixel-identical reproduction is not implied.
+
+## Star positions (checked 16 October 2026)
+
+`src/lib/constellations.ts` holds the right ascension, declination, brightness and colour index of 76 real stars (eleven constellations), copied once into the source as plain numbers. They come from `stars.6.json` and `starnames.json` in the npm package `d3-celestial@0.7.35` (tarball sha256 starting `490796718c201e15`), which gives the stars as the Hipparcos catalogue (ESA, 1997) and the Bayer designations and names. Each row carries its Hipparcos number so it can be looked up again. The app fetches nothing at run time for this, and the finished table ships inside the app code.
+
+The package is BSD-3-Clause licensed. Its licence is kept here, as the licence asks:
+
+```
+Copyright (c) 2015, Olaf Frohn
+All rights reserved.
+
+Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
+
+1. Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer.
+
+2. Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer in the documentation and/or other materials provided with the distribution.
+
+3. Neither the name of the copyright holder nor the names of its contributors may be used to endorse or promote products derived from this software without specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+```
+
+- What was not verified: the Hipparcos catalogue's own terms of use were not read, and the d3-celestial copy was not compared with ESA's original files. The positions of stars are facts about the sky, and the figures use only a few dozen of them, but General Counsel should confirm that no further notice is needed. No ESA endorsement is claimed.
+- The scatter of fainter stars behind the globe is made up and is not from any catalogue.
+- A mistake found while adding the other figures: Orion's three belt stars had been entered about a degree away from their catalogued positions in the first version. They now match the catalogue, and a test pins them.
 
 ## Integrated preview additions
 

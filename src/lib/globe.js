@@ -119,7 +119,7 @@ export async function createGlobe({ host, stage, markerHost, touchHost, getMode,
       uniforms: { glowColor: { value: new THREE.Color('#339FFF') } },
       vertexShader: 'varying vec3 n; varying vec3 eye; void main(){vec4 p=modelViewMatrix*vec4(position,1.0);n=normalize(normalMatrix*normal);eye=normalize(-p.xyz);gl_Position=projectionMatrix*p;}',
       fragmentShader: 'uniform vec3 glowColor; varying vec3 n; varying vec3 eye; void main(){float rim=pow(1.0-max(dot(normalize(n),normalize(eye)),0.0),3.5);gl_FragColor=vec4(glowColor,rim*0.65);}' })));
-    // The opening view looks at the middle of the globe from above Africa (see the camera set-up above); Orion's belt is placed to be seen from there.
+    // The opening view looks at the middle of the globe from above Africa (see the camera set-up above); Orion's belt is placed to be seen from there, and the other constellations are turned with it (see stars.ts).
     const openingView = point(20, 5).negate().normalize();
     // Made-up satellites (not real objects, no names): small dots drifting round the Earth. The Earth hides them when they pass behind it.
     const orbits = decorativeOrbits(), satelliteGeometry = new THREE.BufferGeometry(); satelliteGeometry.setAttribute('position', new THREE.BufferAttribute(new Float32Array(orbits.length * 3), 3));
