@@ -1,9 +1,14 @@
+import { FIGURES } from './constellations.ts';
+export { FIGURES } from './constellations.ts';
+export type { Figure, FigureStar } from './constellations.ts';
+
 /**
  * The night sky behind the globe. Pure helpers, so the layout can be tested without a browser.
  *
- * The sky is decorative: it is a made-up scatter of stars, not a map of the real sky. It has three layers (many faint stars, some
- * medium ones, a few bright ones), a soft band of denser stars like a galaxy seen edge on, and small differences in colour. Nothing
- * moves, so it costs nothing while the globe is still and needs no special handling for reduced motion.
+ * The scatter of stars is decorative and made up, not a map of the real sky. It has three layers (many faint stars, some medium ones,
+ * a few bright ones), a soft band of denser stars like a galaxy seen edge on, and small differences in colour. On top of it sit eleven
+ * real constellations (see constellations.ts), drawn from the published positions of their stars. Nothing moves, so it costs nothing
+ * while the globe is still and needs no special handling for reduced motion.
  */
 
 export interface StarLayer { positions: Float32Array; colors: Float32Array; size: number; opacity: number }
@@ -55,7 +60,7 @@ function layer(count: number, size: number, opacity: number, random: () => numbe
   return { positions, colors, size, opacity };
 }
 
-/** Builds the three star layers, faintest first. The same seed always gives the same sky. */
+/** Builds the star layers, faintest first: the scatter, then (when the opening view is given) the constellations. The same seed always gives the same sky. */
 export function buildStarLayers(seed = 31, view?: SkyView): StarLayer[] {
   const random = seededRandom(seed);
   const brilliant = layer(BRILLIANT_COUNT, STAR_SIZES.brilliant, STAR_OPACITY.brilliant, random, [0.95, 1], 0);
@@ -64,33 +69,32 @@ export function buildStarLayers(seed = 31, view?: SkyView): StarLayer[] {
     layer(STAR_COUNTS.medium, STAR_SIZES.medium, STAR_OPACITY.medium, random, [0.8, 1], 0.2),
     layer(STAR_COUNTS.bright, STAR_SIZES.bright, STAR_OPACITY.bright, random, [0.9, 1], 0),
     brilliant,
-    ...(view ? orionLayers(view) : []),
+    ...(view ? figureLayers(view) : []),
   ];
 }
 
 /**
- * Orion: the three belt stars (Alnitak, Alnilam, Mintaka) and the four corners of the hourglass (Betelgeuse and Bellatrix on top,
- * Saiph and Rigel at the bottom), from their published positions (J2000, right ascension and declination in degrees). The shape and the
- * proportions are real. The sky around it is made up, so the figure is turned to sit where it can be seen from the opening view, and it
- * is drawn a little smaller than life (the real figure is about 18 degrees tall, more than fits beside the globe).
+ * Orion is the first figure: the three belt stars (Alnitak, Alnilam, Mintaka) and the four corners of the hourglass (Betelgeuse and
+ * Bellatrix on top, Saiph and Rigel at the bottom). The positions are the real ones (see constellations.ts). The shape and the proportions
+ * are real. The sky around it is made up, so the figure is turned to sit where it can be seen from the opening view, and it is drawn a
+ * little smaller than life (the real figure is about 18 degrees tall, more than fits beside the globe).
  * `size` is the dot size (bigger is brighter) and `color` its tint: Betelgeuse is orange, the others blue-white.
+ *
+ * The other constellations are placed by the same turn that places Orion, so they keep their real places in the sky relative to Orion and
+ * to each other, and each one is scaled about its own middle (see `scale` in constellations.ts) so that all of them look about the same size.
  */
-export const ORION = [
-  { name: 'Alnitak', ra: 84.0533, dec: -1.9426, size: 0.14, color: [0.82, 0.9, 1] },
-  { name: 'Alnilam', ra: 83.0017, dec: -1.2019, size: 0.14, color: [0.82, 0.9, 1] },
-  { name: 'Mintaka', ra: 82.0013, dec: -0.2991, size: 0.14, color: [0.82, 0.9, 1] },
-  { name: 'Betelgeuse', ra: 88.7929, dec: 7.4071, size: 0.2, color: [1, 0.72, 0.45] },
-  { name: 'Bellatrix', ra: 81.2828, dec: 6.3497, size: 0.17, color: [0.82, 0.9, 1] },
-  { name: 'Rigel', ra: 78.6345, dec: -8.2016, size: 0.22, color: [0.8, 0.9, 1] },
-  { name: 'Saiph', ra: 86.9391, dec: -9.6697, size: 0.17, color: [0.82, 0.9, 1] },
-] as const;
+export const ORION = FIGURES[0].stars;
 /** The first three entries of ORION are the belt. */
 export const BELT_STARS = 3;
-export const ORION_SCALE = 0.45;
+export const ORION_SCALE = FIGURES[0].scale;
 /** Turns the figure about the direction it is seen in, so it stands along the edge of the globe. */
 export const ORION_ROLL_DEGREES = 170;
-/** Where the middle of the belt appears from the opening view, in degrees right of centre and above centre (negative is left or below). */
-export const ORION_APPEARANCE = { right: -15, up: 15 } as const;
+/**
+ * Where the middle of the belt appears from the opening view, in degrees right of centre and above centre (negative is left or below).
+ * These were -15 and 15 before Orion's belt stars were moved to their catalogued positions (they had been about a degree off). That move
+ * brought Rigel within 0.6 degrees of the globe's edge during the flight to a story, so the whole sky was nudged 0.4 degrees out.
+ */
+export const ORION_APPEARANCE = { right: -15.3, up: 15.3 } as const;
 export interface SkyView { /** Direction the camera looks along at the opening view. */ direction: Rgb; /** Which way is up on screen. */ up: Rgb }
 
 const dot = (a: Rgb, b: Rgb) => a[0] * b[0] + a[1] * b[1] + a[2] * b[2];
@@ -108,27 +112,55 @@ function rotate(v: Rgb, axis: Rgb, angle: number): Rgb {
 
 export interface OrionOptions { scale?: number; roll?: number; right?: number; up?: number }
 
-/** Unit directions of the seven Orion stars, in the order of ORION, widened, turned and placed as described above. Pure, so the shape can be tested. */
-export function orionDirections(view: SkyView, options: OrionOptions = {}): Rgb[] {
-  const scale = options.scale ?? ORION_SCALE, roll = options.roll ?? ORION_ROLL_DEGREES, appearRight = options.right ?? ORION_APPEARANCE.right, appearUp = options.up ?? ORION_APPEARANCE.up;
+/** The middle of a figure on the real sky: the average direction of its first `anchor` stars (all of them when it has no anchor). */
+function figureCentre(figure: typeof FIGURES[number]): Rgb {
+  const real = figure.stars.slice(0, figure.anchor ?? figure.stars.length).map(star => equatorial(star.ra, star.dec));
+  return unit(real.reduce<Rgb>((sum, v) => [sum[0] + v[0], sum[1] + v[1], sum[2] + v[2]], [0, 0, 0]));
+}
+
+/**
+ * The one turn that carries the real sky to where it is drawn: Orion's belt goes to its place beside the globe at the opening view, then
+ * everything is rolled about that direction. Every figure goes through the same turn, so the figures keep their real places relative to Orion.
+ */
+function skyTurn(view: SkyView, options: OrionOptions = {}): (v: Rgb) => Rgb {
+  const roll = options.roll ?? ORION_ROLL_DEGREES, appearRight = options.right ?? ORION_APPEARANCE.right, appearUp = options.up ?? ORION_APPEARANCE.up;
   const forward = unit(view.direction), right = unit(cross(forward, view.up)), upward = cross(right, forward);
   // The camera sits 3.45 in front of the sky's centre and the sky is 18 behind it, so an apparent angle needs both distances in the sum.
   const lateral = (STAR_RADIUS + 3.45) * Math.tan(rad(appearRight)), vertical = (STAR_RADIUS + 3.45) * Math.tan(rad(appearUp));
   const target = unit([forward[0] * STAR_RADIUS + right[0] * lateral + upward[0] * vertical, forward[1] * STAR_RADIUS + right[1] * lateral + upward[1] * vertical, forward[2] * STAR_RADIUS + right[2] * lateral + upward[2] * vertical]);
-  const real = ORION.map(star => equatorial(star.ra, star.dec)), belt = real.slice(0, BELT_STARS);
-  const centre = unit([belt[0][0] + belt[1][0] + belt[2][0], belt[0][1] + belt[1][1] + belt[2][1], belt[0][2] + belt[1][2] + belt[2][2]]);
-  const resized = real.map(v => unit([centre[0] + (v[0] - centre[0]) * scale, centre[1] + (v[1] - centre[1]) * scale, centre[2] + (v[2] - centre[2]) * scale]));
+  const centre = figureCentre(FIGURES[0]);
   const axis = cross(centre, target), length = Math.hypot(axis[0], axis[1], axis[2]);
   const angle = Math.acos(Math.max(-1, Math.min(1, dot(centre, target))));
-  const turned = length < 1e-9 ? resized : resized.map(v => rotate(v, [axis[0] / length, axis[1] / length, axis[2] / length], angle));
-  return turned.map(v => rotate(v, target, rad(roll)));
+  const axisUnit: Rgb = length < 1e-9 ? [0, 0, 1] : [axis[0] / length, axis[1] / length, axis[2] / length];
+  return v => rotate(length < 1e-9 ? v : rotate(v, axisUnit, angle), target, rad(roll));
 }
 
-/** Orion as one small layer per dot size (a Points object has one size), each star keeping its own tint. */
-function orionLayers(view: SkyView): StarLayer[] {
-  const directions = orionDirections(view), sizes = [...new Set(ORION.map(star => star.size))].sort((a, b) => a - b);
+/** Unit directions of one figure's stars, in the order of its list: scaled about its own middle, then turned. */
+function figureDirections(figure: typeof FIGURES[number], turn: (v: Rgb) => Rgb, scale = figure.scale): Rgb[] {
+  const centre = figureCentre(figure);
+  return figure.stars.map(star => {
+    const v = equatorial(star.ra, star.dec);
+    return turn(unit([centre[0] + (v[0] - centre[0]) * scale, centre[1] + (v[1] - centre[1]) * scale, centre[2] + (v[2] - centre[2]) * scale]));
+  });
+}
+
+/** Unit directions of the seven Orion stars, in the order of ORION, widened, turned and placed as described above. Pure, so the shape can be tested. */
+export function orionDirections(view: SkyView, options: OrionOptions = {}): Rgb[] {
+  return figureDirections(FIGURES[0], skyTurn(view, options), options.scale ?? ORION_SCALE);
+}
+
+/** Unit directions of the stars of every figure, one list per figure, in the order of FIGURES (Orion first). */
+export function figureSky(view: SkyView): Rgb[][] {
+  const turn = skyTurn(view);
+  return FIGURES.map(figure => figureDirections(figure, turn));
+}
+
+/** All the constellation stars as one small layer per dot size (a Points object has one size), each star keeping its own tint. */
+function figureLayers(view: SkyView): StarLayer[] {
+  const sky = figureSky(view), entries = FIGURES.flatMap((figure, f) => figure.stars.map((star, i) => ({ star, v: sky[f][i] })));
+  const sizes = [...new Set(entries.map(entry => entry.star.size))].sort((a, b) => a - b);
   return sizes.map(size => {
-    const stars = ORION.map((star, i) => ({ star, v: directions[i] })).filter(entry => entry.star.size === size);
+    const stars = entries.filter(entry => entry.star.size === size);
     const positions = new Float32Array(stars.length * 3), colors = new Float32Array(stars.length * 3);
     stars.forEach(({ star, v }, i) => { positions.set([v[0] * STAR_RADIUS, v[1] * STAR_RADIUS, v[2] * STAR_RADIUS], i * 3); colors.set(star.color, i * 3); });
     return { positions, colors, size, opacity: 1 };
