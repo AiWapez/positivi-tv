@@ -144,3 +144,34 @@ test('second review: origin clauses and same-named towns do not create pins; a s
     assert.equal(countryFromHeadline(title), null, title);
   assert.equal(countryFromHeadline('In Kenya, women restore degraded forests').name, 'Kenya');
 });
+
+test('plural forms of excluded words are excluded too (stricter-only fix)', () => {
+  const cases = {
+    'Governors celebrate new state park': 'GOVERNANCE_NEVER_AUTOMATED',
+    'Mayors open shared bike lanes': 'GOVERNANCE_NEVER_AUTOMATED',
+    'City councils open community gardens': 'GOVERNANCE_NEVER_AUTOMATED',
+    'Two treaties protect migratory birds': 'GOVERNANCE_NEVER_AUTOMATED',
+    'Prime ministers open joint solar plant': 'GOVERNANCE_NEVER_AUTOMATED',
+    'Famines ended in two regions': 'CONFLICT_OR_CRISIS',
+    'Pandemics shaped how cities build parks': 'CONFLICT_OR_CRISIS',
+    'Massacres remembered as town opens memorial garden': 'HARM_EVENT',
+    'Investigations reveal wildlife sanctuary success': 'ENFORCEMENT_OR_LEGAL',
+    'Debates end as town opens new library': 'OPINION_OR_DISPUTE',
+    'Cancers detected earlier with new scan': 'HEALTH_NEVER_AUTOMATED',
+    'Refineries closed and replaced by solar parks': 'EXTRACTIVE_INDUSTRY',
+    'Breakthroughs restore coral reef': 'HYPE',
+    'Obituaries honour reef pioneer': 'RETROSPECTIVE',
+  };
+  for (const [title, reason] of Object.entries(cases)) {
+    const r = screen(title);
+    assert.equal(r.decision, 'exclude', title);
+    assert(r.reasons.includes(reason), `${title}: ${r.reasons}`);
+  }
+});
+
+test('plural fix does not exclude constructive headlines that use none of the listed words', () => {
+  for (const title of ['Community opens shelter for abuse survivors', 'Teen wins deadlift championship', 'Scientists restore dead coral to a thriving reef',
+    'Award-winning school opens community garden', 'Volunteers discover new dinosaur fossils in the desert']) {
+    const r = screen(title); assert.equal(r.decision, 'list', `${title}: ${r.reasons}`);
+  }
+});

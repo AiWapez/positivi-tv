@@ -20,33 +20,33 @@ const words = (list: string[]) => new RegExp('(?<![\\w-])(?:' + list.map(escape)
 const stems = (list: string[]) => new RegExp('(?<![\\w-])(?:' + list.join('|') + ')(?![\\w-])', 'i');
 
 /** Always excluded wherever they appear in the headline or description lead. */
-const HARM = stems(['kill(?:s|ed|ing|er|ers)?', 'murder(?:s|ed|er)?', 'massacre', 'shooting', 'shot dead', 'gunm[ae]n', 'stab(?:s|bed|bing)?',
-  'bomb(?:s|ed|ing)?', 'explosion', 'attack(?:s|ed)?', 'hostages?', 'kidnap(?:s|ped|ping)?', 'death toll', 'fatal(?:ly|ities)?',
-  'dies', 'died', 'deaths?', 'drown(?:s|ed|ing)?', 'crash(?:es|ed)?', 'assault(?:s|ed)?', 'rape[sd]?', 'suicide', 'overdose', 'gunfire',
-  'child marriage', 'cull(?:s|ed|ing)?', 'slaughter(?:s|ed)?']);
+const HARM = stems(['kill(?:s|ed|ing|er|ers)?', 'murder(?:s|ed|er)?', 'massacres?', 'shootings?', 'shot dead', 'gunm[ae]n', 'stab(?:s|bed|bing)?',
+  'bomb(?:s|ed|ing)?', 'explosions?', 'attack(?:s|ed)?', 'hostages?', 'kidnap(?:s|ped|ping)?', 'death tolls?', 'fatal(?:ly|ities)?',
+  'dies', 'died', 'deaths?', 'drown(?:s|ed|ing)?', 'crash(?:es|ed)?', 'assault(?:s|ed)?', 'rape[sd]?', 'suicides?', 'overdoses?', 'gunfire',
+  'child marriages?', 'cull(?:s|ed|ing)?', 'slaughter(?:s|ed)?']);
 /** Extractive and fossil industries. Excluded wherever they appear in the headline. */
-const EXTRACTIVE = stems(['coal', 'oil', 'gas', 'pipelines?', 'mines?', 'mining', 'drilling', 'fracking', 'whal(?:ing|ers?)', 'hunt(?:s|ers?|ing)?',
-  'trophy', 'trawl(?:s|ers?|ing)?', 'fishing fleets?', 'petrol', 'diesel', 'fossil', 'petroleum', 'refinery']);
-const ENFORCEMENT = stems(['arrest(?:s|ed)?', 'charged', 'indicted', 'convicted', 'sentenced', 'jailed', 'prison', 'lawsuits?', 'sue[sd]?',
-  'probe', 'investigation', 'raids?', 'bust(?:ed)?', 'racket', 'seize[sd]?', 'nabbed', 'fraud', 'scam(?:s|mers?)?', 'smuggl(?:ing|ed|ers?)',
+const EXTRACTIVE = stems(['coal', 'oil', 'gas(?:es)?', 'pipelines?', 'mines?', 'mining', 'drilling', 'fracking', 'whal(?:ing|ers?)', 'hunt(?:s|ers?|ing)?',
+  'troph(?:y|ies)', 'trawl(?:s|ers?|ing)?', 'fishing fleets?', 'petrol', 'diesel', 'fossil', 'petroleum', 'refiner(?:y|ies)']);
+const ENFORCEMENT = stems(['arrest(?:s|ed)?', 'charged', 'indicted', 'convicted', 'sentenced', 'jailed', 'prisons?', 'lawsuits?', 'sue[sd]?',
+  'probes?', 'investigations?', 'raids?', 'bust(?:ed)?', 'rackets?', 'seize[sd]?', 'nabbed', 'frauds?', 'scam(?:s|mers?)?', 'smuggl(?:ing|ed|ers?)',
   'traffick(?:ing|ed|ers?)', 'police']);
-const CONFLICT = stems(['wars?', 'warfare', 'airstrikes?', 'invasion', 'invaded?', 'ceasefire', 'sanctions?', 'famine', 'outbreaks?',
-  'epidemic', 'pandemic', 'crisis', 'crises', 'emergency', 'evacuat(?:e|ed|ion)', 'collapse[sd]?', 'militants?', 'troops', 'military',
-  'terror(?:ism|ists?)?', 'genocide', 'riots?']);
+const CONFLICT = stems(['wars?', 'warfare', 'airstrikes?', 'invasions?', 'invaded?', 'ceasefires?', 'sanctions?', 'famines?', 'outbreaks?',
+  'epidemics?', 'pandemics?', 'crisis', 'crises', 'emergenc(?:y|ies)', 'evacuat(?:e|ed|ion)', 'collapse[sd]?', 'militants?', 'troops', 'militar(?:y|ies)',
+  'terror(?:ism|ists?)?', 'genocides?', 'riots?']);
 /** Opinion, dispute and warning framing. Excluded from the headline only. */
-const STANCE = stems(['critics?', 'criticism', 'backlash', 'controvers(?:y|ial)', 'slams?', 'blasts', 'warns?', 'warning', 'concerns?',
-  'alleged(?:ly)?', 'accuse[sd]?', 'condemn(?:s|ed)?', 'outrage', 'opinion', 'op-ed', 'should', 'must', 'debate', 'fears?', 'protests?',
-  'interviews?', 'commentary', 'q&a', 'analysis', 'editorial', 'podcast', 'explainer']);
+const STANCE = stems(['critics?', 'criticisms?', 'backlash(?:es)?', 'controvers(?:y|ial)', 'slams?', 'blasts', 'warns?', 'warnings?', 'concerns?',
+  'alleged(?:ly)?', 'accuse[sd]?', 'condemn(?:s|ed)?', 'outrages?', 'opinions?', 'op-eds?', 'should', 'must', 'debates?', 'fears?', 'protests?',
+  'interviews?', 'commentar(?:y|ies)', 'q&a', 'analys(?:is|es)', 'editorials?', 'podcasts?', 'explainers?']);
 /** Never automated, matching GoodSignal's NEVER_AUTOMATE topics. Headline only. */
-const GOVERNANCE = stems(['bills?', 'legislation', 'lawmakers?', 'congress', 'parliament', 'senate', 'elections?', 'votes?', 'voted', 'voting',
-  'ballots?', 'campaigns?', 'president', 'prime minister', 'ministers?', 'ministry', 'government', 'polic(?:y|ies)', 'regulations?',
-  'tariffs?', 'courts?', 'ruling', 'judges?', 'treaty', 'laws?', 'mayor', 'politic(?:s|al|ians?)', 'referendum', 'governor', 'council',
+const GOVERNANCE = stems(['bills?', 'legislation', 'lawmakers?', 'congress(?:es)?', 'parliaments?', 'senates?', 'elections?', 'votes?', 'voted', 'voting',
+  'ballots?', 'campaigns?', 'presidents?', 'prime ministers?', 'ministers?', 'ministr(?:y|ies)', 'governments?', 'polic(?:y|ies)', 'regulations?',
+  'tariffs?', 'courts?', 'rulings?', 'judges?', 'treat(?:y|ies)', 'laws?', 'mayors?', 'politic(?:s|al|ians?)', 'referend(?:um|ums|a)', 'governors?', 'councils?',
   'senators?', 'mps', 'officials?', 'bans?', 'banned', 'legali[sz](?:e|es|ed|ation)', 'rights', 'land titles?', 'strikes?', 'unions?',
-  'migrants?', 'migration', 'asylum', 'immigra(?:nts?|tion)', 'same-sex', 'marriage']);
+  'migrants?', 'migration', 'asylum', 'immigra(?:nts?|tion)', 'same-sex', 'marriages?']);
 /** Case-sensitive institutional acronyms. */
 const GOVERNANCE_ACRONYM = /(?<![\w-])(?:EU|UN|NATO|MPs?|G7|G20|COP\d*)(?![\w-])/;
-const HEALTH = stems(['cancer', 'diseases?', 'vaccines?', 'drugs?', 'therap(?:y|ies)', 'treatments?', 'cures?', 'patients?', 'clinical',
-  'trials?', 'hospitals?', 'surgery', 'medical', 'medicine', 'health', 'healthcare', 'virus', 'infections?', 'covid', 'diabetes',
+const HEALTH = stems(['cancers?', 'diseases?', 'vaccines?', 'drugs?', 'therap(?:y|ies)', 'treatments?', 'cures?', 'patients?', 'clinical',
+  'trials?', 'hospitals?', 'surger(?:y|ies)', 'medical', 'medicines?', 'health', 'healthcare', 'virus(?:es)?', 'infections?', 'covid', 'diabetes',
   "alzheimer'?s", 'dementia', 'depression', 'anxiety', 'obesity', 'diet', 'weight loss', 'pregnan(?:t|cy)', 'mental', 'measles', 'mpox',
   'polio', 'malaria', 'malaria-free', 'hiv', 'flu', 'influenza', 'bird flu', 'cholera', 'ebola', 'tuberculosis', 'dengue', 'zika',
   'cases?', 'pathogens?', 'bacteria', 'antibiotics?', 'symptoms?', 'doctors?', 'nurses?', 'clinics?']);
@@ -56,14 +56,14 @@ const HEALTH_ACRONYM = /(?<![\w-])(?:WHO|AIDS|HIV|TB)(?![\w-])/;
 const DISTRESS = stems(['unemployment', 'inflation', 'recession', 'layoffs?', 'bankrupt(?:cy)?', 'record (?:high|low|levels?|extent)',
   'hits? record', 'all-time (?:high|low)', 'bleaching', 'sea ice', 'heat records?', 'new (?:record|high|low)', 'break(?:s)? records',
   'record (?:number|numbers|catch|haul|temperatures?|heat|levels?|prices?|deaths?|cases)', 'highest level', 'lowest level']);
-const HYPE = stems(['miracle', 'revolutionary', 'game[- ]changer', 'breakthrough', 'you won.t believe', 'shocking']);
-const PROMO = stems(['sponsored', 'partner content', 'press release', 'giveaway', 'discount', 'sale', 'deals?', 'coupon', 'webinar',
+const HYPE = stems(['miracles?', 'revolutionary', 'game[- ]changer', 'breakthroughs?', 'you won.t believe', 'shocking']);
+const PROMO = stems(['sponsored', 'partner content', 'press release', 'giveaways?', 'discounts?', 'sale', 'deals?', 'coupons?', 'webinars?',
   'register now', 'subscribe', 'buy now']);
-const RETROSPECTIVE = stems(['anniversary', 'years ago', 'decades ago', 'looking back', 'years later', 'remembering', 'obituary', 'legacy', 'in memoriam']);
+const RETROSPECTIVE = stems(['anniversar(?:y|ies)', 'years ago', 'decades ago', 'looking back', 'years later', 'remembering', 'obituar(?:y|ies)', 'legacy', 'in memoriam']);
 const CLIMATE_ALARM = words(['record heat', 'record temperatures', 'hottest', 'heatwave', 'heat wave']);
 /** Negative vocabulary that is allowed only when the same headline states a recovery or protective outcome. */
-const CONTEXT_NEGATIVE = stems(['disasters?', 'flood(?:s|ing|ed)?', 'drought', 'wildfires?', 'fires?', 'hurricanes?', 'cyclones?', 'typhoons?',
-  'earthquakes?', 'tsunami', 'storms?', 'abuse[sd]?', 'exploitation', 'violence', 'homeless(?:ness)?', 'poverty', 'hunger', 'hungry', 'endangered',
+const CONTEXT_NEGATIVE = stems(['disasters?', 'flood(?:s|ing|ed)?', 'droughts?', 'wildfires?', 'fires?', 'hurricanes?', 'cyclones?', 'typhoons?',
+  'earthquakes?', 'tsunamis?', 'storms?', 'abuse[sd]?', 'exploitation', 'violence', 'homeless(?:ness)?', 'poverty', 'hunger', 'hungry', 'endangered',
   'extinct(?:ion)?', 'declin(?:e|es|ing)', 'pollut(?:ion|ed)', 'dead', 'dying', 'addiction', 'victims?', 'threat(?:s|ened)?', 'at risk',
   'damaged', 'destroyed', 'injured', 'orphaned', 'stranded', 'trapped', 'missing', 'refugees?', 'loss', 'lost', 'losing',
   'vulnerable', 'invasive', 'illegal', 'deforestation', 'logging', 'mining', 'poach(?:ing|ers?)', 'spills?', 'toxic', 'contaminat(?:ed|ion)',
