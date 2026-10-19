@@ -27,6 +27,7 @@
   },
   "dependencies": {
     "@vercel/blob": "2.8.2",
+    "@vercel/global-config": "1.5.1",
     "entities": "8.1.0",
     "fast-xml-parser": "5.11.2",
     "react": "^18.3.1",
