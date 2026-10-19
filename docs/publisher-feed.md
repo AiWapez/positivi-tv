@@ -203,6 +203,20 @@ Cost: the Hobby plan includes the first 100,000 Global Config reads and at least
 
 Setup, once, after this change is merged: create one Global Config store, connect it to the PositiviTV project (Vercel then adds the `GLOBAL_CONFIG` variable), add the two keys with `false` and `[]`, and redeploy once so the variable is picked up. Required by General Counsel before any new story type is turned on (draft ruling of October 19, 2026).
 
+### Private teaching batch (built, off until the key exists)
+
+Purpose: give Alex labeling sessions at any hour, so story types can be tested on fresh days without the one-hour runtime logs. Approved by General Counsel (draft ruling and addendum of October 19, 2026; Project doc `claude/gc-ruling-self-managing-lane-oct19.md`).
+
+Method: the existing daily run, at its usual hour and with the same fetcher, User-Agent, allowlist, robots check and spacing, hands the records it already screened to `server/teaching-batch.ts` after the snapshot is stored. No extra publisher request is made. The code saves one release file a day to an Alex-only private GitHub repository: tag, title and notes `batch-YYYY-MM-DD`, file `batch-YYYY-MM-DD.json`. Each record holds only the source name, link, headline, publication date, decision, reason codes and policy version, never a description, summary or author name. On every run it first deletes any batch more than 14 days old (release, file and tag), then saves the day's batch. A second run on the same day replaces that day's file. Logs print counts and HTTP status codes only. The save is limited to 15 seconds per run, and no failure (including an expired key) can change the snapshot, the listings or the run's result. Batch data is never committed to any repository; the code has no path that writes a commit, a file, a branch or any ref other than deleting its own `batch-*` tags, and a test checks every endpoint it can reach.
+
+Switch: off unless both `TEACHING_BATCH_REPO` (for example `AiWapez/positivitv-teaching`) and `TEACHING_BATCH_TOKEN` are set as production-only Vercel variables (the token as a sensitive variable).
+
+Key: a fine-grained GitHub key limited to that one repository, with Contents read and write only (needed to create and delete releases; it would also allow commits, which this code never makes), and a 90-day expiry with a renewal reminder for Alex. Key scope and expiry date: not yet created. If the key ever leaks: revoke it at once, delete every release, tell General Counsel and Cybersecurity, and record the incident here.
+
+Read sessions: before anything else, any batch older than 14 days is deleted. Nothing may exist past day 16. On day 15 after the first batch, confirm here that it is gone. Stories loaded into the private labeling page are deleted when scoring is done and no later than 30 days after collection.
+
+Deletion log: none yet.
+
 ### Counts-only run report
 
 `GET /api/run-report` is a small public page of counts from the last automatic run, built from the snapshot the daily run already stores. It lets the daily result be checked at any hour without the one-hour runtime logs or an in-app approval. For each source it gives whether the feed was collected, not reached or switched off, the time of the check, the number of candidates, how many were listed, carried or not listed, and how often each reason code held a story back (one story can have several reasons). It also gives the screening policy version and anything paused. It never contains headlines, descriptions, links, story ids, collector error text, visitor data or IP addresses. Wording for publishers is neutral ("not listed", "held back", "not reached"), and the page carries this note: "Counts from PositiviTV's automatic story selection. Not listed doesn't mean a story is wrong; it means our rules didn't pick it." Approved by General Counsel (draft ruling of October 19, 2026); no Privacy Policy change is needed.

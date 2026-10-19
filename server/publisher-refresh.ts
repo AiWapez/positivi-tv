@@ -15,7 +15,15 @@ export interface RefreshDeps {
   pause?: (ms: number) => Promise<void>;
   /** Where screening-sample lines go. Defaults to console.log (the private run log). Injected only by tests. */
   log?: (line: string) => void;
+  /**
+   * Private teaching batch (see server/teaching-batch.ts). Receives the records this run already screened, after the snapshot is
+   * stored. It can never change the snapshot, the listings or the outcome of the run. Absent means off.
+   */
+  saveTeaching?: (records: ScreenedRecord[], now: string) => Promise<unknown>;
 }
+
+/** The most time the teaching batch may add to a run, so the scheduled job stays inside its time limit. */
+export const TEACHING_BUDGET_MS = 15_000;
 export type RefreshOutcome =
   | { code: 200; body: { revision: string; listed: number; sources: Record<string, { status: string; listed: number; carried: number }> } }
   | { code: 200; body: { skipped: 'disabled'; cleanup?: 'failed' } }
@@ -120,14 +128,20 @@ export async function runPublisherRefresh(deps: RefreshDeps): Promise<RefreshOut
     }
     // Temporary and self-expiring: see docs/publisher-feed.md, "Screening sample". It only observes; it never changes the snapshot.
     const sample: ScreenedRecord[] = [];
+    const logActive = screeningLogActive(control, now);
     const snapshot = buildSnapshot(previous?.snapshot ?? null, results, sources, control, now, deps.feeds.map(f => f.id),
-      screeningLogActive(control, now) ? record => { sample.push(record); } : undefined);
-    if (sample.length) {
+      logActive || deps.saveTeaching ? record => { sample.push(record); } : undefined);
+    if (logActive && sample.length) {
       try { const write = deps.log ?? ((line: string) => console.log(line)); for (const line of screeningLogLines(sample, now)) write(line); }
       catch { /* logging can never fail a collection run */ }
     }
     try { await store.writeCurrent(snapshot, previous?.etag ?? null); }
     catch (error) { if (conflictError(error)) return { code: 409, body: { error: 'Another run replaced the snapshot first; nothing was overwritten.' } }; throw error; }
+    // After the snapshot is safely stored. Bounded in time, and no failure here can change the run's result.
+    if (deps.saveTeaching && sample.length) {
+      try { await Promise.race([deps.saveTeaching(sample, now).catch(() => undefined), new Promise(resolve => { const t = setTimeout(resolve, TEACHING_BUDGET_MS); (t as { unref?: () => void }).unref?.(); })]); }
+      catch { /* never fails a collection run */ }
+    }
     return { code: 200, body: { revision: snapshot.revision, listed: snapshot.items.length,
       sources: Object.fromEntries(Object.entries(snapshot.sources).map(([id, s]) => [id, { status: s.status, listed: s.listed, carried: s.carried }])) } };
   } finally { await store.releaseLock(token); }

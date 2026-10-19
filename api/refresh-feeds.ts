@@ -4,6 +4,8 @@ import { cronAuthorized } from '../server/cron-auth.ts';
 import { runPublisherRefresh } from '../server/publisher-refresh.ts';
 import type { RefreshDeps } from '../server/publisher-refresh.ts';
 import { createPublisherStore } from '../server/publisher-store.ts';
+import { saveTeachingBatch, teachingBatchConfig, toTeachingRecords } from '../server/teaching-batch.ts';
+import { PUBLISHER_FEED_POLICY } from '../src/lib/publisher-feed.ts';
 import type { PublisherFeedControl, PublisherSources } from '../src/lib/publisher-feed.ts';
 interface Request { method?: string; headers: Record<string, string | string[] | undefined> }
 interface Response { status(code: number): Response; setHeader(key: string, value: string): void; json(data: unknown): void }
@@ -21,7 +23,11 @@ export function createRefreshHandler(deps: () => RefreshDeps) {
     }
   };
 }
-export default createRefreshHandler(() => ({
-  feeds: config.feeds, sources: config.sources as unknown as PublisherSources,
-  control: control as PublisherFeedControl, store: createPublisherStore(),
-}));
+export default createRefreshHandler(() => {
+  const sources = config.sources as unknown as PublisherSources, teaching = teachingBatchConfig();
+  return {
+    feeds: config.feeds, sources, control: control as PublisherFeedControl, store: createPublisherStore(),
+    // Off unless TEACHING_BATCH_REPO and TEACHING_BATCH_TOKEN are both set (General Counsel addendum, October 19, 2026).
+    ...(teaching ? { saveTeaching: (records, now) => saveTeachingBatch(toTeachingRecords(records, sources, PUBLISHER_FEED_POLICY), now, teaching) } : {}),
+  } satisfies RefreshDeps;
+});
