@@ -203,6 +203,10 @@ Cost: the Hobby plan includes the first 100,000 Global Config reads and at least
 
 Setup, once, after this change is merged: create one Global Config store, connect it to the PositiviTV project (Vercel then adds the `GLOBAL_CONFIG` variable), add the two keys with `false` and `[]`, and redeploy once so the variable is picked up. Required by General Counsel before any new story type is turned on (draft ruling of October 19, 2026).
 
+### Counts-only run report
+
+`GET /api/run-report` is a small public page of counts from the last automatic run, built from the snapshot the daily run already stores. It lets the daily result be checked at any hour without the one-hour runtime logs or an in-app approval. For each source it gives whether the feed was collected, not reached or switched off, the time of the check, the number of candidates, how many were listed, carried or not listed, and how often each reason code held a story back (one story can have several reasons). It also gives the screening policy version and anything paused. It never contains headlines, descriptions, links, story ids, collector error text, visitor data or IP addresses. Wording for publishers is neutral ("not listed", "held back", "not reached"), and the page carries this note: "Counts from PositiviTV's automatic story selection. Not listed doesn't mean a story is wrong; it means our rules didn't pick it." Approved by General Counsel (draft ruling of October 19, 2026); no Privacy Policy change is needed.
+
 ## Screening sample (temporary)
 
 Why: the headline rules in `server/publisher-screen.ts` have only been tuned on small samples. `docs/goodsignal-spec.md` section 13 asks for roughly 300 real candidates, rejects included, labelled by a person, before anyone claims the screening works. The daily job used to count rejected stories and discard them, so no such set existed.
