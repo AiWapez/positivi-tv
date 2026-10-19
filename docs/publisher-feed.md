@@ -187,6 +187,20 @@ No new article fetching, geocoding API or paid service is added. Feed descriptio
 The current policy is `publisher-feed-0.4.1` (0.4.1 adds rejection of unresolved trafficked-animal journeys; see coverage and photos), with a 30-day publication window and policy-scoped private snapshot paths. It supplements Mongabay RSS with bounded keyless metadata and real byline records. Public cards may use only the checked local illustration catalog. See [coverage and photos](coverage-and-photos.md) for the exact boundaries and attribution rules. Earlier no-image and fixed snapshot-path descriptions above describe the original candidate.
 
 Stricter-only rule fix, October 19, 2026: several exclusion words matched only their singular form (for example "governor" but not "governors", and likewise mayors, councils, treaties, massacres, famines, pandemics, investigations and prime ministers). Their plural forms are now excluded too. This change can only exclude more stories, never list more, so the policy version stays `publisher-feed-0.4.1` and the stories already on the site are not dropped. Before the change, the 12 cards the site was showing were re-checked against the new rules by headline and all still pass; a carried card is not re-checked against its description until it appears in a feed again. A comparison over the 144 headlines of the October 16 sample found no decision that changed in either direction. Approved by General Counsel (draft ruling of October 19, 2026).
+### Same-day pull-down and off switch (no redeploy)
+
+Two controls live outside the deployment, in the project's Vercel Global Config store (formerly Edge Config), so they take effect without a redeploy. Alex can change them from the Vercel dashboard on his own (Storage, then the Global Config store, then its items), and the Builder can change them too.
+
+- `publisherLaneOff`: set to `true` to pause the whole automatic lane. The reviewed edition is still served. Set it back to `false` (or delete it) to resume.
+- `withdrawnStories`: a list of stories to take off the site. Each entry is either the story's original article link (the "Read the original" link on its card) or its story id, for example `["https://news.mongabay.com/2026/10/example-story/"]`.
+
+How fast: each server copy re-reads the controls at most every 3 minutes, and Global Config takes up to 10 seconds to spread, so a change normally shows within about 3 minutes. Open browsers re-check every 25 seconds while the page is visible and drop a withdrawn card when they see it.
+
+Safety: these controls can only pause or hold back. They can never list a story, add a story type, loosen a rule, or switch on a lane that `config/publisher-feed.json` has switched off. If the store is connected but cannot be read, or holds a value the code does not understand (a wrong type, an entry that is neither a link nor a story id, or more than 500 entries), the automatic lane is paused until a good read. Each copy keeps its last good read through a short outage. When no store is connected, the config file alone applies, exactly as before. The file's own `withdrawn` list still works and is kept.
+
+Cost: the Hobby plan includes the first 100,000 Global Config reads and at least the first 100 writes a month (Vercel pages give 100 or 250), one store, and up to 1 MB. The 3-minute memory cache keeps visitor traffic far below the read allowance, and the reads happen only when someone loads the site. Exceeding a Hobby allowance pauses that feature for up to 30 days, which would pause this lane (fail closed) rather than show withdrawn stories.
+
+Setup, once, after this change is merged: create one Global Config store, connect it to the PositiviTV project (Vercel then adds the `GLOBAL_CONFIG` variable), add the two keys with `false` and `[]`, and redeploy once so the variable is picked up. Required by General Counsel before any new story type is turned on (draft ruling of October 19, 2026).
 
 ## Screening sample (temporary)
 
