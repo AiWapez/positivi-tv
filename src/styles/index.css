@@ -115,3 +115,4 @@ html{scroll-behavior:auto}body{overflow-x:hidden}svg{display:block;width:20px;he
 .country-section dd{margin:2px 0 0;font-size:13px;line-height:1.55;color:#C9D6E3;overflow-wrap:anywhere}
 .country-source{font-size:11px;line-height:1.6;margin-top:24px}
 .country-source a{text-decoration:underline}
+.brand .tm{font-size:13px;font-weight:600;letter-spacing:0;line-height:1;vertical-align:super;margin-left:2px;color:var(--wordmark-green)}

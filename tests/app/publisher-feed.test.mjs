@@ -81,7 +81,7 @@ test('freshness window, retention expiry and stale snapshots are enforced on eve
 test('reviewed edition wins id/URL collisions and keeps "Reviewed by PositiviTV"', () => {
   const edition = publishEdition([story()], Object.fromEntries(Object.entries(context().sources).map(([id, s]) => [id, { ...s, displayName: 'Synthetic publisher' }])), empty, context().now);
   const reviewed = buildFeed(edition, context().now).stories[0];
-  assert.equal(reviewed.provenance, 'reviewed'); assert.equal(provenanceLabel(reviewed), 'Reviewed by PositiviTV');
+  assert.equal(reviewed.provenance, 'reviewed'); assert.equal(provenanceLabel(reviewed), 'Reviewed by PositiviTV™');
   const host = new URL(reviewed.sourceUrl).hostname, srcs = sources({ alpha: { ...sources().alpha, domains: [host] } });
   const clash = buildSnapshot(null, [{ sourceId: 'alpha', ok: true, candidates: [{ ...candidate('alpha', 'dup', 'Volunteers restore wetland'), url: reviewed.sourceUrl, publishedAt: new Date(Date.parse(context().now) - DAY).toISOString() }] }], srcs, control(), context().now);
   const feed = buildCombinedFeed(edition, { snapshot: clash, status: 'ok' }, control(), srcs, context().now);

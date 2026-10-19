@@ -4,12 +4,12 @@ export default function ReaderInfo({ page, savedCount, onClear, readCount = 0, o
   page: 'privacy' | 'terms'; savedCount: number; onClear: () => void; readCount?: number; onClearRead?: () => void;
 }) {
   if (page === 'terms') return <>
-    <p className="eyebrow">Reading PositiviTV</p><h2 id="dialog-title">Free to explore.</h2>
-    <p>You can browse without an account. PositiviTV brings together constructive reporting; original publishers remain responsible for their articles. A reviewed story can still contain an error or need a correction.</p>
-    <h3>Sources and dates</h3><p>Read story opens the original publisher in a new tab. That website has its own content, privacy practices and terms, and may have a paywall. Publication dates and event dates are separate. Stories marked Reviewed by PositiviTV were approved by an editor. Stories marked From publisher feeds were selected automatically from permitted feeds; their event dates are not confirmed and the selection rules can make mistakes. Refresh reads the latest saved stories; it does not create reporting or start a new search.</p>
+    <p className="eyebrow">Reading PositiviTV™</p><h2 id="dialog-title">Free to explore.</h2>
+    <p>You can browse without an account. PositiviTV™ brings together constructive reporting; original publishers remain responsible for their articles. A reviewed story can still contain an error or need a correction.</p>
+    <h3>Sources and dates</h3><p>Read story opens the original publisher in a new tab. That website has its own content, privacy practices and terms, and may have a paywall. Publication dates and event dates are separate. Stories marked Reviewed by PositiviTV™ were approved by an editor. Stories marked From publisher feeds were selected automatically from permitted feeds; their event dates are not confirmed and the selection rules can make mistakes. Refresh reads the latest saved stories; it does not create reporting or start a new search.</p>
     <h3>Photos</h3><p>Cards use credited location photos or subject illustrations. Their captions explain the context, and photo credits link to the source and license.</p>
     <h3>Design samples</h3><p>The sample edition contains fictional layout examples. It is labelled throughout and kept separate from reviewed news.</p>
-    <h3>Using the code</h3><p>GitHub is where the project code lives. You do not need a PositiviTV account to download or fork an accessible repository. Check its license and asset credits before reuse; publisher articles are not part of the code license.</p>
+    <h3>Using the code</h3><p>GitHub is where the project code lives. You do not need a PositiviTV™ account to download or fork an accessible repository. Check its license and asset credits before reuse; publisher articles are not part of the code license.</p>
     <h3>Corrections</h3><p>To flag a factual or source-link issue, use the repository’s issue tracker. Include the article link and the concern, and leave out personal information. You will need a GitHub account to submit an issue.</p>
     <a className="secondary" href="https://github.com/AiWapez/positivi-tv/issues" target="_blank" rel="noopener noreferrer">Report a story issue <Icon name="external" /></a>
     <p className="filter-note">Updated October 14, 2026. Accounts and community uploads are not available in this release.</p>
