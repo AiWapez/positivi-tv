@@ -13,7 +13,7 @@ Downloaded October 14, 2026. These are illustrative assets, not evidence for any
 | city.jpg | https://images.unsplash.com/photo-1518391846015-55a9cc003b25?w=700&q=85&fit=crop |
 | Star positions | The positions of 76 real stars in `src/lib/constellations.ts`, from the Hipparcos catalogue as distributed in the npm package `d3-celestial@0.7.35` (BSD-3-Clause). Nothing is downloaded when the app runs. See "Star positions" below. |
 | Three.js code | npm package three@0.180.0; https://github.com/mrdoob/three.js/tree/r180 |
-| Reference concept | Generated for this PositiviTV conversation; first design only. |
+| Reference concept | Generated for this PositiviTV™ conversation; first design only. |
 
 Earth source context (replaced October 15, 2026): the earlier `earth.jpg` came from the three.js examples (`earth_atmos_2048.jpg`).
 

@@ -27,7 +27,7 @@ export function eventLabel(s: Story) {
 /** "Reviewed by PositiviTV" is reserved for real editorial approval. */
 export function provenanceLabel(s: Story): string {
   if (s.isDemo || s.provenance === 'sample') return 'Design sample';
-  return s.provenance === 'reviewed' ? 'Reviewed by PositiviTV' : 'From publisher feeds';
+  return s.provenance === 'reviewed' ? 'Reviewed by PositiviTV™' : 'From publisher feeds';
 }
 const LABEL_TEXT: Record<StoryLabel, string | null> = {
   research_finding: 'Research finding, not yet an outcome in use',
