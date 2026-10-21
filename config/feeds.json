@@ -163,6 +163,7 @@
         "enabled": true,
         "category": "Science",
         "summary": true,
+        "teachingDescription": true,
         "retentionDays": 30,
         "licenseOrTerms": "NASA material is generally not subject to U.S. copyright; NASA should be acknowledged as the source; no endorsement may be implied.",
         "policyUrl": "https://www.nasa.gov/multimedia/guidelines/index.html",
@@ -197,6 +198,7 @@
         "enabled": true,
         "category": "Science",
         "summary": true,
+        "teachingDescription": true,
         "retentionDays": 30,
         "licenseOrTerms": "NSF states most website text is not copyrighted and may be copied freely; credit is optional (Courtesy: U.S. National Science Foundation).",
         "policyUrl": "https://www.nsf.gov/policies/digital",
@@ -231,6 +233,7 @@
         "enabled": true,
         "category": "Planet",
         "summary": false,
+        "teachingDescription": true,
         "retentionDays": 30,
         "licenseOrTerms": "Creative Commons Attribution-NoDerivatives 4.0 (CC BY-ND 4.0) for Mongabay articles.",
         "policyUrl": "https://news.mongabay.com/copyright/creative-commons/",
@@ -244,7 +247,7 @@
           "publisher map coordinates (rounded to about 11 km; used only to place a pin)"
         ],
         "attribution": "Author, publisher, original article link and linked license shown with every card. Items missing an author are omitted.",
-        "exceptions": "Photos credited to others are excluded from the license and are not imported. Descriptions are used only for private screening and are never stored or shown, because shortening them would be a modification under ND terms.",
+        "exceptions": "Photos credited to others are excluded from the license and are not imported. Descriptions are never stored or shown publicly. They are kept unchanged in the private teaching batch for up to 14 days for Alex's labeling only (GC ruling, October 21, 2026).",
         "notes": "Retention 30 days (Alex, 2026-10-15) so older stories stay available behind the reader's Previous positive stories button; the license sets no time limit and only the headline, link, date and byline are stored. Feed fetched during preparation on 2026-10-14 (26 items visible, host news.mongabay.com only). robots.txt blocks nothing for *. Feed body exceeds 100 KB, so maxBytes is raised to the 2 MB fetcher cap. A bounded public WordPress metadata endpoint supplements RSS, with the original UTC publication date and publisher-supplied byline; no article body or photograph is imported. Byline taxonomy names are used; SEO authors and WordPress account names are not treated as article writers. GC reviewed 2026-10-15: location tags and coordinates are facts used only for pin placement, not a modification under CC BY-ND 4.0. Switched on 2026-10-15 after General Counsel approval: the same WordPress request now also asks for class_list (only its location-* entries are kept) and coordinates, about 67 KB for 100 posts, with no extra request. They are used only to place a pin: the publisher's point if it falls inside a tagged country (rounded to about 11 km), else a single tagged country's centre, else no pin. A story also listed in the Happy-Upbeat feed may keep the Upbeat copy, which has no tags yet.",
         "placeFromPublisherTags": true,
         "requiresAuthor": true,
@@ -282,6 +285,7 @@
         "enabled": true,
         "category": "auto",
         "summary": false,
+        "teachingDescription": true,
         "retentionDays": 30,
         "licenseOrTerms": "Creative Commons Attribution 3.0 (CC BY 3.0) for Global Voices content.",
         "policyUrl": "https://globalvoices.org/about/global-voices-attribution-policy/",
@@ -293,7 +297,7 @@
           "author"
         ],
         "attribution": "Author, publisher, original article link and linked license shown with every card. Items missing an author are omitted.",
-        "exceptions": "Third-party images and media embedded in posts are excluded from the license and are not imported. Descriptions are used only for private screening.",
+        "exceptions": "Third-party images and media embedded in posts are excluded from the license and are not imported. Descriptions are never stored or shown publicly. They are kept unchanged in the private teaching batch for up to 14 days for Alex's labeling only (GC ruling, October 21, 2026).",
         "notes": "Retention 30 days (Alex, 2026-10-15) so older stories stay available behind the reader's Previous positive stories button; the license sets no time limit and only the headline, link, date and byline are stored. Good-news topic feed fetched during preparation on 2026-10-14 (host globalvoices.org only). Volume is low (6 items, newest 2026-09-20). robots.txt sets Crawl-delay 10; this job makes one feed request per run.",
         "requiresAuthor": true,
         "license": {
@@ -363,6 +367,7 @@
         "enabled": true,
         "category": "auto",
         "summary": false,
+        "teachingDescription": true,
         "retentionDays": 30,
         "licenseOrTerms": "Creative Commons Attribution 3.0 (CC BY 3.0) for Global Voices content.",
         "policyUrl": "https://globalvoices.org/about/global-voices-attribution-policy/",
@@ -374,7 +379,7 @@
           "author"
         ],
         "attribution": "Author, publisher, original article link and linked license shown with every card. Items missing an author are omitted.",
-        "exceptions": "Third-party images and media embedded in posts are excluded from the license and are not imported. Descriptions are used only for private screening.",
+        "exceptions": "Third-party images and media embedded in posts are excluded from the license and are not imported. Descriptions are never stored or shown publicly. They are kept unchanged in the private teaching batch for up to 14 days for Alex's labeling only (GC ruling, October 21, 2026).",
         "notes": "Main Global Voices feed (all topics, English), same publisher and CC BY 3.0 terms as the approved good-news feed. Fetched 2026-10-15: 7+ items a week, host globalvoices.org only; most are problem-focused, so the existing screening rules decide what qualifies. Enabled 2026-10-15 by Alex with terms recorded. GC reviewed 2026-10-15: cleared, CC BY 3.0.",
         "requiresAuthor": true,
         "license": {
@@ -423,7 +428,7 @@
           "author"
         ],
         "attribution": "Author, publisher, original article link and linked license shown with every card. Items missing an author are omitted.",
-        "exceptions": "Photos credited to others are excluded from the license and are not imported. Descriptions are used only for private screening and are never stored or shown, because shortening them would be a modification under ND terms.",
+        "exceptions": "Photos credited to others are excluded from the license and are not imported. Descriptions are never stored or shown publicly. They are kept unchanged in the private teaching batch for up to 14 days for Alex's labeling only (GC ruling, October 21, 2026).",
         "notes": "Mongabay India edition (English), same CC BY-ND 4.0 terms as news.mongabay.com. Fetched 2026-10-15: 20 items, host india.mongabay.com; images on imgs.mongabay.com are not imported. RSS lists two names per item (writer and editor), so bylines come from the WordPress byline endpoint like the main edition; that endpoint is UNVERIFIED for this edition. Enabled 2026-10-15 by Alex with terms recorded. GC reviewed 2026-10-15: on hold pending byline verification and Mongabay confirmation that CC BY-ND 4.0 covers the India edition.",
         "requiresAuthor": true,
         "license": {
@@ -460,6 +465,7 @@
         "enabled": true,
         "category": "Planet",
         "summary": true,
+        "teachingDescription": true,
         "retentionDays": 30,
         "licenseOrTerms": "NOAA states most of its information is in the public domain as U.S. government work; NOAA should be credited; no endorsement may be implied.",
         "policyUrl": "https://oceanservice.noaa.gov/about/faq.html",
@@ -494,6 +500,7 @@
         "enabled": true,
         "category": "Planet",
         "summary": false,
+        "teachingDescription": true,
         "retentionDays": 30,
         "licenseOrTerms": "Creative Commons Attribution-NoDerivatives 4.0 (CC BY-ND 4.0) for Mongabay articles.",
         "policyUrl": "https://news.mongabay.com/copyright/creative-commons/",
@@ -507,7 +514,7 @@
           "publisher map coordinates (rounded to about 11 km; used only to place a pin)"
         ],
         "attribution": "Author, publisher, original article link and linked license shown with every card. Items missing an author are omitted.",
-        "exceptions": "Photos credited to others are excluded from the license and are not imported. Descriptions are used only for private screening and are never stored or shown, because shortening them would be a modification under ND terms.",
+        "exceptions": "Photos credited to others are excluded from the license and are not imported. Descriptions are never stored or shown publicly. They are kept unchanged in the private teaching batch for up to 14 days for Alex's labeling only (GC ruling, October 21, 2026).",
         "notes": "Mongabay's Happy-Upbeat Environmental topic feed on news.mongabay.com, the same site and CC BY-ND 4.0 terms as the main Mongabay feed. Fetched 2026-10-15 (research check): 26+ items from 2 Jul to 14 Oct 2026, about 1.7 a week, every link on news.mongabay.com. The URLs suggested by outside research (feedtype=bulletpoints, and the frozen 2008 file on mongabay.com/xml) do not work and are not used. RSS only, no WordPress supplement: the RSS byline is used, as for RSS items of the main feed. Stories that also appear in the main feed are shown once (same-URL duplicate rule). Requests to news.mongabay.com are spaced at least 10 seconds apart per run. Byline check 2026-10-15: the feed lists the writer as dc:creator, which the app uses (the second name is the editor). Compared with the credits printed on four live articles: Researcher who listens to forests wins 2026 Pritzker Environmental Genius Award (https://news.mongabay.com/short-article/2026/10/researcher-who-listens-to-forests-wins-2026-pritzker-environmental-genius-award/), RSS Shreya Dasgupta, page byline Shreya Dasgupta; In war-torn South Sudan, giraffes retain a surprisingly healthy gene pool (https://news.mongabay.com/short-article/2026/09/in-war-torn-south-sudan-giraffes-retain-a-surprisingly-healthy-gene-pool/), RSS David Brown, page byline David Brown; Nigeria's Rachel Ikemeh wins Rolex Award for efforts to save rare red monkey (https://news.mongabay.com/short-article/2026/09/nigerias-rachel-ikemeh-wins-rolex-award-for-efforts-to-save-rare-red-monkey/), RSS David Brown, page byline David Brown; The Home Planet Fund succeeds by giving directly to local communities (https://news.mongabay.com/podcast/2026/09/the-home-planet-fund-succeeds-by-giving-directly-to-local-communities/), RSS Mike DiGirolamo, page byline Mike DiGirolamo. All four matched. A fifth, the Sumatran rhino article, could not be loaded for comparison. GC reviewed 2026-10-15: covered by the Mongabay clearance. GC reviewed 2026-10-15: location tags and coordinates are facts used only for pin placement, not a modification under CC BY-ND 4.0. GC also approved (2026-10-15) the extra metadata request this feed would need to read place tags (same host, per-host 10-second spacing and robots check kept); that request is not added yet and the switch is off.",
         "requiresAuthor": true,
         "license": {
@@ -544,6 +551,7 @@
         "enabled": true,
         "category": "auto",
         "summary": false,
+        "teachingDescription": true,
         "retentionDays": 30,
         "licenseOrTerms": "Creative Commons Attribution 3.0 (CC BY 3.0) for Global Voices content.",
         "policyUrl": "https://globalvoices.org/about/global-voices-attribution-policy/",
@@ -555,7 +563,7 @@
           "author"
         ],
         "attribution": "Author, publisher, original article link and linked license shown with every card. Items missing an author are omitted.",
-        "exceptions": "Third-party images and media embedded in posts are excluded from the license and are not imported. Descriptions are used only for private screening.",
+        "exceptions": "Third-party images and media embedded in posts are excluded from the license and are not imported. Descriptions are never stored or shown publicly. They are kept unchanged in the private teaching batch for up to 14 days for Alex's labeling only (GC ruling, October 21, 2026).",
         "notes": "Global Voices Featured feed, listed on globalvoices.org/feeds/, the same site and CC BY 3.0 terms as the main Global Voices feed (the feed's copyright element reads \"Creative Commons Attribution, see our Attribution Policy for details\"). Fetched 2026-10-15 (research check): items link to globalvoices.org only. Mostly a subset of the main feed that reaches further back in time; stories already listed from another Global Voices feed are shown once (same-URL duplicate rule). Requests to globalvoices.org are spaced at least 10 seconds apart per run (robots.txt Crawl-delay 10). GC reviewed 2026-10-15: covered by the Global Voices clearance.",
         "requiresAuthor": true,
         "license": {
@@ -592,6 +600,7 @@
         "enabled": true,
         "category": "auto",
         "summary": false,
+        "teachingDescription": true,
         "retentionDays": 30,
         "licenseOrTerms": "Creative Commons Attribution 3.0 (CC BY 3.0) for Global Voices content.",
         "policyUrl": "https://globalvoices.org/about/global-voices-attribution-policy/",
@@ -603,7 +612,7 @@
           "author"
         ],
         "attribution": "Author, publisher, original article link and linked license shown with every card. Items missing an author are omitted.",
-        "exceptions": "Third-party images and media embedded in posts are excluded from the license and are not imported. Descriptions are used only for private screening.",
+        "exceptions": "Third-party images and media embedded in posts are excluded from the license and are not imported. Descriptions are never stored or shown publicly. They are kept unchanged in the private teaching batch for up to 14 days for Alex's labeling only (GC ruling, October 21, 2026).",
         "notes": "Global Voices Sub-Saharan Africa region feed, listed on globalvoices.org/feeds/, the same site and CC BY 3.0 terms as the main Global Voices feed (the feed's copyright element reads \"Creative Commons Attribution, see our Attribution Policy for details\"). Fetched 2026-10-15 (research check): items link to globalvoices.org only. Mostly a subset of the main feed that reaches further back in time; stories already listed from another Global Voices feed are shown once (same-URL duplicate rule). Requests to globalvoices.org are spaced at least 10 seconds apart per run (robots.txt Crawl-delay 10). GC reviewed 2026-10-15: covered by the Global Voices clearance.",
         "requiresAuthor": true,
         "license": {
