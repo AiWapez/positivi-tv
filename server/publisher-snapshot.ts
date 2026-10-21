@@ -61,7 +61,7 @@ const sameContent = (a: PublisherItem, b: PublisherItem) => a.title === b.title 
  *   visible. No copy adds a count, evidence level or corroboration claim.
  */
 export function buildSnapshot(previous: PublisherSnapshot | null, results: SourceResult[], sources: PublisherSources,
-  control: PublisherFeedControl, now: string, order: string[] = Object.keys(sources), onScreened?: (record: ScreenedRecord) => void): PublisherSnapshot {
+  control: PublisherFeedControl, now: string, order: string[] = Object.keys(sources), onScreened?: (record: ScreenedRecord, teachingBody: string) => void): PublisherSnapshot {
   const time = Date.parse(now);
   if (!Number.isFinite(time)) throw new TypeError('Invalid now');
   const usable = previous && previous.policy === PUBLISHER_FEED_POLICY && Array.isArray(previous.items) ? previous : null;
@@ -101,7 +101,9 @@ export function buildSnapshot(previous: PublisherSnapshot | null, results: Sourc
         try {
           onScreened?.({ id: c.id, source: sourceId, url, title: c.title, published: new Date(Date.parse(c.publishedAt)).toISOString(),
             summary: permission.summary ? shortSummary(c.body ?? '') : null, decision: screen.decision, reasons: [...screen.reasons],
-            labels: [...screen.labels], category: screen.category });
+            labels: [...screen.labels], category: screen.category },
+            // The raw description goes only to the private teaching batch, and only for a source whose terms record allows it.
+            permission.teachingDescription === true ? (c.body ?? '') : '');
         } catch { /* ignored */ }
         if (screen.decision === 'exclude') { for (const r of screen.reasons) count(r); continue; }
         const headlinePlace = control.locationResolver === 'supported_feed' ? locateFeedOutcome(c.title, c.body ?? '')

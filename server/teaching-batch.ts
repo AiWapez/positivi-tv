@@ -7,8 +7,9 @@ import type { PublisherSources } from '../src/lib/publisher-feed.ts';
  * The existing daily run saves what it screened to an Alex-only private GitHub repository as one release file per day,
  * so a labeling session can happen at any hour without the one-hour runtime logs. Rules this code keeps:
  * - Same collection only: it receives the records the run already screened and makes no publisher request.
- * - Records hold source name, link, headline, publication date, decision, reason codes and policy version only.
- *   No descriptions, no summaries, no author names.
+ * - Records hold source name, link, headline, publication date, decision, reason codes, policy version and, for a source whose terms
+ *   record sets teachingDescription, the publisher's own feed description kept unchanged as plain text (General Counsel ruling,
+ *   October 21, 2026; see cleanDescription). No summaries, no author names.
  * - Release title, tag, notes and file name use the date only: batch-YYYY-MM-DD and batch-YYYY-MM-DD.json.
  * - It only ever creates or deletes releases, their files and their batch-* tags. It has no path that writes a commit,
  *   a file in the repository, a branch or any other ref (tests check the endpoints it can reach).
@@ -24,7 +25,9 @@ const UPLOADS = 'https://uploads.github.com';
 const REQUEST_TIMEOUT_MS = 8000;
 const MAX_RECORDS = 2000;
 
-export interface TeachingRecord { source: string; link: string; headline: string; published: string; decision: 'list' | 'exclude'; reasons: string[]; policy: string }
+export interface TeachingRecord { source: string; link: string; headline: string; published: string; decision: 'list' | 'exclude'; reasons: string[]; policy: string;
+  /** The publisher's own description, unchanged plain text, or null. Never reaches the public feed, the run report, logs or a committed file. */
+  description: string | null }
 export interface TeachingBatchConfig { repo: string; token: string }
 type Fetch = (url: string, init: { method: string; headers: Record<string, string>; body?: string; signal?: AbortSignal }) => Promise<{ status: number; json(): Promise<unknown> }>;
 
@@ -38,11 +41,43 @@ export function teachingBatchConfig(env: Record<string, string | undefined> = pr
 export const batchDate = (now: string) => new Date(Date.parse(now)).toISOString().slice(0, 10);
 export const batchTag = (now: string) => `batch-${batchDate(now)}`;
 
-/** Only the approved fields. The screened record's summary, labels and category are dropped here. */
-export function toTeachingRecords(records: ScreenedRecord[], sources: PublisherSources, policy: string): TeachingRecord[] {
+/** The longest description kept. A longer one is cut at a whole sentence and marked, so a cut text is never mistaken for the full one. */
+export const MAX_DESCRIPTION = 600;
+export const SHORTENED = ' (shortened)';
+const NAMED_ENTITIES: Record<string, string> = { amp: '&', lt: '<', gt: '>', quot: '"', apos: "'", nbsp: ' ', hellip: '…', ndash: '–', mdash: '—', lsquo: '‘', rsquo: '’', ldquo: '“', rdquo: '”' };
+// Wording that suggests the text may belong to someone other than the publisher. Such a description is not kept (the headline and link still are).
+const RESTRICTIVE = /republished (?:from|with|by|courtesy)|originally (?:published|appeared|posted|reported)|first (?:published|appeared) (?:by|in|on|at)|reprinted (?:from|with|by)|syndicated|courtesy of|all rights reserved|permission required|not for republication/i;
+const WIRE = /\b(?:Reuters|Associated Press|AFP|Agence France-Presse|Bloomberg|AP)\b/;
+
+/**
+ * The publisher's feed description exactly as published, as plain text (General Counsel ruling, October 21, 2026). The only changes:
+ * HTML tags, links and images removed, entities written as the characters they stand for, runs of white space made single spaces, and the
+ * feed's own "The post ... appeared first on ..." footer removed. A text over MAX_DESCRIPTION is cut at a whole sentence and ends with
+ * "(shortened)". Returns null (so only headline and link are kept) when there is no text, when the wording suggests the text may belong to
+ * someone other than the publisher, or when the first sentence alone is longer than the cap.
+ */
+export function cleanDescription(raw: string): string | null {
+  if (typeof raw !== 'string' || !raw.trim()) return null;
+  let text = raw.replace(/<(script|style)\b[\s\S]*?<\/\1>/gi, ' ').replace(/<img\b[^>]*>/gi, ' ').replace(/<\/?(?:p|br|div|li|ul|ol|h[1-6]|blockquote)\b[^>]*>/gi, ' ').replace(/<[^>]*>/g, '');
+  text = text.replace(/&(#x?[0-9a-f]+|[a-z]+);/gi, (whole, name: string) => {
+    if (name[0] === '#') { const code = name[1].toLowerCase() === 'x' ? parseInt(name.slice(2), 16) : parseInt(name.slice(1), 10); return Number.isFinite(code) && code > 0 && code <= 0x10ffff ? String.fromCodePoint(code) : ' '; }
+    return NAMED_ENTITIES[name.toLowerCase()] ?? whole;
+  });
+  text = text.replace(/https?:\/\/\S+/gi, ' ').replace(/\s+/g, ' ').trim();
+  text = text.replace(/\s*The post .{1,300}? appeared first on .{1,200}?\.?$/i, '').trim();
+  if (!text || RESTRICTIVE.test(text) || WIRE.test(text)) return null;
+  if (text.length <= MAX_DESCRIPTION) return text;
+  let out = '';
+  for (const sentence of text.match(/[^.!?]+[.!?]+(?=\s|$)/g) ?? []) { const next = (out + ' ' + sentence.trim()).trim(); if (next.length + SHORTENED.length > MAX_DESCRIPTION) break; out = next; }
+  return out ? out + SHORTENED : null;
+}
+
+/** Only the approved fields. The screened record's summary, labels and category are dropped here; the description comes only from the separate map. */
+export function toTeachingRecords(records: ScreenedRecord[], sources: PublisherSources, policy: string, descriptions: ReadonlyMap<string, string> = new Map()): TeachingRecord[] {
   return records.slice(0, MAX_RECORDS).map(r => ({
     source: sources[r.source]?.displayName ?? r.source, link: r.url, headline: r.title, published: r.published,
     decision: r.decision, reasons: [...r.reasons], policy,
+    description: sources[r.source]?.publisherFeed?.teachingDescription === true ? cleanDescription(descriptions.get(r.id) ?? '') : null,
   }));
 }
 

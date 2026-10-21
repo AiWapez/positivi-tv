@@ -28,6 +28,6 @@ export default createRefreshHandler(() => {
   return {
     feeds: config.feeds, sources, control: control as PublisherFeedControl, store: createPublisherStore(),
     // Off unless TEACHING_BATCH_REPO and TEACHING_BATCH_TOKEN are both set (General Counsel addendum, October 19, 2026).
-    ...(teaching ? { saveTeaching: (records, now) => saveTeachingBatch(toTeachingRecords(records, sources, PUBLISHER_FEED_POLICY), now, teaching) } : {}),
+    ...(teaching ? { saveTeaching: (records, now, descriptions) => saveTeachingBatch(toTeachingRecords(records, sources, PUBLISHER_FEED_POLICY, descriptions), now, teaching) } : {}),
   } satisfies RefreshDeps;
 });

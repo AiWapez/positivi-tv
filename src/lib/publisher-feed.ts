@@ -14,6 +14,11 @@ export interface PublisherFeedPermission {
   category: Category | 'auto';
   /** true only where the terms allow reproducing and shortening the feed description (public-domain text). */
   summary: boolean;
+  /**
+   * true only where the General Counsel (ruling of October 21, 2026) approved keeping the publisher's feed description unchanged in the
+   * private teaching batch for Alex's labeling. It never reaches the public feed, the run report, logs or any committed file.
+   */
+  teachingDescription?: boolean;
   retentionDays: number;
   licenseOrTerms: string; policyUrl: string; checkedAt: string;
   permittedFields: string[]; attribution: string; exceptions: string; notes?: string;
