@@ -121,10 +121,12 @@ The ticker uses the same approved slate, deduplicates events, and omits current/
 
 **Approval standard for a new story type (Alex's decision, October 19, 2026).** The advisory engine's statistical default above is the minimum for a proposal. Before any new type of story may be listed without a person approving each one, the evidence must meet the stricter standard that follows, which applies to the publisher-feed lane and to any future automated path:
 
-1. At least 100 independent results, each from a different event, on days that were not used to write or tune the rules ("untouched days").
+1. At least 100 independent results, each from a different event, on days that were not used to write or tune the rules ("untouched days"). Each result must be labelled by a person who saw the headline and the publisher's description.
 2. Among the stories the rules would list, a person has labelled none of them Reject and none of them Unsure. One Reject or one Unsure in the sample means the type does not qualify, however large the sample is. (A 100-for-100 record meets the Wilson bound of 0.95 on its own, so this standard is never looser than the default; it is stricter because it allows no failures, where the default would allow a few in a larger sample.)
 3. After a type is approved, any later Reject that a person confirms pauses that type automatically, and it returns only after a new review and a recorded approval.
-4. Every approval and every pause is written down with its date, the sample size, and who decided. Hard-ban reasons are never part of an approved type, and a person's pick (see `docs/publisher-feed.md`, "Picked by PositiviTV") never counts toward this evidence.
+4. Every approval and every pause is written down with its date, the sample size, and who decided. Hard-ban reasons are never part of an approved type, and a person's pick (see `docs/publisher-feed.md`, "Picked by PositiviTV") never counts toward this evidence. Labels made by an AI, including any AI second opinion, never count toward this evidence.
+
+Record note: Alex chose this standard on October 19, 2026, in place of the 95 percent rule. General Counsel had recommended a stricter bound of about 381 clean results. Alex chose 100 with zero failures, and General Counsel accepted it on October 22, 2026 as long as public copy never claims more than the lane achieves.
 
 This is a documentation rule only. No code enforces it yet, and no automatic path is turned on by it. A change that lists a new type of story still needs the General Counsel's review and Alex's exact "Merge it".
 

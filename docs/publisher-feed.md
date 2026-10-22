@@ -255,7 +255,7 @@ The reader opens on stories PositiviTV first collected in the last 7 days. A "Pr
 
 ## Picked by PositiviTV (person-approved list, policy 0.5.0)
 
-General Counsel ruling, October 22, 2026: a person may choose individual publisher-feed stories that the automatic rules held back only for a mild reason. Such a story is labelled "Picked by PositiviTV · From publisher feeds". It is never labelled "Reviewed", because nobody fact-checks it and its event date is not confirmed.
+General Counsel ruling, October 21, 2026: a person may choose individual publisher-feed stories that the automatic rules held back only for a mild reason. Such a story is labelled "Picked by PositiviTV · From publisher feeds". It is never labelled "Reviewed", because nobody fact-checks it and its event date is not confirmed.
 
 How it works:
 
