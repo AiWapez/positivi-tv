@@ -210,7 +210,7 @@ test('only the teaching code reads the raw description; the record type used by 
 
 test('the terms records carry the General Counsel wording and only enabled sources allow a teaching description', async () => {
   const config = JSON.parse(await readFile(new URL('../../config/feeds.json', import.meta.url), 'utf8'));
-  const NEW = "Descriptions are never stored or shown publicly. They are kept unchanged in the private teaching batch for up to 14 days for Alex's labeling only (GC ruling, October 21, 2026).";
+  const NEW = "Descriptions are never stored or shown publicly. They are kept unchanged in the private teaching batch for up to 14 days for Alex's labeling (GC ruling, October 21, 2026) and, only where this record sets archiveAllowed to true, in the private training archive (GC ruling, October 22, 2026).";
   for (const id of ['mongabay', 'mongabay-upbeat', 'globalvoices', 'globalvoices-main', 'globalvoices-featured', 'globalvoices-africa']) {
     const pf = config.sources.find?.(s => s.id === id)?.publisherFeed ?? config.sources[id]?.publisherFeed;
     assert(pf.exceptions.includes(NEW), `${id} records the October 21 ruling`);

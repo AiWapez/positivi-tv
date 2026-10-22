@@ -37,6 +37,14 @@ export interface PublisherFeedPermission {
    * private teaching batch for Alex's labeling. It never reaches the public feed, the run report, logs or any committed file.
    */
   teachingDescription?: boolean;
+  /**
+   * General Counsel ruling of October 22, 2026: true only where the private training archive may keep this source's labelled stories
+   * (headline, link and the publisher's own description, unchanged). Every source must set it explicitly. A new source starts false
+   * until General Counsel has checked its terms for a no-database clause. Never public, never in a repository, never in a log.
+   */
+  archiveAllowed?: boolean;
+  /** One plain sentence on how long public listing and the private archive keep this source's stories. */
+  retentionNote?: string;
   retentionDays: number;
   licenseOrTerms: string; policyUrl: string; checkedAt: string;
   permittedFields: string[]; attribution: string; exceptions: string; notes?: string;
