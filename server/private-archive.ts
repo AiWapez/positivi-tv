@@ -77,7 +77,7 @@ export function buildArchive(batch: readonly TeachingRecord[], labels: readonly 
     records.push({
       source: record.source, link: record.link,
       headline: linkOnly ? null : record.headline,
-      description: linkOnly ? null : record.description,
+      description: linkOnly ? null : (typeof record.description === 'string' ? record.description : null),
       published: record.published, label: label as ArchiveLabel, reasons: [...record.reasons], policy: record.policy,
       labelDate: labelDay(input.at, fallbackLabelDate),
     });
