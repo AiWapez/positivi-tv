@@ -118,6 +118,20 @@ const SCIENCE = stems(['space', 'nasa', 'rovers?', 'telescopes?', 'astronom(?:y|
 
 const lead = (text: string) => text.slice(0, 400);
 
+/**
+ * The labels and category a listed card gets. Used for a story a person picked although the rules held it back: the rules' own exclusion
+ * result carries none, so a pick takes them from here, and the card is labelled exactly like any other automatic card.
+ */
+export function listingFields(input: ScreenInput): { labels: StoryLabel[]; category: Category } {
+  const title = input.title.normalize('NFKC').replace(/[\u2018\u2019]/g, "'").replace(/\s+/g, ' ').trim();
+  const labels: StoryLabel[] = [];
+  if (RESEARCH.test(title) || RESEARCH_ACTOR.test(title)) labels.push('research_finding');
+  labels.push('event_date_unconfirmed');
+  const category: Category = input.defaultCategory !== 'auto' ? input.defaultCategory
+    : PLANET.test(title) ? 'Planet' : SCIENCE.test(title) ? 'Science' : 'Community';
+  return { labels, category };
+}
+
 export function screenHeadline(input: ScreenInput): ScreenResult {
   const title = input.title.normalize('NFKC').replace(/[\u2018\u2019]/g, "'").replace(/\s+/g, ' ').trim();
   const desc = lead(input.description.normalize('NFKC').replace(/[\u2018\u2019]/g, "'").replace(/\s+/g, ' ').trim());
@@ -146,10 +160,6 @@ export function screenHeadline(input: ScreenInput): ScreenResult {
   if (INTENT.test(title) || MAY.test(title) || MONEY.test(title)) reasons.push('PLAN_OR_UNCERTAIN');
   else if (IN_PROGRESS.test(title)) reasons.push('IN_PROGRESS_NOT_OUTCOME');
   else if (!COMPLETED.test(title)) reasons.push('NO_COMPLETED_OUTCOME');
-  const labels: StoryLabel[] = [];
-  if (RESEARCH.test(title) || RESEARCH_ACTOR.test(title)) labels.push('research_finding');
-  labels.push('event_date_unconfirmed');
-  const category: Category = input.defaultCategory !== 'auto' ? input.defaultCategory
-    : PLANET.test(title) ? 'Planet' : SCIENCE.test(title) ? 'Science' : 'Community';
+  const { labels, category } = listingFields(input);
   return reasons.length ? { decision: 'exclude', reasons, labels: [], category: null } : { decision: 'list', reasons: [], labels, category };
 }

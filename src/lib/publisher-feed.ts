@@ -6,7 +6,25 @@ import { buildFeed, validPublicStory } from './publication.ts';
 import type { ManifestEntry, Publication, PublishedStory } from './publication.ts';
 
 /** Version of the automatic screening rules. A snapshot made under another version is not served. */
-export const PUBLISHER_FEED_POLICY = 'publisher-feed-0.4.1';
+export const PUBLISHER_FEED_POLICY = 'publisher-feed-0.5.0';
+
+/**
+ * The only reasons a person's pick may override (General Counsel ruling, October 21, 2026). Every other reason is a hard ban that
+ * can never be overridden: harm, enforcement, conflict, opinion, governance, extractive industry, health, hype, promotion, old events,
+ * negative or unresolved outcomes, questions and explainers.
+ */
+export const PICK_OVERRIDABLE_REASONS: readonly string[] = ['NO_COMPLETED_OUTCOME', 'PLAN_OR_UNCERTAIN'];
+/** One story a person chose. Only a code (the story id, a hash of its link), the approval date and the approver are kept, never a headline. */
+export interface PickedStory { id: string; approvedAt: string; approvedBy: string }
+/** An entry is usable only when all three parts are well formed. A bad entry is ignored, so a typo can never list a story. */
+export function validPick(value: unknown): value is PickedStory {
+  const p = value as PickedStory;
+  return !!p && typeof p === 'object' && typeof p.id === 'string' && /^[a-z0-9]+(?:-[a-z0-9]+)*-[0-9a-f]{24}$/.test(p.id)
+    && typeof p.approvedAt === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(p.approvedAt) && Number.isFinite(Date.parse(p.approvedAt + 'T00:00:00Z'))
+    && typeof p.approvedBy === 'string' && !!p.approvedBy.trim() && p.approvedBy.length <= 80;
+}
+export const pickFor = (control: { pickedStories?: unknown }, id: string): PickedStory | undefined =>
+  Array.isArray(control.pickedStories) ? control.pickedStories.find((p): p is PickedStory => validPick(p) && p.id === id) : undefined;
 
 /** Per-source permission record. Every field is maintained by hand from the publisher's own terms. */
 export interface PublisherFeedPermission {
@@ -46,6 +64,11 @@ export interface PublisherFeedControl {
   locationResolver: 'headline_country' | 'supported_feed' | 'off';
   withdrawn: Withdrawal[];
   /**
+   * Stories a person chose individually (see PICK_OVERRIDABLE_REASONS). Changed only by a committed change that needs Alex's "Merge it";
+   * the remote switch cannot add to it. Absent means none.
+   */
+  pickedStories?: PickedStory[];
+  /**
    * Temporary, self-expiring: while the current time is before this UTC date (YYYY-MM-DD, midnight), a scheduled run
    * writes what it screened into the private run log (see docs/publisher-feed.md, "Screening sample"). Absent or malformed means off.
    */
@@ -57,6 +80,8 @@ export interface PublisherItem {
   labels: StoryLabel[]; location: string; lat: number | null; lng: number | null;
   locationPrecision: 'region' | 'country' | 'unknown';
   author?: string | null;
+  /** Set only when a person's pick listed this story although the rules held it back for a mild reason. Rechecked against the pick list on every read. */
+  picked?: boolean;
   mapArea?: import('./map-places.ts').MapArea;
 }
 export interface SourceRun {
@@ -88,7 +113,7 @@ function wellFormed(item: unknown): item is PublisherItem {
     && typeof i.sourceId === 'string' && typeof i.url === 'string' && typeof i.title === 'string' && (i.summary === null || typeof i.summary === 'string')
     && typeof i.category === 'string' && typeof i.publishedAt === 'string' && typeof i.fetchedAt === 'string' && Array.isArray(i.labels)
     && i.labels.every(l => typeof l === 'string') && typeof i.location === 'string' && (i.lat === null || typeof i.lat === 'number')
-    && (i.lng === null || typeof i.lng === 'number') && typeof i.locationPrecision === 'string';
+    && (i.lng === null || typeof i.lng === 'number') && typeof i.locationPrecision === 'string' && (i.picked === undefined || typeof i.picked === 'boolean');
 }
 
 /**
@@ -116,6 +141,8 @@ export function projectPublisherFeed(snapshot: PublisherSnapshot | null, control
       if (permission.requiresAuthor && (!author || author.length > 500 || !permission.license || !canonicalUrl(permission.license.url))) continue;
       if (permission.blockedCredits?.some(credit => author.toLowerCase().includes(credit.toLowerCase()))) continue;
       if (reserved.urls.has(url) || urls.has(url)) continue;
+      // A picked story is listed only while its pick is still on the list. Removing the entry takes the story off at once.
+      if (item.picked && !pickFor(control, item.id)) continue;
       const published = Date.parse(item.publishedAt), fetched = Date.parse(item.fetchedAt);
       if (!Number.isFinite(published) || !Number.isFinite(fetched) || published > time || fetched > time
         || time - published > control.windowDays * 86400000) continue;
@@ -128,7 +155,7 @@ export function projectPublisherFeed(snapshot: PublisherSnapshot | null, control
         category: item.category, location: item.location, lat: item.lat, lng: item.lng, locationPrecision: item.locationPrecision,
         publishedAt: item.publishedAt, fetchedAt: item.fetchedAt, eventDate: null, datePrecision: null,
         sourceName: source.displayName, sourceUrl: url, image: null, imageAlt: '', imageCredit: null,
-        isDemo: false, archive: false, provenance: 'publisher_feed', labels: [...item.labels],
+        isDemo: false, archive: false, provenance: 'publisher_feed', labels: [...item.labels], ...(item.picked ? { picked: true } : {}),
         expiresAt, policyVersion: POLICY_VERSION,
         ...(permission.license && author ? { attribution: { author, licenseName: permission.license.name, licenseUrl: permission.license.url } } : {}),
         ...(item.mapArea ? { mapArea: { ...item.mapArea } } : {}),

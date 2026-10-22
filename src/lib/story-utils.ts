@@ -24,11 +24,13 @@ export function eventLabel(s: Story) {
   if (!s.eventDate) return null;
   return `Event: ${s.eventDate}${s.datePrecision === 'day' ? '' : ' (approximate)'}${s.archive ? ' · Archive' : ''}`;
 }
-/** "Reviewed by PositiviTV" is reserved for real editorial approval. */
+/** "Reviewed by PositiviTV" is reserved for real editorial approval. A person's pick from a publisher feed is never called a review (General Counsel, October 21, 2026). */
 export function provenanceLabel(s: Story): string {
   if (s.isDemo || s.provenance === 'sample') return 'Design sample';
-  return s.provenance === 'reviewed' ? 'Reviewed by PositiviTV™' : 'From publisher feeds';
+  if (s.provenance === 'reviewed') return 'Reviewed by PositiviTV™';
+  return s.picked ? 'Picked by PositiviTV · From publisher feeds' : 'From publisher feeds';
 }
+export const PICKED_EXPLANATION = "A person at PositiviTV chose this story from a publisher feed. It isn't fact-checked, and its event date isn't confirmed.";
 const LABEL_TEXT: Record<StoryLabel, string | null> = {
   research_finding: 'Research finding, not yet an outcome in use',
   // Shown through eventLabel, so it is not repeated here.
@@ -43,5 +45,6 @@ const LABEL_TEXT: Record<StoryLabel, string | null> = {
   area_from_publisher: 'Approximate pin: placed near the location the publisher gives for this story. It may be a nearby town or site, not the exact spot.',
 };
 export function qualifierLabels(s: Story): string[] {
-  return (s.labels ?? []).map(l => LABEL_TEXT[l]?.split('{country}').join(s.location) ?? null).filter((x): x is string => !!x);
+  const notes = (s.labels ?? []).map(l => LABEL_TEXT[l]?.split('{country}').join(s.location) ?? null).filter((x): x is string => !!x);
+  return s.picked && s.provenance === 'publisher_feed' ? [PICKED_EXPLANATION, ...notes] : notes;
 }
