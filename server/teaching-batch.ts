@@ -20,6 +20,8 @@ import type { PublisherSources } from '../src/lib/publisher-feed.ts';
  */
 export const RETENTION_DAYS = 14;
 export const BATCH_TAG = /^batch-(\d{4}-\d{2}-\d{2})$/;
+/** Releases whose tag starts with this are the private training archive (General Counsel, October 22, 2026). The 14-day deletion never touches them. */
+export const ARCHIVE_TAG_PREFIX = 'archive-';
 const API = 'https://api.github.com';
 const UPLOADS = 'https://uploads.github.com';
 const REQUEST_TIMEOUT_MS = 8000;
@@ -83,6 +85,7 @@ export function toTeachingRecords(records: ScreenedRecord[], sources: PublisherS
 
 /** True when a batch-YYYY-MM-DD tag is more than RETENTION_DAYS days older than today's date (UTC). */
 export function expired(tag: string, now: string): boolean {
+  if (tag.startsWith(ARCHIVE_TAG_PREFIX)) return false;
   const m = BATCH_TAG.exec(tag);
   if (!m) return false;
   const age = (Date.parse(batchDate(now) + 'T00:00:00Z') - Date.parse(m[1] + 'T00:00:00Z')) / 86400000;
@@ -104,12 +107,12 @@ export async function saveTeachingBatch(records: TeachingRecord[], now: string, 
   const repoUrl = `${API}/repos/${config.repo}`;
   let deleted = 0;
   try {
-    // 1. Delete expired batches: release (with its file) and then its tag. Only batch-* tags are ever touched.
+    // 1. Delete expired batches: release (with its file) and then its tag. Only batch-* tags are ever touched, and a release whose tag starts with archive- is skipped on purpose.
     const list = await call('GET', `${repoUrl}/releases?per_page=100`);
     if (list.status !== 200) { log(`teaching-batch list status=${list.status}`); return { saved: 0, deleted, status: 'failed', code: list.status }; }
     const releases = (await list.json()) as Array<{ id: number; tag_name: string }>;
     for (const r of Array.isArray(releases) ? releases : []) {
-      if (!r || typeof r.tag_name !== 'string' || !Number.isInteger(r.id) || !expired(r.tag_name, now)) continue;
+      if (!r || typeof r.tag_name !== 'string' || !Number.isInteger(r.id) || r.tag_name.startsWith(ARCHIVE_TAG_PREFIX) || !expired(r.tag_name, now)) continue;
       const a = await call('DELETE', `${repoUrl}/releases/${r.id}`);
       const b = await call('DELETE', `${repoUrl}/git/refs/tags/${encodeURIComponent(r.tag_name)}`);
       if ([204, 404].includes(a.status) && [204, 404, 422].includes(b.status)) deleted++;
