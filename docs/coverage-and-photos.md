@@ -22,4 +22,4 @@ See `/ASSETS.md` for sources. Snapshot and lock paths are now scoped to the scre
 
 The current frontend requests `?photos=subjects-v1` to select the expanded, checked animal-photo catalog. The default API response retains the original six-photo catalog so an already-open older app does not reject stories when it encounters an unfamiliar photo ID. The presentation profile does not change eligibility, story IDs, versions, the manifest or collection behavior. Local development uses the same profile.
 
-A wider archive sample added no qualifying mapped outcomes. An unresolved trafficked-animal story from that sample is now a permanent rejection regression. No extra archive request is added to the daily job. Screening policy `publisher-feed-0.4.1` uses a separate private snapshot path.
+A wider archive sample added no qualifying mapped outcomes. An unresolved trafficked-animal story from that sample is now a permanent rejection regression. No extra archive request is added to the daily job. Screening policy `publisher-feed-0.5.0` (0.5.0 adds the person-approved list; the screening rules are unchanged) uses a separate private snapshot path.

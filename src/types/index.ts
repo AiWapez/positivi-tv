@@ -3,7 +3,8 @@ export type Category = 'Planet' | 'Science' | 'Community' | 'Health';
  * Where a public card came from.
  * - reviewed: approved by a recorded human editorial decision (GoodSignal edition).
  * - publisher_feed: selected automatically from a permitted publisher feed by conservative rules.
- *   Not individually reviewed. Must be labelled "From publisher feeds".
+ *   Not individually reviewed. Must be labelled "From publisher feeds". When `picked` is true a person chose that story from the feed,
+ *   and it is labelled "Picked by PositiviTV · From publisher feeds". It is still not fact-checked and never "Reviewed by PositiviTV".
  * - sample: fictional design fixture, never served by the API.
  */
 export type Provenance = 'reviewed' | 'publisher_feed' | 'sample';
@@ -28,6 +29,8 @@ export interface Story {
   image: string | null; imageAlt: string; imageCredit: string | null; imageContext?: string;
   isDemo: boolean; archive: boolean;
   provenance: Provenance; labels: StoryLabel[];
+  /** true only for a publisher_feed story that a person at PositiviTV chose individually (policy 0.5.0). Shown as "Picked by PositiviTV". */
+  picked?: boolean;
   attribution?: { author: string; licenseName: string; licenseUrl: string };
   mapArea?: import('../lib/map-places.ts').MapArea;
 }

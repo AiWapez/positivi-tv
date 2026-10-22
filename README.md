@@ -18,7 +18,7 @@ npm run test:goodsignal
 
 ## Two explicit content modes
 
-- `/` shows the reviewed edition and, when the switch is on, automatic cards from permitted publisher feeds. Each card is labelled "Reviewed by PositiviTV" or "From publisher feeds". The checked-in edition is intentionally empty until real reporting is reviewed, and the publisher-feed lane is enabled in this release.
+- `/` shows the reviewed edition and, when the switch is on, automatic cards from permitted publisher feeds. Each card is labelled "Reviewed by PositiviTV", "From publisher feeds", or "Picked by PositiviTV · From publisher feeds" (a publisher-feed story that a person chose individually; the list of picks starts empty). The checked-in edition is intentionally empty until real reporting is reviewed, and the publisher-feed lane is enabled in this release.
 - `/?demo=1` shows labelled fictional design samples with fixed example dates. You can also choose **Try sample edition** in About. Samples never enter the reviewed API.
 
 The approved design includes desktop sidebar browsing, a purpose-built mobile layout, Globe/List views, category/search/date filters, mobile date controls, local saves, discovery, zoom/reset/expansion, and accessible story controls. It includes no ticker, video corner, or television graphics.

@@ -1,11 +1,11 @@
 import { createHash } from 'node:crypto';
-import { screenHeadline } from './publisher-screen.ts';
+import { listingFields, screenHeadline } from './publisher-screen.ts';
 import { countryByName, countryFromHeadline } from './publisher-location.ts';
 import { locateFeedOutcome } from './feed-location.ts';
 import { combinePlaces, resolvePublisherPlace } from './publisher-place.ts';
 import type { PlaceTags } from './publisher-place.ts';
 import { canonicalUrl } from '../src/goodsignal/util.ts';
-import { PUBLISHER_FEED_POLICY } from '../src/lib/publisher-feed.ts';
+import { PICK_OVERRIDABLE_REASONS, PUBLISHER_FEED_POLICY, pickFor } from '../src/lib/publisher-feed.ts';
 import type { DuplicateProposal, PublisherFeedControl, PublisherItem, PublisherSnapshot, PublisherSources, SourceRun } from '../src/lib/publisher-feed.ts';
 
 /** The subset of a collector candidate (server/collect.mjs parseFeed) this lane uses. */
@@ -46,7 +46,7 @@ export function shortSummary(text: string): string | null {
   for (const s of sentences) { const next = (out + ' ' + s.trim()).trim(); if (next.length > 280) break; out = next; }
   return out.length >= 40 ? out : null;
 }
-const sameContent = (a: PublisherItem, b: PublisherItem) => a.title === b.title && a.summary === b.summary && a.category === b.category
+const sameContent = (a: PublisherItem, b: PublisherItem) => a.title === b.title && a.summary === b.summary && a.category === b.category && !!a.picked === !!b.picked
   && a.location === b.location && a.lat === b.lat && a.lng === b.lng && a.labels.join() === b.labels.join()
   && a.author === b.author && a.publishedAt === b.publishedAt && JSON.stringify(a.mapArea) === JSON.stringify(b.mapArea);
 
@@ -105,7 +105,11 @@ export function buildSnapshot(previous: PublisherSnapshot | null, results: Sourc
             // The raw description goes only to the private teaching batch, and only for a source whose terms record allows it.
             permission.teachingDescription === true ? (c.body ?? '') : '');
         } catch { /* ignored */ }
-        if (screen.decision === 'exclude') { for (const r of screen.reasons) count(r); continue; }
+        // A person's pick (policy 0.5.0, General Counsel ruling of October 21, 2026) can lift only the two mild reasons. Any other reason is
+        // a hard ban and the story stays out. Everything checked above (link, date, window, author, credits, rights) has already passed.
+        const picked = screen.decision === 'exclude' && !!pickFor(control, c.id) && screen.reasons.length > 0 && screen.reasons.every(r => PICK_OVERRIDABLE_REASONS.includes(r));
+        if (screen.decision === 'exclude' && !picked) { for (const r of screen.reasons) count(r); continue; }
+        const fields = picked ? listingFields({ title: c.title, description: c.body ?? '', defaultCategory: permission.category, now }) : { labels: screen.labels, category: screen.category! };
         const headlinePlace = control.locationResolver === 'supported_feed' ? locateFeedOutcome(c.title, c.body ?? '')
           : control.locationResolver === 'headline_country' ? (() => { const p = countryFromHeadline(c.title); return p ? { ...p, precision: 'country' as const } : null; })() : null;
         // A publisher with one home country (Mongabay India) gets that country's pin when the headline names no place, with its own label.
@@ -119,12 +123,13 @@ export function buildSnapshot(previous: PublisherSnapshot | null, results: Sourc
         const placeLabel = chosen && 'label' in chosen ? chosen.label : chosen ? (chosen.precision === 'region' ? 'area_from_feed' : 'country_from_headline') : 'country_from_publisher';
         const draft: PublisherItem = {
           id: c.id, version: 1, sourceId, url, title: c.title, summary: permission.summary ? shortSummary(c.body ?? '') : null,
-          category: screen.category!, publishedAt: new Date(Date.parse(c.publishedAt)).toISOString(), fetchedAt: now, lastSeenAt: now,
-          labels: place ? [...screen.labels, placeLabel] : screen.labels,
+          category: fields.category, publishedAt: new Date(Date.parse(c.publishedAt)).toISOString(), fetchedAt: now, lastSeenAt: now,
+          labels: place ? [...fields.labels, placeLabel] : fields.labels,
           location: place?.name ?? 'Location not specified', lat: place?.lat ?? null, lng: place?.lng ?? null,
           locationPrecision: place?.precision ?? 'unknown',
           ...(place && 'mapArea' in place && place.mapArea ? { mapArea: place.mapArea } : {}),
           ...(author ? { author } : {}),
+          ...(picked ? { picked: true } : {}),
         };
         const prior = prevById.get(c.id);
         if (prior) Object.assign(draft, { fetchedAt: prior.fetchedAt, version: sameContent(prior, draft) ? prior.version : prior.version + 1 });

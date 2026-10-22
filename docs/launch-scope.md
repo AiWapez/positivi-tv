@@ -7,7 +7,7 @@ Decision: 14 October 2026. This release is a free, accountless constructive-news
 - The approved navy/yellow Earth interface, list view, shared filters, discovery and device-local favorites.
 - Reader information, privacy notice, source/correction guidance and a control to clear local favorites. No required age or terms popup for reading; no age, email, identity or exact location is requested.
 - A daily, bounded, server-only permitted RSS intake and private pending queue. Human review is mandatory for the reviewed edition.
-- An automatic publisher-feed lane (enabled by the committed release policy) that lists headlines from sources with checked terms, labelled "From publisher feeds". See [publisher-feed.md](publisher-feed.md).
+- An automatic publisher-feed lane (enabled by the committed release policy) that lists headlines from sources with checked terms, labelled "From publisher feeds", plus a person-approved list labelled "Picked by PositiviTV · From publisher feeds" that starts empty. See [publisher-feed.md](publisher-feed.md).
 - No paid news API, model provider, per-visitor AI call, analytics SDK, tracking pixel or external runtime asset CDN. No GNews dependency or key is used by the running code.
 - Explicitly labelled fictional samples, available only in sample mode. They never become fallback reporting.
 

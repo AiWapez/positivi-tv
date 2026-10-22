@@ -6,6 +6,7 @@
   "staleAfterHours": 48,
   "locationResolver": "supported_feed",
   "withdrawn": [],
+  "pickedStories": [],
   "screeningLogUntil": "2026-10-20",
   "notes": "Automatic publisher headlines, dated within 30 days. Only supported, approximate Earth locations receive pins. RSS and bounded public publisher metadata are collected daily; visitor refresh never crawls. Withdrawals and source switches remain enforced."
 }
