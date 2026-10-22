@@ -55,6 +55,13 @@ test('the archive keeps exactly the fields General Counsel listed and nothing el
   assert.deepEqual(Object.keys(JSON.parse(line)), [...ARCHIVE_FIELDS], 'fixed field order');
 });
 
+test('a batch record from before descriptions existed still gets every field, with description null', () => {
+  const old = rec('a'); delete old.description;
+  const { records } = buildArchive([old], [{ link: old.link, label: 'keep' }], ALLOWED(), '2026-10-21');
+  assert.equal(records[0].description, null);
+  assert.deepEqual(Object.keys(JSON.parse(serializeArchive(records))), [...ARCHIVE_FIELDS], 'the description key is present, not dropped');
+});
+
 test('label date comes from the label, with the batch day as the fallback', () => {
   const batch = [rec('a'), rec('b')];
   const { records } = buildArchive(batch, [{ link: batch[0].link, label: 'reject', at: '2026-10-23T01:00:00Z' }, { link: batch[1].link, label: 'unsure' }], ALLOWED(), '2026-10-22');
