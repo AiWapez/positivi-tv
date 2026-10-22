@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { readFile, mkdtemp, writeFile, readdir, stat } from 'node:fs/promises';
+import { readFile, mkdtemp, writeFile, readdir, stat, symlink } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { execFile } from 'node:child_process';
@@ -111,6 +111,8 @@ test('the script refuses to write inside the repository and prints counts only',
   assert.equal(insideRepo(ROOT), true);
   assert.equal(insideRepo(path.join(tmpdir(), 'elsewhere')), false);
   const dir = await mkdtemp(path.join(tmpdir(), 'archive-test-'));
+  await symlink(ROOT, path.join(dir, 'link-into-repo'));
+  assert.equal(insideRepo(path.join(dir, 'link-into-repo', 'archive')), true, 'a symbolic link into the repository does not get around the rule');
   const batch = { date: '2026-10-22', records: [rec('a'), rec('b', { source: 'Beta Science' })] };
   const config = { sources: { alpha: { ...ALLOWED().alpha }, beta: { ...ALLOWED().beta } } };
   await writeFile(path.join(dir, 'batch.json'), JSON.stringify(batch));
@@ -136,5 +138,5 @@ test('the repository documents the archive rules and ignores nothing it should n
   const doc = await readFile(new URL('../../docs/publisher-feed.md', import.meta.url), 'utf8');
   for (const phrase of ['Private training archive', 'October 22, 2026', 'archiveAllowed', 'within 7 days', 'once a year', 'Security Lead']) assert(doc.includes(phrase), phrase);
   const gitignore = await readFile(new URL('../../.gitignore', import.meta.url), 'utf8');
-  assert(/^archive\/?$/m.test(gitignore), 'a stray archive folder can never be committed here');
+  assert(/^\/archive\/$/m.test(gitignore), 'a stray archive folder at the top can never be committed here, and the rule does not hide other folders');
 });

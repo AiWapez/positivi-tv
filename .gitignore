@@ -9,4 +9,4 @@ content/publisher-feed.local.json
 content/.publisher-feed.local.*
 
 # Private training archive output must never be committed here (General Counsel ruling, October 22, 2026).
-archive/
+/archive/

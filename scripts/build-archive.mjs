@@ -7,15 +7,24 @@
 // It makes no network request. It refuses to write anywhere inside this repository, because the archive is private and must never be
 // committed here. It prints counts only, never a headline, description or link.
 import { readFile, readdir, mkdir, writeFile, stat } from 'node:fs/promises';
+import { realpathSync, existsSync } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { buildArchive, serializeArchive, archiveFilePath } from '../server/private-archive.ts';
 
 const REPO_ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 
-/** True when `target` is the repository folder or anything inside it. */
+/** The real location of a path, following symbolic links as far as the path exists. */
+function realLocation(target) {
+  let existing = path.resolve(target);
+  const rest = [];
+  while (!existsSync(existing)) { rest.unshift(path.basename(existing)); const parent = path.dirname(existing); if (parent === existing) break; existing = parent; }
+  return path.join(realpathSync(existing), ...rest);
+}
+
+/** True when `target` is the repository folder or anything inside it, including through a symbolic link. */
 export function insideRepo(target, repoRoot = REPO_ROOT) {
-  const relative = path.relative(path.resolve(repoRoot), path.resolve(target));
+  const relative = path.relative(realLocation(repoRoot), realLocation(target));
   return relative === '' || (!relative.startsWith('..') && !path.isAbsolute(relative));
 }
 
@@ -43,7 +52,7 @@ export async function runBuildArchive({ batchPath, labelsPath, outDir, repoRoot 
   const sources = Object.fromEntries(Object.entries(config.sources).map(([id, s]) => [id, { id, displayName: s.displayName, domains: s.domains, enabled: s.enabled === true, publisherFeed: s.publisherFeed }]));
   const { records, counts } = buildArchive(batch.records, await readLabels(labelsPath), sources, day);
   const file = path.join(path.resolve(outDir), archiveFilePath(day));
-  await mkdir(path.dirname(file), { recursive: true });
+  await mkdir(path.dirname(file), { recursive: true, mode: 0o700 });
   await writeFile(file, serializeArchive(records), { mode: 0o600 });
   return counts;
 }
