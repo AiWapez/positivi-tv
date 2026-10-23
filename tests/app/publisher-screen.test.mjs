@@ -190,6 +190,8 @@ const HELD_BACK_0_6_0 = [
   'Village built on landmine field reopens', 'A decade ago this reef was dead; today it thrives', 'Last century this forest was cleared; it has returned',
   'Company readies first launch', 'Surveillance firm wins city contract', 'Facial recognition rollout reaches every station', 'Volcano eruption creates new island',
   'Town celebrates as blackout ends',
+  'After a decade of growth, a country becomes the largest producer of processed nickel', 'Lithium smelter opens on the coast',
+  'Elastic fantastic: the deadly fluid of a carnivorous flower',
 ];
 const STILL_LISTED_0_6_0 = [
   'Village opens first library', 'Volunteers plant 10,000 trees along river', 'Award-winning rangers return rescued pangolins', 'Mars rover lands safely',
@@ -197,6 +199,7 @@ const STILL_LISTED_0_6_0 = [
   'Wolves return to Alpine valley', 'Library reopens after renovation', 'Kiwi return to Wellington for first time in a century',
   'Rescued sea turtles released into ocean', 'Town celebrates reopening of its river beach', 'Researchers discover ancient forest under ice',
   'Twin pandas born at sanctuary', 'Flood-ravaged town rebuilds bridge', 'Landslide village rebuilt in record time', 'Preparing rescued owls for life in the wild',
+  'Copperbelt choir wins national award', 'Gold medal team returns home',
 ];
 
 test('0.6.0: each invented pattern the old rules listed is now held back', () => {

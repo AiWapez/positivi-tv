@@ -29,7 +29,9 @@ const HARM = stems(['kill(?:s|ed|ing|ings|er|ers)?', 'murder(?:s|ed|er|ers|ing)?
   'lynch(?:ed|ing|ings)', 'casualties', 'wounded', 'mass graves?', 'corpses?']);
 /** Extractive and fossil industries. Excluded wherever they appear in the headline. */
 const EXTRACTIVE = stems(['coal', 'oil', 'gas(?:es)?', 'pipelines?', 'mines?', 'mining', 'drilling', 'fracking', 'whal(?:ing|ers?)', 'hunt(?:s|ers?|ing)?',
-  'troph(?:y|ies)', 'trawl(?:s|ers?|ing)?', 'fishing fleets?', 'petrol', 'diesel', 'fossil', 'petroleum', 'refiner(?:y|ies)']);
+  'troph(?:y|ies)', 'trawl(?:s|ers?|ing)?', 'fishing fleets?', 'petrol', 'diesel', 'fossil', 'petroleum', 'refiner(?:y|ies)',
+  // Policy 0.6.0 (fix 13): mined minerals. "gold" and "plants" are left alone on purpose (gold medals, planted trees).
+  'nickel', 'lithium', 'cobalt', 'copper', 'bauxite', 'uranium', 'iron ore', 'rare earths?', 'smelters?']);
 const ENFORCEMENT = stems(['arrest(?:s|ed)?', 'charged', 'indicted', 'convicted', 'sentenced', 'jailed', 'prisons?', 'lawsuits?', 'sue[sd]?',
   'probes?', 'investigations?', 'raids?', 'bust(?:ed)?', 'rackets?', 'seize[sd]?', 'nabbed', 'frauds?', 'scam(?:s|mers?)?', 'smuggl(?:ing|ed|ers?)',
   'traffick(?:ing|ed|ers?)', 'police']);
@@ -90,7 +92,7 @@ const CLIMATE_ALARM = words(['record heat', 'record temperatures', 'hottest', 'h
 /** Negative vocabulary that is allowed only when the same headline states a recovery or protective outcome. */
 const CONTEXT_NEGATIVE = stems(['disasters?', 'flood(?:s|ing|ed)?', 'droughts?', 'wildfires?', 'fires?', 'hurricanes?', 'cyclones?', 'typhoons?',
   'earthquakes?', 'tsunamis?', 'storms?', 'abuse[sd]?', 'exploitation', 'violence', 'homeless(?:ness)?', 'poverty', 'hunger', 'hungry', 'endangered',
-  'extinct(?:ion)?', 'eruptions?', 'volcano(?:es)?', 'landslides?', 'mudslides?', 'avalanches?', 'sinkholes?', 'blackouts?', 'outages?', 'power cuts?',
+  'extinct(?:ion)?', 'deadly', 'lethal', 'venomous', 'poisonous', 'eruptions?', 'volcano(?:es)?', 'landslides?', 'mudslides?', 'avalanches?', 'sinkholes?', 'blackouts?', 'outages?', 'power cuts?',
   'declin(?:e|es|ing)', 'pollut(?:ion|ed)', 'dead', 'dying', 'addiction', 'victims?', 'threat(?:s|ened)?', 'at risk',
   'damaged', 'destroyed', 'injured', 'orphaned', 'stranded', 'trapped', 'missing', 'refugees?', 'loss', 'lost', 'losing',
   'vulnerable', 'invasive', 'illegal', 'deforestation', 'logging', 'mining', 'poach(?:ing|ers?)', 'spills?', 'toxic', 'contaminat(?:ed|ion)',
