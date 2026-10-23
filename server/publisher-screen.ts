@@ -20,10 +20,13 @@ const words = (list: string[]) => new RegExp('(?<![\\w-])(?:' + list.map(escape)
 const stems = (list: string[]) => new RegExp('(?<![\\w-])(?:' + list.join('|') + ')(?![\\w-])', 'i');
 
 /** Always excluded wherever they appear in the headline or description lead. */
-const HARM = stems(['kill(?:s|ed|ing|er|ers)?', 'murder(?:s|ed|er)?', 'massacres?', 'shootings?', 'shot dead', 'gunm[ae]n', 'stab(?:s|bed|bing)?',
-  'bomb(?:s|ed|ing)?', 'explosions?', 'attack(?:s|ed)?', 'hostages?', 'kidnap(?:s|ped|ping)?', 'death tolls?', 'fatal(?:ly|ities)?',
+const HARM = stems(['kill(?:s|ed|ing|ings|er|ers)?', 'murder(?:s|ed|er|ers|ing)?', 'massacre[sd]?', 'shootings?', 'shooters?', 'shot dead', 'gunm[ae]n',
+  'stab(?:s|bed|bing|bings)?', 'bomb(?:s|ed|ing|ings|er|ers)?', 'explosions?', 'attack(?:s|ed)?', 'hostages?', 'kidnap(?:s|ped|ping)?', 'death tolls?', 'fatal(?:ly|ities)?',
   'dies', 'died', 'deaths?', 'drown(?:s|ed|ing)?', 'crash(?:es|ed)?', 'assault(?:s|ed)?', 'rape[sd]?', 'suicides?', 'overdoses?', 'gunfire',
-  'child marriages?', 'cull(?:s|ed|ing)?', 'slaughter(?:s|ed)?']);
+  'child marriages?', 'cull(?:s|ed|ing)?', 'slaughter(?:s|ed)?',
+  // Policy 0.6.0 (stricter only): more forms and more violent events.
+  'rampages?', 'executions?', 'tortur(?:e|es|ed|ing)', 'abduct(?:s|ed|ing|ion|ions)?', 'starv(?:e|es|ed|ing|ation)', 'slain', 'beheaded', 'beheadings?',
+  'lynch(?:ed|ing|ings)', 'casualties', 'wounded', 'mass graves?', 'corpses?']);
 /** Extractive and fossil industries. Excluded wherever they appear in the headline. */
 const EXTRACTIVE = stems(['coal', 'oil', 'gas(?:es)?', 'pipelines?', 'mines?', 'mining', 'drilling', 'fracking', 'whal(?:ing|ers?)', 'hunt(?:s|ers?|ing)?',
   'troph(?:y|ies)', 'trawl(?:s|ers?|ing)?', 'fishing fleets?', 'petrol', 'diesel', 'fossil', 'petroleum', 'refiner(?:y|ies)']);
@@ -33,6 +36,26 @@ const ENFORCEMENT = stems(['arrest(?:s|ed)?', 'charged', 'indicted', 'convicted'
 const CONFLICT = stems(['wars?', 'warfare', 'airstrikes?', 'invasions?', 'invaded?', 'ceasefires?', 'sanctions?', 'famines?', 'outbreaks?',
   'epidemics?', 'pandemics?', 'crisis', 'crises', 'emergenc(?:y|ies)', 'evacuat(?:e|ed|ion)', 'collapse[sd]?', 'militants?', 'troops', 'militar(?:y|ies)',
   'terror(?:ism|ists?)?', 'genocides?', 'riots?']);
+/**
+ * Armed groups, weapons and state violence (policy 0.6.0). Headline only; reported as CONFLICT_OR_CRISIS. The bare words "conflict", "executed",
+ * "arms", "bets", "bodies" and "escort" are left out on purpose because they would hold back good stories.
+ */
+const ARMED = stems(['rebels?', 'militias?', 'armies', 'army', 'soldiers?', 'offensives?', 'cartels?', 'regimes?', 'juntas?', 'missiles?', 'warheads?',
+  'weapons?', 'weaponry', 'armed', 'drone strikes?', 'gunships?', 'artillery', 'shelling', 'ammunition', 'firearms?', 'guns?', 'insurgents?', 'jihadists?',
+  'paramilitar(?:y|ies)', 'conflict[- ](?:hit|torn|affected|stricken|ravaged|ridden)', 'was executed', 'executed by']);
+/**
+ * Topics a recovery word must never unlock (policy 0.6.0). Headline and description lead; reported as SENSITIVE_TOPIC. Hate groups, abuse and
+ * exploitation, slavery, cults, landmines, harmful traditional practices, and surveillance and hacking.
+ */
+const SENSITIVE = stems(['neo-nazis?', 'nazis?', 'white supremac(?:y|ists?)', 'hate groups?', 'hate crimes?', 'hate speech', 'extremis(?:m|ts?)', 'kkk',
+  'ku klux klan', 'fascis(?:m|ts?)',
+  '(?:child|domestic|sexual|elder|substance|drug) abuse', 'abusers?', 'domestic violence', 'sexual (?:violence|exploitation)', 'sex (?:slavery|trafficking)',
+  'slavery', 'enslave(?:d|ment)', 'cults?', 'land ?mines?', 'unexploded ordnance', 'femicides?', 'honou?r killings?', 'fgm', 'female genital',
+  'child soldiers?', 'child labou?r', 'child brides?', 'forced (?:labou?r|marriages?)',
+  'surveillance', 'facial recognition', 'spyware', 'predictive policing', 'censorship', 'internet shutdowns?', 'data breach(?:es)?', 'hack(?:s|ed|ers?|ing)']);
+/** Adult content and vice (policy 0.6.0). Headline only. The bare word "bets" is left out on purpose. */
+const VICE = stems(['casinos?', 'gambl(?:e|es|ed|ing|ers?)', 'betting', 'sportsbooks?', 'tobacco', 'cigarettes?', 'vap(?:e|es|ing|ers?)', 'nicotine', 'liquor',
+  'strip clubs?', 'adult films?', 'adult content', 'pornograph(?:y|ic)', 'brothels?', 'cannabis', 'marijuana']);
 /** Opinion, dispute and warning framing. Excluded from the headline only. */
 const STANCE = stems(['critics?', 'criticisms?', 'backlash(?:es)?', 'controvers(?:y|ial)', 'slams?', 'blasts', 'warns?', 'warnings?', 'concerns?',
   'alleged(?:ly)?', 'accuse[sd]?', 'condemn(?:s|ed)?', 'outrages?', 'opinions?', 'op-eds?', 'should', 'must', 'debates?', 'fears?', 'protests?',
@@ -59,12 +82,16 @@ const DISTRESS = stems(['unemployment', 'inflation', 'recession', 'layoffs?', 'b
 const HYPE = stems(['miracles?', 'revolutionary', 'game[- ]changer', 'breakthroughs?', 'you won.t believe', 'shocking']);
 const PROMO = stems(['sponsored', 'partner content', 'press release', 'giveaways?', 'discounts?', 'sale', 'deals?', 'coupons?', 'webinars?',
   'register now', 'subscribe', 'buy now']);
-const RETROSPECTIVE = stems(['anniversar(?:y|ies)', 'years ago', 'decades ago', 'looking back', 'years later', 'remembering', 'obituar(?:y|ies)', 'legacy', 'in memoriam']);
+const RETROSPECTIVE = stems(['anniversar(?:y|ies)', 'years ago', 'decades ago', 'looking back', 'years later', 'remembering', 'obituar(?:y|ies)', 'legacy', 'in memoriam',
+  // Policy 0.6.0: old events with no year written. "a century" on its own is deliberately not listed.
+  'a decade ago', '(?:ten|twenty|thirty|forty|fifty|\\d+) years on', 'decades on', '(?:two|three|four|five|\\d+) generations later', 'last century', 'a century ago',
+  'centuries ago', 'long ago']);
 const CLIMATE_ALARM = words(['record heat', 'record temperatures', 'hottest', 'heatwave', 'heat wave']);
 /** Negative vocabulary that is allowed only when the same headline states a recovery or protective outcome. */
 const CONTEXT_NEGATIVE = stems(['disasters?', 'flood(?:s|ing|ed)?', 'droughts?', 'wildfires?', 'fires?', 'hurricanes?', 'cyclones?', 'typhoons?',
   'earthquakes?', 'tsunamis?', 'storms?', 'abuse[sd]?', 'exploitation', 'violence', 'homeless(?:ness)?', 'poverty', 'hunger', 'hungry', 'endangered',
-  'extinct(?:ion)?', 'declin(?:e|es|ing)', 'pollut(?:ion|ed)', 'dead', 'dying', 'addiction', 'victims?', 'threat(?:s|ened)?', 'at risk',
+  'extinct(?:ion)?', 'eruptions?', 'volcano(?:es)?', 'landslides?', 'mudslides?', 'avalanches?', 'sinkholes?', 'blackouts?', 'outages?', 'power cuts?',
+  'declin(?:e|es|ing)', 'pollut(?:ion|ed)', 'dead', 'dying', 'addiction', 'victims?', 'threat(?:s|ened)?', 'at risk',
   'damaged', 'destroyed', 'injured', 'orphaned', 'stranded', 'trapped', 'missing', 'refugees?', 'loss', 'lost', 'losing',
   'vulnerable', 'invasive', 'illegal', 'deforestation', 'logging', 'mining', 'poach(?:ing|ers?)', 'spills?', 'toxic', 'contaminat(?:ed|ion)',
   'drift(?:s|ing)', 'spread(?:s|ing)', 'worsen(?:s|ing|ed)', 'shrink(?:s|ing)', 'rising', 'risks?', 'danger(?:s|ous)?', 'struggl(?:e|es|ing)', 'battl(?:e|es|ing)',
@@ -83,6 +110,7 @@ const INTENT = stems(['will', "'ll", 'plans?', 'planned', 'planning', 'aims?', '
   'consider(?:s|ing)?', 'mulls?', 'eyes', 'eyeing', 'bids? to', 'upcoming', 'soon', 'next year', 'potential(?:ly)?', 'possibl[ey]',
   'to (?:open|launch|build|restore|plant|protect|create|deliver|expand|begin|start|get|receive|become|host|return|reopen|unveil|release|introduce|ban|cut|end|reach|save)',
   'designs?', 'blueprints?', 'concepts?', 'proposals?', 'vision', 'renderings?', 'masterplan', 'master plan', 'roadmap', 'target', 'goal',
+  'readies', 'readying', 'prepares? to', 'preparing to', 'poised', 'gears? up', 'on track', 'slated', 'scheduled', 'forthcoming', 'in the works',
   'funding', 'grants?', 'invest(?:s|ed|ing|ment|ments|ors?)?', 'orders?', 'pre-orders?', 'commit(?:s|ted|ment|ments)?', 'permits?']);
 /** Money amounts usually describe financing or prices, not an outcome. */
 const MONEY = /[$£€¥]\s?\d/;
@@ -119,6 +147,26 @@ const SCIENCE = stems(['space', 'nasa', 'rovers?', 'telescopes?', 'astronom(?:y|
 const lead = (text: string) => text.slice(0, 400);
 
 /**
+ * Policy 0.6.0: invisible and lookalike characters. A format character (soft hyphen, zero-width characters, direction controls, byte-order mark),
+ * a variation selector, or a single word that mixes Latin letters with Greek or Cyrillic letters can hide a banned word from the lists. The text
+ * is not repaired; the story is held back. Checked on the raw text, before any normalising.
+ */
+const INVISIBLE = /[\p{Cf}\u034f\u180b-\u180d\ufe00-\ufe0f\u{e0100}-\u{e01ef}]/u;
+const LATIN = /\p{Script=Latin}/u;
+const GREEK_OR_CYRILLIC = /[\p{Script=Greek}\p{Script=Cyrillic}]/u;
+export function hasSuspiciousCharacters(rawTitle: string, rawDescription: string): boolean {
+  const headline = String(rawTitle ?? ''), descriptionLead = lead(String(rawDescription ?? ''));
+  if (INVISIBLE.test(headline) || INVISIBLE.test(descriptionLead)) return true;
+  for (const word of headline.match(/[\p{L}\p{M}]+/gu) ?? []) if (LATIN.test(word) && GREEK_OR_CYRILLIC.test(word)) return true;
+  return false;
+}
+
+/** The same text with hyphens read as spaces, so "war-torn" is seen as "war torn". Used only by exclusion lists, never by RECOVERY or COMPLETED. */
+const unhyphen = (text: string) => text.replace(/[-\u2010\u2011]/g, ' ');
+/** True when an exclusion list matches the text as written or with hyphens read as spaces. */
+const hits = (list: RegExp, text: string) => list.test(text) || list.test(unhyphen(text));
+
+/**
  * The labels and category a listed card gets. Used for a story a person picked although the rules held it back: the rules' own exclusion
  * result carries none, so a pick takes them from here, and the card is labelled exactly like any other automatic card.
  */
@@ -138,27 +186,31 @@ export function screenHeadline(input: ScreenInput): ScreenResult {
   const both = title + ' \n ' + desc;
   const reasons: string[] = [];
   const year = new Date(input.now).getUTCFullYear();
+  if (hasSuspiciousCharacters(input.title, input.description)) reasons.push('SUSPICIOUS_CHARACTERS');
   if (!title) reasons.push('EMPTY_TITLE');
-  if (HARM.test(both)) reasons.push('HARM_EVENT');
-  if (ENFORCEMENT.test(both)) reasons.push('ENFORCEMENT_OR_LEGAL');
-  if (CONFLICT.test(both)) reasons.push('CONFLICT_OR_CRISIS');
-  if (STANCE.test(title)) reasons.push('OPINION_OR_DISPUTE');
-  if (GOVERNANCE.test(title) || GOVERNANCE_ACRONYM.test(title)) reasons.push('GOVERNANCE_NEVER_AUTOMATED');
-  if (EXTRACTIVE.test(title)) reasons.push('EXTRACTIVE_INDUSTRY');
-  if (HEALTH.test(title) || HEALTH_ACRONYM.test(title)) reasons.push('HEALTH_NEVER_AUTOMATED');
-  if (HYPE.test(title)) reasons.push('HYPE');
-  if (PROMO.test(title)) reasons.push('PROMOTIONAL');
-  if (RETROSPECTIVE.test(title)) reasons.push('RETROSPECTIVE');
-  if (CLIMATE_ALARM.test(title)) reasons.push('ALARM_FRAMING');
-  if (DISTRESS.test(title)) reasons.push('DISTRESS_OR_TREND_RECORD');
+  if (hits(HARM, both)) reasons.push('HARM_EVENT');
+  if (hits(ENFORCEMENT, both)) reasons.push('ENFORCEMENT_OR_LEGAL');
+  if (hits(CONFLICT, both) || hits(ARMED, title)) reasons.push('CONFLICT_OR_CRISIS');
+  if (hits(SENSITIVE, both)) reasons.push('SENSITIVE_TOPIC');
+  if (hits(VICE, title)) reasons.push('VICE_OR_ADULT');
+  if (hits(STANCE, title)) reasons.push('OPINION_OR_DISPUTE');
+  if (hits(GOVERNANCE, title) || hits(GOVERNANCE_ACRONYM, title)) reasons.push('GOVERNANCE_NEVER_AUTOMATED');
+  if (hits(EXTRACTIVE, title)) reasons.push('EXTRACTIVE_INDUSTRY');
+  if (hits(HEALTH, title) || hits(HEALTH_ACRONYM, title)) reasons.push('HEALTH_NEVER_AUTOMATED');
+  if (hits(HYPE, title)) reasons.push('HYPE');
+  if (hits(PROMO, title)) reasons.push('PROMOTIONAL');
+  if (hits(RETROSPECTIVE, title)) reasons.push('RETROSPECTIVE');
+  if (hits(CLIMATE_ALARM, title)) reasons.push('ALARM_FRAMING');
+  if (hits(DISTRESS, title)) reasons.push('DISTRESS_OR_TREND_RECORD');
   if (title.endsWith('?') || ADVICE.test(title)) reasons.push('QUESTION_ADVICE_OR_EXPLAINER');
   for (const m of title.matchAll(YEAR)) if (Number(m[1]) < year) { reasons.push('OLD_YEAR_IN_HEADLINE'); break; }
   for (const m of desc.matchAll(OLD_EVENT_PHRASE)) if (Number(m[1]) < year) { reasons.push('OLD_EVENT_YEAR_IN_DESCRIPTION'); break; }
   if (/\b(?:destruction|environmental cost|less time to recover)\b/i.test(title)) reasons.push('DETERIORATING_OUTCOME');
-  if (CONTEXT_NEGATIVE.test(title) && !RECOVERY.test(title)) reasons.push('NEGATIVE_WITHOUT_RECOVERY');
+  // The negative side reads the hyphen-split copy; the recovery side never does, so this stays stricter only.
+  if (hits(CONTEXT_NEGATIVE, title) && !RECOVERY.test(title)) reasons.push('NEGATIVE_WITHOUT_RECOVERY');
   if (/\b(?:face[sd]? (?:a )?long road (?:back|home)|await(?:s|ing)? (?:rescue|release|reunion))\b/i.test(title)) reasons.push('UNRESOLVED_OUTCOME');
-  if (INTENT.test(title) || MAY.test(title) || MONEY.test(title)) reasons.push('PLAN_OR_UNCERTAIN');
-  else if (IN_PROGRESS.test(title)) reasons.push('IN_PROGRESS_NOT_OUTCOME');
+  if (hits(INTENT, title) || hits(MAY, title) || MONEY.test(title)) reasons.push('PLAN_OR_UNCERTAIN');
+  else if (hits(IN_PROGRESS, title)) reasons.push('IN_PROGRESS_NOT_OUTCOME');
   else if (!COMPLETED.test(title)) reasons.push('NO_COMPLETED_OUTCOME');
   const { labels, category } = listingFields(input);
   return reasons.length ? { decision: 'exclude', reasons, labels: [], category: null } : { decision: 'list', reasons: [], labels, category };

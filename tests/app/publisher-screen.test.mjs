@@ -175,3 +175,62 @@ test('plural fix does not exclude constructive headlines that use none of the li
     const r = screen(title); assert.equal(r.decision, 'list', `${title}: ${r.reasons}`);
   }
 });
+
+// Policy 0.6.0 (stricter only). Every headline below is an invented pattern, not a real story, so it is safe to keep in the public repository.
+const HELD_BACK_0_6_0 = [
+  'Town opens memorial after killings', 'Bombings end as town reopens market', 'Massacred village rebuilt by volunteers', 'Shooter captured after rampage ends',
+  'Prisoner was executed, now honoured with plaque', 'Tortured activist wins award', 'Abducted children return home', 'Starvation ends as new farm opens',
+  'Deadly virus-free zone opens', 'War-torn region opens first new school', 'Drought-stricken village finds water', 'Post-war city welcomes tourists',
+  'Conflict-hit farmers earn record harvest', 'Rebels capture provincial capital', 'Militia opens checkpoint on highway', 'Army captures border town',
+  'Soldiers return after offensive succeeds', 'Cartel lands new shipping route', 'Regime unveils national stadium', 'Missile test reaches new range',
+  'Drone maker delivers first armed units', 'Nuclear warhead plant reopens', 'Weapons maker lands record contract', 'Neo-Nazi group opens community center',
+  'White supremacist rally reaches record turnout', 'Casino opens on former farmland', 'Betting app launches in new states', 'Tobacco firm wins approval for new plant',
+  'Vape maker opens factory', 'Strip club reopens after renovation', 'Adult film studio wins award', 'Charity helps child abuse survivors rebuild',
+  'Shelter opens for women fleeing domestic violence', 'Rescued from sex slavery, women open bakery', 'Former cult members find new homes',
+  'Village built on landmine field reopens', 'A decade ago this reef was dead; today it thrives', 'Last century this forest was cleared; it has returned',
+  'Company readies first launch', 'Surveillance firm wins city contract', 'Facial recognition rollout reaches every station', 'Volcano eruption creates new island',
+  'Town celebrates as blackout ends',
+];
+const STILL_LISTED_0_6_0 = [
+  'Village opens first library', 'Volunteers plant 10,000 trees along river', 'Award-winning rangers return rescued pangolins', 'Mars rover lands safely',
+  'Student team builds solar boat', 'Community garden opens in Lagos', 'New butterfly species discovered in Peru', 'Coral reef restored by local divers',
+  'Wolves return to Alpine valley', 'Library reopens after renovation', 'Kiwi return to Wellington for first time in a century',
+  'Rescued sea turtles released into ocean', 'Town celebrates reopening of its river beach', 'Researchers discover ancient forest under ice',
+  'Twin pandas born at sanctuary', 'Flood-ravaged town rebuilds bridge', 'Landslide village rebuilt in record time', 'Preparing rescued owls for life in the wild',
+];
+
+test('0.6.0: each invented pattern the old rules listed is now held back', () => {
+  for (const title of HELD_BACK_0_6_0) { const r = screen(title); assert.equal(r.decision, 'exclude', `${title}: ${r.reasons}`); }
+});
+
+test('0.6.0: near misses and controls still list', () => {
+  for (const title of STILL_LISTED_0_6_0) { const r = screen(title); assert.equal(r.decision, 'list', `${title}: ${r.reasons}`); }
+});
+
+test('0.6.0: the bare words "conflict" and "executed" are not banned', () => {
+  for (const title of ['Rangers ease human-wildlife conflict with chili fences', 'NASA team executed flawless orbit maneuver']) {
+    const r = screen(title);
+    assert(!r.reasons.includes('CONFLICT_OR_CRISIS') && !r.reasons.includes('SENSITIVE_TOPIC') && !r.reasons.includes('VICE_OR_ADULT'), `${title}: ${r.reasons}`);
+  }
+});
+
+test('0.6.0: the new reasons are reported under their own codes', () => {
+  assert(screen('Neo-Nazi group opens community center').reasons.includes('SENSITIVE_TOPIC'));
+  assert(screen('Casino opens on former farmland').reasons.includes('VICE_OR_ADULT'));
+  assert(screen('Rebels capture provincial capital').reasons.includes('CONFLICT_OR_CRISIS'));
+  assert(screen('War-torn region opens first new school').reasons.includes('CONFLICT_OR_CRISIS'));
+  assert(screen('Village opens first library', 'The library was funded after an episode of domestic violence in the district.').reasons.includes('SENSITIVE_TOPIC'), 'the description lead is read');
+});
+
+test('0.6.0: invisible and lookalike characters hold a story back instead of hiding a banned word', () => {
+  const soft = 'Three people kil­led in market, town reopens it';
+  const zero = 'Village celebrates after w​ar ends';
+  const cyrillicA = 'Village opens first grаve garden';          // Cyrillic "а" inside a Latin word
+  const cyrillicE = 'Rescued owls rеturn to the wild';          // Cyrillic "е" inside a Latin word
+  for (const title of [soft, zero, cyrillicA, cyrillicE]) {
+    const r = screen(title); assert.equal(r.decision, 'exclude', title); assert(r.reasons.includes('SUSPICIOUS_CHARACTERS'), `${title}: ${r.reasons}`);
+  }
+  assert(screen('Village opens first library', 'A short description with a zero​width space.').reasons.includes('SUSPICIOUS_CHARACTERS'), 'the description lead is checked too');
+  assert.equal(screen('Village opens first library').reasons.includes('SUSPICIOUS_CHARACTERS'), false);
+  assert.equal(screen('Москва opens first library').reasons.includes('SUSPICIOUS_CHARACTERS'), false, 'a word fully in one script is not mixed');
+});

@@ -21,8 +21,8 @@ const run = (cands, ctl = {}, srcs = sources()) => {
 };
 const cand = (n, title, overrides = {}) => candidate('alpha', 'story' + n, title, { id: id(n), ...overrides });
 
-test('the policy version is 0.5.0 and every entry on the live pick list is well formed and unique', async () => {
-  assert.equal(PUBLISHER_FEED_POLICY, 'publisher-feed-0.5.0');
+test('the policy version is 0.6.0 and every entry on the live pick list is well formed and unique', async () => {
+  assert.equal(PUBLISHER_FEED_POLICY, 'publisher-feed-0.6.0');
   const live = JSON.parse(await readFile(new URL('../../config/publisher-feed.json', import.meta.url), 'utf8'));
   assert(Array.isArray(live.pickedStories));
   assert(live.pickedStories.every(validPick), 'a malformed entry would be silently ignored, so none may ship');
@@ -63,7 +63,8 @@ test('every reason code the rules can produce, other than the two mild ones, is 
   for (const code of codes) if (!PICK_OVERRIDABLE_REASONS.includes(code)) assert(!PICK_OVERRIDABLE_REASONS.includes(code), code);
   for (const hardCode of ['HARM_EVENT', 'ENFORCEMENT_OR_LEGAL', 'CONFLICT_OR_CRISIS', 'OPINION_OR_DISPUTE', 'GOVERNANCE_NEVER_AUTOMATED', 'EXTRACTIVE_INDUSTRY',
     'HEALTH_NEVER_AUTOMATED', 'HYPE', 'PROMOTIONAL', 'RETROSPECTIVE', 'ALARM_FRAMING', 'DISTRESS_OR_TREND_RECORD', 'QUESTION_ADVICE_OR_EXPLAINER',
-    'OLD_YEAR_IN_HEADLINE', 'OLD_EVENT_YEAR_IN_DESCRIPTION', 'DETERIORATING_OUTCOME', 'NEGATIVE_WITHOUT_RECOVERY', 'UNRESOLVED_OUTCOME', 'IN_PROGRESS_NOT_OUTCOME', 'EMPTY_TITLE'])
+    'OLD_YEAR_IN_HEADLINE', 'OLD_EVENT_YEAR_IN_DESCRIPTION', 'DETERIORATING_OUTCOME', 'NEGATIVE_WITHOUT_RECOVERY', 'UNRESOLVED_OUTCOME', 'IN_PROGRESS_NOT_OUTCOME', 'EMPTY_TITLE',
+    'SENSITIVE_TOPIC', 'VICE_OR_ADULT', 'SUSPICIOUS_CHARACTERS'])
     assert(codes.includes(hardCode) && !PICK_OVERRIDABLE_REASONS.includes(hardCode), hardCode);
 });
 
