@@ -21,10 +21,13 @@ const run = (cands, ctl = {}, srcs = sources()) => {
 };
 const cand = (n, title, overrides = {}) => candidate('alpha', 'story' + n, title, { id: id(n), ...overrides });
 
-test('the policy version moved to 0.5.0 and the pick list starts empty', async () => {
+test('the policy version is 0.5.0 and every entry on the live pick list is well formed and unique', async () => {
   assert.equal(PUBLISHER_FEED_POLICY, 'publisher-feed-0.5.0');
   const live = JSON.parse(await readFile(new URL('../../config/publisher-feed.json', import.meta.url), 'utf8'));
-  assert.deepEqual(live.pickedStories, [], 'no story is picked until Alex re-confirms it with its description');
+  assert(Array.isArray(live.pickedStories));
+  assert(live.pickedStories.every(validPick), 'a malformed entry would be silently ignored, so none may ship');
+  assert.equal(new Set(live.pickedStories.map(p => p.id)).size, live.pickedStories.length, 'no story id appears twice');
+  assert(live.pickedStories.every(p => p.approvedAt >= '2026-10-22' && p.approvedBy === 'Alex'), 'each entry records the date and Alex as approver');
 });
 
 test('a pick lists a story the rules held back only for a mild reason, with its approval kept on the list', () => {
