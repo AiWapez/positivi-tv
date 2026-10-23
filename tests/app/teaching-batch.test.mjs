@@ -221,3 +221,16 @@ test('the terms records carry the General Counsel wording and only enabled sourc
   const list = Array.isArray(config.sources) ? config.sources : Object.values(config.sources);
   for (const s of list) if (!s.publisherFeed?.enabled) assert.notEqual(s.publisherFeed?.teachingDescription, true, `${s.id} is not enabled`);
 });
+
+test('the 14-day deletion never touches a private archive release (tag starting with archive-), however old', async () => {
+  assert.equal(expired('archive-2026-09-01', TODAY), false);
+  assert.equal(expired('archive-2026-10-22', TODAY), false);
+  assert.equal(expired('batch-2026-10-01', TODAY), true, 'an old batch still expires');
+  const gh = fakeGitHub({ releases: [{ id: 1, tag_name: 'batch-2026-10-01' }, { id: 50, tag_name: 'archive-2026-10-22' }, { id: 51, tag_name: 'archive-2026-09-01' }] });
+  const result = await saveTeachingBatch(toTeachingRecords([RECORD], sources(), 'p'), TODAY, CONFIG, gh.fetcher, () => {});
+  assert.equal(result.status, 'saved');
+  assert.equal(result.deleted, 1, 'only the old batch was deleted');
+  const deletes = gh.calls.filter(c => c.method === 'DELETE').map(c => c.url);
+  assert(deletes.some(u => u.endsWith('/releases/1')), 'the old batch release is deleted');
+  assert(!deletes.some(u => /\/releases\/5[01]$/.test(u) || u.includes('archive-')), 'no archive release or tag is deleted');
+});
