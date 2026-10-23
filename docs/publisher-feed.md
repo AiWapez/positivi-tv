@@ -252,6 +252,8 @@ Security Lead checklist before the first write (the archive repository does not 
 - Removal request procedure: delete that publisher's lines, rewrite history so they are gone from every commit, confirm by searching the repository, and record the date. All within 7 days of the request.
 - If the key leaks: revoke it at once, treat the archive as exposed, tell General Counsel, and record the incident here.
 
+One label per story: the same story can arrive through several feeds and be labelled more than once. If the answers differ, the most cautious one is filed (Reject, then Unsure, then Keep), so a story Alex also rejected is never archived as a Keep, and the number of such stories is reported as a count.
+
 How a day is archived: download the day's batch file from the private teaching repository, export Alex's labels from the labelling page, run `node scripts/build-archive.mjs --batch <batch file> --labels <labels file or folder> --out <folder outside this repository>`, and move the resulting `archive/YYYY-MM-DD.jsonl` into the private archive repository once it exists and has been reviewed. Do this before the batch is deleted on day 14.
 
 Archive log (dates only, no content): none yet.

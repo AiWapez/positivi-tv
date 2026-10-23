@@ -32,7 +32,7 @@ export interface ArchiveRecord {
   published: string; label: ArchiveLabel; reasons: string[]; policy: string; labelDate: string;
 }
 export interface ArchiveLabelInput { link: string; label: string; at?: string }
-export interface ArchiveCounts { archived: number; linkOnly: number; skippedNotAllowed: number; skippedNoBatchMatch: number; skippedBadLabel: number; skippedDuplicate: number }
+export interface ArchiveCounts { archived: number; linkOnly: number; skippedNotAllowed: number; skippedNoBatchMatch: number; skippedBadLabel: number; skippedDuplicate: number; conflictingLabels: number }
 
 const httpsLink = (value: unknown): value is string => {
   if (typeof value !== 'string') return false;
@@ -60,26 +60,37 @@ function labelDay(at: unknown, fallback: string): string {
  */
 export function buildArchive(batch: readonly TeachingRecord[], labels: readonly ArchiveLabelInput[], sources: PublisherSources, fallbackLabelDate: string): { records: ArchiveRecord[]; counts: ArchiveCounts } {
   if (!DATE_ONLY.test(fallbackLabelDate)) throw new Error('fallbackLabelDate must be YYYY-MM-DD');
-  const counts: ArchiveCounts = { archived: 0, linkOnly: 0, skippedNotAllowed: 0, skippedNoBatchMatch: 0, skippedBadLabel: 0, skippedDuplicate: 0 };
+  const counts: ArchiveCounts = { archived: 0, linkOnly: 0, skippedNotAllowed: 0, skippedNoBatchMatch: 0, skippedBadLabel: 0, skippedDuplicate: 0, conflictingLabels: 0 };
   const byLink = new Map<string, TeachingRecord>();
   for (const record of batch) if (httpsLink(record.link) && !byLink.has(record.link)) byLink.set(record.link, record);
-  const seen = new Set<string>();
-  const records: ArchiveRecord[] = [];
+  // One label per story. The same story can arrive through several feeds and be labelled more than once. If the answers differ, the most
+  // cautious one is kept (Reject, then Unsure, then Keep), so a story Alex also rejected or was unsure about is never filed as a Keep.
+  const CAUTION: Record<ArchiveLabel, number> = { keep: 1, unsure: 2, reject: 3 };
+  const chosen = new Map<string, { record: TeachingRecord; label: ArchiveLabel; at: unknown; conflict: boolean }>();
   for (const input of labels.slice(0, MAX_LABELS)) {
     const label = typeof input?.label === 'string' ? input.label.trim().toLowerCase() : '';
     if (!(ARCHIVE_LABELS as readonly string[]).includes(label)) { counts.skippedBadLabel++; continue; }
     const record = typeof input.link === 'string' ? byLink.get(input.link) : undefined;
     if (!record) { counts.skippedNoBatchMatch++; continue; }
-    if (seen.has(record.link)) { counts.skippedDuplicate++; continue; }
-    seen.add(record.link);
+    const existing = chosen.get(record.link);
+    if (!existing) { chosen.set(record.link, { record, label: label as ArchiveLabel, at: input.at, conflict: false }); continue; }
+    counts.skippedDuplicate++;
+    if (existing.label !== label) {
+      existing.conflict = true;
+      if (CAUTION[label as ArchiveLabel] > CAUTION[existing.label]) { existing.label = label as ArchiveLabel; existing.at = input.at; }
+    }
+  }
+  const records: ArchiveRecord[] = [];
+  for (const { record, label, at, conflict } of chosen.values()) {
+    if (conflict) counts.conflictingLabels++;
     if (!archiveAllowedFor(record.source, sources)) { counts.skippedNotAllowed++; continue; }
     const linkOnly = record.reasons.some(reason => LINK_ONLY_REASONS.includes(reason));
     records.push({
       source: record.source, link: record.link,
       headline: linkOnly ? null : record.headline,
       description: linkOnly ? null : (typeof record.description === 'string' ? record.description : null),
-      published: record.published, label: label as ArchiveLabel, reasons: [...record.reasons], policy: record.policy,
-      labelDate: labelDay(input.at, fallbackLabelDate),
+      published: record.published, label, reasons: [...record.reasons], policy: record.policy,
+      labelDate: labelDay(at, fallbackLabelDate),
     });
     counts.archived++;
     if (linkOnly) counts.linkOnly++;

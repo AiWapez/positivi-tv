@@ -93,12 +93,24 @@ test('labels that match nothing, carry an unknown label or repeat a link are cou
     { link: 'https://alpha.example.org/articles/missing', label: 'keep' },
     { link: batch[0].link, label: 'maybe' },
     { link: batch[0].link, label: 'keep' },
-    { link: batch[0].link, label: 'reject' },
+    { link: batch[0].link, label: 'keep' },
     { link: 42, label: 'keep' },
   ], ALLOWED(), '2026-10-22');
   assert.equal(records.length, 1);
-  assert.deepEqual(counts, { archived: 1, linkOnly: 0, skippedNotAllowed: 0, skippedNoBatchMatch: 2, skippedBadLabel: 1, skippedDuplicate: 1 });
-  assert.equal(records[0].label, 'keep', 'the first label for a link wins');
+  assert.deepEqual(counts, { archived: 1, linkOnly: 0, skippedNotAllowed: 0, skippedNoBatchMatch: 2, skippedBadLabel: 1, skippedDuplicate: 1, conflictingLabels: 0 });
+});
+
+test('a story labelled twice with different answers is filed under the most cautious one, and counted', () => {
+  const batch = [rec('a'), rec('b'), rec('c')];
+  const { records, counts } = buildArchive(batch, [
+    { link: batch[0].link, label: 'keep', at: '2026-10-22T10:00:00Z' }, { link: batch[0].link, label: 'reject', at: '2026-10-22T11:00:00Z' },
+    { link: batch[1].link, label: 'reject', at: '2026-10-22T10:00:00Z' }, { link: batch[1].link, label: 'keep', at: '2026-10-23T09:00:00Z' },
+    { link: batch[2].link, label: 'keep' }, { link: batch[2].link, label: 'unsure' }, { link: batch[2].link, label: 'keep' },
+  ], ALLOWED(), '2026-10-22');
+  assert.deepEqual(records.map(r => r.label), ['reject', 'reject', 'unsure'], 'Keep never beats Reject or Unsure');
+  assert.equal(records[1].labelDate, '2026-10-22', 'the date is that of the label that was kept');
+  assert.equal(counts.conflictingLabels, 3);
+  assert.equal(counts.archived, 3);
 });
 
 test('output helpers', () => {
