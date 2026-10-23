@@ -256,7 +256,8 @@ One label per story: the same story can arrive through several feeds and be labe
 
 How a day is archived: download the day's batch file from the private teaching repository, export Alex's labels from the labelling page, run `node scripts/build-archive.mjs --batch <batch file> --labels <labels file or folder> --out <folder outside this repository>`, and move the resulting `archive/YYYY-MM-DD.jsonl` into the private archive repository once it exists and has been reviewed. Do this before the batch is deleted on day 14.
 
-Archive log (dates only, no content): none yet.
+Archive log (dates only, no content):
+- October 22, 2026 (saved October 23, 2026 UTC): two archive files, `2026-10-21.jsonl` (139 stories) and `2026-10-22.jsonl` (144 stories), saved as the release `archive-2026-10-22` in the private teaching repository under the General Counsel's temporary exception (ends no later than October 29, 2026). Nothing was committed as a file. The move to the dedicated private archive repository is due by October 29, 2026; on the day of the move the archive is deleted from the teaching repository so only one copy exists, and that is logged here.
 
 ### Counts-only run report
 
