@@ -303,6 +303,18 @@ The labelled sets hold publisher text, so they never enter this repository. The 
 
 How it is run: a manually triggered workflow in the private teaching repository (not in this one, so no secret or private text sits here) checks out the public repository twice, at the old and the new reference, downloads the saved labelled sets from the private releases, and runs the script. It reads only; it needs no write permission. Because it executes the rules from the reference under test, it is dispatched only for references the Security Lead has already reviewed. The archive files for October 21 and 22 are the first sets; the October 16 set is not saved in the archive. October 16, 21 and 22 remain development data and never count toward approving a story type.
 
+## Label-only mode (General Counsel, October 23, 2026; draft pending licensed attorney review)
+
+A source in label-only mode is collected and screened exactly like any other, and every screened story goes to the private teaching batch with its decision and reason codes. Nothing from it is ever public, whatever the decision. A new source starts in this mode for at least 14 days, so Alex can learn how the rules treat it before it can reach the globe.
+
+How it works:
+
+- The switch is `labelOnly` in the source's `publisherFeed` record in `config/feeds.json`, with `labelOnlySince` (YYYY-MM-DD, a record only). Only an absent value or exactly `false` means public. Any other value, including a typo such as the string "true", keeps the source private (`isLabelOnly` in `src/lib/publisher-feed.ts`), so a mistake can hold a source back but can never make a label-only source public.
+- The snapshot builder sends the story to the teaching batch and then stops: a label-only story never enters the stored snapshot, previously stored items from the source are not carried, and a person's pick for it is never looked at. The public projection also drops every row from a label-only source, so an older stored snapshot cannot leak one.
+- The run report counts these stories on their own line (`labelOnly`), apart from `listed` and `notListed`, and does not add their reasons to the held-back counts. Counts only.
+- There is no automatic exit and no date that ends the mode. Leaving it is a committed change to the source's record that needs the General Counsel's look and Alex's exact "Merge it".
+- No source is label-only yet. `tests/app/label-only.test.mjs` covers the behaviour and checks that every label-only source in `config/feeds.json` records its start date.
+
 ## Picked by PositiviTV (person-approved list, policy 0.5.0)
 
 General Counsel ruling, October 21, 2026: a person may choose individual publisher-feed stories that the automatic rules held back only for a mild reason. Such a story is labelled "Picked by PositiviTV · From publisher feeds". It is never labelled "Reviewed", because nobody fact-checks it and its event date is not confirmed.
