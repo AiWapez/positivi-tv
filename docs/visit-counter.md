@@ -23,7 +23,7 @@ The counter lives outside Vercel Blob and Global Config on purpose: a flood of v
 
 ## Limits and fail-closed rules
 - Off unless `enabled` is true AND `dailyCeiling` is a positive number. An unreadable or malformed config means off.
-- Pause switch: Global Config key `visitCounterOff` (true pauses both endpoints at once, no redeploy). It can only pause. If it cannot be read, or holds anything other than true/false, the counter is paused; an unreachable store keeps the last good answer, like the publisher-lane reader. It shares the existing `GLOBAL_CONFIG` store and its 3-minute per-copy cache, so it adds about one read per 3 minutes per running copy.
+- Pause switch: Global Config key `visitCounterOff` (true pauses both endpoints at once, no redeploy). It can only pause. If there is no Global Config connection (a Preview deployment, for example), or it cannot be read, or it holds anything other than true/false, the counter is paused; the only exception is an unreachable store after a good read, which keeps the last good answer, like the publisher-lane reader. The counter therefore runs only where the pause switch can be read, even if a Preview someday receives the store variables. It shares the existing `GLOBAL_CONFIG` store and its 3-minute per-copy cache, so it adds about one read per 3 minutes per running copy.
 - Write on each accepted tick, before answering, as one pipeline: `INCR` the day key, then `INCR` the total. Nothing waits in memory (Vercel can freeze a copy right after it answers).
 - Hard daily ceiling: the day key's new value is returned by the write. Once it passes `dailyCeiling`, that copy stops writing for the rest of the UTC day. Every running copy learns this from its own write, so the total can pass the ceiling by at most one tick per running copy that day. The page never shows a "today" number above the ceiling.
 - Per-copy cap: `perCopyPerMinute` accepted writes per minute (default 60), as a first brake only.
@@ -33,10 +33,14 @@ The counter lives outside Vercel Blob and Global Config on purpose: a flood of v
 Honest limits: a script can fake the `Origin` header, so the public number can be inflated on purpose; the ceiling bounds how far. The platform may read a request body (up to its own size limit) before the code sees it, so the 64-byte limit is enforced on what the code accepts, not on what the platform receives. The count includes bots that run scripts.
 
 ## Environment (names only, never values)
-`KV_REST_API_URL`, `KV_REST_API_TOKEN` (write; used only by `/api/visit`), `KV_REST_API_READ_ONLY_TOKEN` (read; used only by `/api/visits`). The store address must be an `https://*.upstash.io` host. After connecting Upstash in the Vercel Marketplace: limit the integration to the `positivi-tv` project only; keep these three variables as Sensitive and Production only; remove the other variables the integration adds (for example a `REDIS_URL` that contains a password, and `KV_URL`) from every environment, and make sure no code reads them (nothing in this repository does). Preview shares production settings in this project, so Preview must not get the write token.
+`KV_REST_API_URL`, `KV_REST_API_TOKEN` (write; used only by `/api/visit`), `KV_REST_API_READ_ONLY_TOKEN` (read; used only by `/api/visits`). The store address must be an `https://*.upstash.io` host. After connecting Upstash in the Vercel Marketplace: limit the integration to the `positivi-tv` project only; keep these three variables as Sensitive and Production only; remove the other variables the integration adds (for example a `REDIS_URL` that contains a password, and `KV_URL`) from every environment, and make sure no code reads them (nothing in this repository does). Preview shares production settings in this project, so Preview must not get the write token (the pause rule above keeps a Preview from counting even if it did).
+
+After the connection, confirm the integration's scope (this project only) and that only the three variables above exist, each Sensitive and Production only. Report names only, never values.
+
+Custom domain: `allowedOrigins` holds only `https://positivi-tv.vercel.app`. If a custom domain is ever added, the counter silently stops counting until that origin is added to `config/visit-counter.json`.
 
 ## Setting the ceiling (needed before it can be turned on)
-Read the free plan's monthly command allowance on the Upstash connection page. Each accepted tick uses 2 commands. Set `dailyCeiling` to no more than half of (monthly free commands ÷ 31 ÷ 2), and record the number and the date here:
+Read the free plan's monthly command allowance on the Upstash connection page. Each accepted tick uses 2 commands. Set `dailyCeiling` to no more than half of (monthly free commands ÷ 31 ÷ 2), and record the number and the date here. Keep that half-of-allowance margin: it absorbs the overshoot of one tick per running copy, which under a scripted flood can be larger than it sounds:
 
 - Ceiling: not set yet (0 = off).
 

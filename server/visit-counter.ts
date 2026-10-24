@@ -98,14 +98,15 @@ export function parsePause(items: unknown): boolean | null {
   return typeof off === 'boolean' ? off : null;
 }
 /**
- * Returns true when the counter is paused. Not connected: false (the config file alone decides). Connected but unreadable or
- * invalid: true (fail closed), except that an unreachable store keeps the last good answer, like the publisher-lane reader.
+ * Returns true when the counter is paused. Fail closed everywhere: no Global Config connection (a Preview, say) means paused, and so
+ * does a connection that is unreadable or holds an invalid value. The one exception is an unreachable store after a good read, which
+ * keeps the last good answer, like the publisher-lane reader. The counter therefore runs only where the pause switch can be read.
  */
 export function createPauseReader(fetchItems: (() => Promise<unknown>) | null, options: { okTtlMs?: number; failTtlMs?: number; clock?: () => number } = {}) {
   const okTtl = options.okTtlMs ?? 3 * 60_000, failTtl = options.failTtlMs ?? 30_000, clock = options.clock ?? Date.now;
   let good: boolean | null = null, last = true, until = 0, inflight: Promise<boolean> | null = null;
   return async function paused(): Promise<boolean> {
-    if (!fetchItems) return false;
+    if (!fetchItems) return true;
     if (clock() < until) return last;
     if (inflight) return inflight;
     inflight = (async () => {

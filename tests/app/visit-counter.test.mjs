@@ -135,8 +135,8 @@ test('the pause switch stops counting, and a pause that cannot be read fails clo
   assert.equal(throwing.calls.length, 0);
 });
 
-test('pause reader: not connected = file decides; unreadable or invalid = paused; last good value is kept through an outage', async () => {
-  assert.equal(await createPauseReader(null)(), false);
+test('pause reader: not connected, unreadable or invalid = paused; last good value is kept through an outage', async () => {
+  assert.equal(await createPauseReader(null)(), true, 'no Global Config connection (a Preview, say) means paused');
   assert.equal(await createPauseReader(async () => { throw new Error('down'); })(), true);
   assert.equal(await createPauseReader(async () => ({ visitCounterOff: 'yes' }))(), true);
   assert.equal(await createPauseReader(async () => 'junk')(), true);
@@ -299,4 +299,14 @@ test('browser: only the exact two-number answer is shown', () => {
   for (const bad of [null, [], {}, { today: null, total: null }, { today: 1 }, { today: 1, total: 2, extra: 3 }, { today: -1, total: 2 }, { today: 1.5, total: 2 }, { today: '1', total: 2 }, 'x']) {
     assert.equal(parseVisits(bad), null);
   }
+});
+
+test('a deployment with no Global Config connection never counts, even with every other setting on', async () => {
+  const s = store(rows(1, 1));
+  const handler = createVisitHandler({ config: ON, readPause: createPauseReader(null), env: ENV, fetcher: s.fetcher, now: () => T0 });
+  assert.equal((await run(handler, post())).code, 204);
+  assert.equal(s.calls.length, 0);
+  const visits = createVisitsHandler({ config: ON, readPause: createPauseReader(null), env: ENV, fetcher: s.fetcher, now: () => T0 });
+  assert.deepEqual((await run(visits, { method: 'GET', url: '/api/visits' })).body, { today: null, total: null });
+  assert.equal(s.calls.length, 0);
 });
