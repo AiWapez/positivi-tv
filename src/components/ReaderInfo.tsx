@@ -1,7 +1,7 @@
 import Icon from './Icon';
 
-export default function ReaderInfo({ page, savedCount, onClear, readCount = 0, onClearRead }: {
-  page: 'privacy' | 'terms'; savedCount: number; onClear: () => void; readCount?: number; onClearRead?: () => void;
+export default function ReaderInfo({ page, savedCount, onClear, readCount = 0, onClearRead, visitCounter = false }: {
+  page: 'privacy' | 'terms'; savedCount: number; onClear: () => void; readCount?: number; onClearRead?: () => void; visitCounter?: boolean;
 }) {
   if (page === 'terms') return <>
     <p className="eyebrow">Reading PositiviTV™</p><h2 id="dialog-title">Free to explore.</h2>
@@ -17,6 +17,7 @@ export default function ReaderInfo({ page, savedCount, onClear, readCount = 0, o
   return <>
     <p className="eyebrow">Your privacy</p><h2 id="dialog-title">Explore without a profile.</h2>
     <p>This release has no sign-up, behavioral analytics, advertising trackers, session recordings or public submissions. Search and category choices stay in this page; we do not send them to a personalization service.</p>
+    {visitCounter && <><h3>A simple visit counter</h3><p>[Draft wording, pending General Counsel] To show roughly how many people visit, the page counts at most one visit per browser per day. The counter stores only a date and two numbers, a total and that day's count. It does not store who you are, your address, your device or where you came from, and it uses no cookies. The number is approximate. The remembered date stays in this browser, and clearing this site's data in your browser settings removes it.</p></>}
     <h3>Favorites stay on this device</h3><p>Saving a story stores its ID in your browser. We do not sync favorites to a server. Other people using this browser may see them. Clearing browser storage also removes them.</p>
     <button className="secondary" disabled={!savedCount} onClick={onClear}>Clear saved stories ({savedCount})</button>
     <h3>Reading history stays on this device</h3><p>Opening a story marks it read in your browser. Its pin dims and stays on the globe, and stories you have not opened show at full strength. The browser also remembers which daily update you have already seen, so the update note shows once. We do not send this history to a server, and each browser or device keeps its own. Clearing it removes the dimming from every pin.</p>

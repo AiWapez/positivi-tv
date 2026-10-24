@@ -153,6 +153,7 @@ Someone must recheck source terms periodically, read the per-source `excluded` c
 | --- | --- |
 | `api/refresh-feeds.ts` | Authenticated scheduled endpoint for this lane |
 | `api/stories.ts` | Visitor endpoint; serves the edition plus the stored snapshot, never crawls |
+| `api/visit.ts`, `api/visits.ts` | Public visit counter (built, off); see `docs/visit-counter.md` |
 | `server/publisher-refresh.ts` | One collection run: lock, fetch, build, compare-and-swap write |
 | `server/publisher-screen.ts` | Headline screening rules |
 | `server/publisher-location.ts` | Headline-only country resolver |
