@@ -38,8 +38,9 @@ export function createStoriesHandler(deps: StoriesDeps) {
     let read: SnapshotRead = { snapshot: null, status: 'unavailable' };
     if (effective.enabled) { try { read = await deps.readSnapshot(); } catch { /* edition-only */ } }
     try {
-      const subjectPhotos = new URL(req.url ?? '/api/stories', 'http://localhost').searchParams.get('photos') === 'subjects-v1';
-      res.status(200).json(buildCombinedFeed(deps.edition, read, effective, deps.sources, (deps.now ?? (() => new Date().toISOString()))(), { subjectPhotos }));
+      const profile = new URL(req.url ?? '/api/stories', 'http://localhost').searchParams.get('photos');
+      const habitatPhotos = profile === 'subjects-v2', subjectPhotos = habitatPhotos || profile === 'subjects-v1';
+      res.status(200).json(buildCombinedFeed(deps.edition, read, effective, deps.sources, (deps.now ?? (() => new Date().toISOString()))(), { subjectPhotos, habitatPhotos }));
     }
     catch { res.status(503).json({ error: 'Stories are temporarily unavailable.' }); }
   };

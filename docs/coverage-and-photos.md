@@ -12,11 +12,15 @@ Two deterioration headlines exposed by the wider intake are regression cases. Th
 
 ## Photos
 
-Nine checked Wikimedia Commons photos are bundled locally. Known supported locations receive location photos; other cards receive explicit subject illustrations. Neither is represented as an image of the reported event. Cards show that distinction, source credit and linked license. Broken images fall back to category artwork. No live browser request goes to an image vendor, and no paid generation or image API is used.
+Thirteen checked Wikimedia Commons photos are bundled locally (nine at first, four habitat photos added October 24, 2026). Known supported locations receive location photos; other cards receive explicit subject illustrations. Neither is represented as an image of the reported event. Cards show that distinction, source credit and linked license. Broken images fall back to category artwork. No live browser request goes to an image vendor, and no paid generation or image API is used.
 
 Only catalogued local asset paths with matching alt text, credit and catalog ID satisfy the public card validator. Untrusted feed image URLs remain blocked. Extending the catalog requires checking the file's license and caption. Source reporting and photo licenses are separate. Commons thumbnail renditions are resized; CSS may crop their display. The forest image remains available under CC BY-SA 4.0; the MIT code license does not replace asset licenses.
 
 See `/ASSETS.md` for sources. Snapshot and lock paths are now scoped to the screening-policy version so a preview collection does not replace the previous production policy's data. Old policy objects remain private and are no longer used by the new build.
+
+## Habitat photos (subjects-v2)
+
+The current frontend now requests `?photos=subjects-v2`. That profile includes everything in subjects-v1 and adds four more checked photos, chosen by a word in the headline: mangrove (mangrove), seabird (seabird, albatross, shearwater, petrel, puffin), elephant (elephant) and reef-fish (coral, reef, seagrass, marine, ocean, deep sea). The word lists are checked in this order after the animal subjects of v1 and before the rover, Moon and generic photos. A page that asks for subjects-v1 or nothing never receives these ids. The profile changes only the picture: eligibility, story ids, versions, the manifest and collection behavior are the same. Species guard (General Counsel, October 24, 2026): the elephant photo shows African savanna elephants, so a headline that names another kind (Asian, Asiatic, Indian, Sri Lankan, Sumatran, Bornean, pygmy or forest elephants) gets the default art instead. Sources and licenses are in `/ASSETS.md`.
 
 ## Subject-photo compatibility
 

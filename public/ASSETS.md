@@ -102,3 +102,14 @@ These are animal subject photos, with no claim to depict the reported individual
 - `assets/stories/leopard-cat.jpg`: Mike Prince from Bangalore, India, [original file](https://commons.wikimedia.org/wiki/File:Leopard_Cat_(14839635578).jpg), [CC BY 2.0](https://creativecommons.org/licenses/by/2.0/).
 - `assets/stories/giraffe.jpg`: Giles Laurent, [original file](https://commons.wikimedia.org/wiki/File:106_Angolan_giraffe_walking_in_the_Kalahari_Desert_of_Namibia_Photo_by_Giles_Laurent.jpg), [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/).
 - `assets/stories/cattle.jpg`: arboresce, [original file](https://commons.wikimedia.org/wiki/File:Nguni_Cows.jpg), [CC BY-SA 2.0](https://creativecommons.org/licenses/by-sa/2.0/).
+
+## Habitat and wildlife subject illustrations (subjects-v2)
+
+These are subject photos, with no claim to depict the reported places, animals or events. Each is a 330 by 220 pixel crop of the Commons file's 1,280 pixel version, so the cards say the thumbnail is resized and may be cropped. The license was read on the file page on October 24, 2026.
+
+- `assets/stories/mangrove.jpg`: Jonathan Wilkins, [original file](https://commons.wikimedia.org/wiki/File:Detail_of_mangrove_roots.jpg), [CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0/).
+- `assets/stories/reef-fish.jpg`: Dr. Dwayne Meadows, NOAA/NMFS/OPR, [original file](https://commons.wikimedia.org/wiki/File:Chaetodon_vagabundus.jpg), public domain (work of a U.S. government employee).
+- `assets/stories/seabird.jpg`: JJ Harrison, [original file](https://commons.wikimedia.org/wiki/File:Puffinus_griseus_in_flight_-_SE_Tasmania.jpg), [CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0/).
+- `assets/stories/elephant.jpg`: Gorgo, [original file](https://commons.wikimedia.org/wiki/File:African_Bush_Elephants.jpg), public domain (released by the author).
+
+The cropped versions of the mangrove and shearwater photos are shared under CC BY-SA 3.0, the same license as the originals. They aren't covered by the project's MIT License.
