@@ -61,7 +61,21 @@
     {"id": "nasa-813711696cd81a60554dd3e0", "approvedAt": "2026-10-22", "approvedBy": "Alex"},
     {"id": "nasa-b4310e6ca41665911096bbed", "approvedAt": "2026-10-22", "approvedBy": "Alex"},
     {"id": "nsf-053fd0b7f05650b5201ccfcc", "approvedAt": "2026-10-22", "approvedBy": "Alex"},
-    {"id": "nsf-63bdbcb865b29ff9e94faa7b", "approvedAt": "2026-10-22", "approvedBy": "Alex"}
+    {"id": "nsf-63bdbcb865b29ff9e94faa7b", "approvedAt": "2026-10-22", "approvedBy": "Alex"},
+    {"id": "mongabay-6fbe15470ff91d616f1f2f9a", "approvedAt": "2026-10-23", "approvedBy": "Alex"},
+    {"id": "mongabay-upbeat-6fbe15470ff91d616f1f2f9a", "approvedAt": "2026-10-23", "approvedBy": "Alex"},
+    {"id": "globalvoices-dbc8ea5ed228a00e24fe0a2a", "approvedAt": "2026-10-23", "approvedBy": "Alex"},
+    {"id": "globalvoices-main-dbc8ea5ed228a00e24fe0a2a", "approvedAt": "2026-10-23", "approvedBy": "Alex"},
+    {"id": "globalvoices-featured-dbc8ea5ed228a00e24fe0a2a", "approvedAt": "2026-10-23", "approvedBy": "Alex"},
+    {"id": "globalvoices-africa-dbc8ea5ed228a00e24fe0a2a", "approvedAt": "2026-10-23", "approvedBy": "Alex"},
+    {"id": "nasa-b0849f04c9f3097c024436bd", "approvedAt": "2026-10-23", "approvedBy": "Alex"},
+    {"id": "globalvoices-79040310003837203a331c70", "approvedAt": "2026-10-23", "approvedBy": "Alex"},
+    {"id": "globalvoices-main-79040310003837203a331c70", "approvedAt": "2026-10-23", "approvedBy": "Alex"},
+    {"id": "globalvoices-featured-79040310003837203a331c70", "approvedAt": "2026-10-23", "approvedBy": "Alex"},
+    {"id": "globalvoices-africa-79040310003837203a331c70", "approvedAt": "2026-10-23", "approvedBy": "Alex"},
+    {"id": "nasa-9e94dc14396e553b1da26f39", "approvedAt": "2026-10-23", "approvedBy": "Alex"},
+    {"id": "nasa-78a0ff249a66802c1204d926", "approvedAt": "2026-10-23", "approvedBy": "Alex"},
+    {"id": "nasa-960268508750b6c65e3ce821", "approvedAt": "2026-10-23", "approvedBy": "Alex"}
   ],
   "screeningLogUntil": "2026-10-20",
   "notes": "Automatic publisher headlines, dated within 30 days. Only supported, approximate Earth locations receive pins. RSS and bounded public publisher metadata are collected daily; visitor refresh never crawls. Withdrawals and source switches remain enforced."

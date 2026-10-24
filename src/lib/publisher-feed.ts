@@ -45,6 +45,15 @@ export interface PublisherFeedPermission {
   archiveAllowed?: boolean;
   /** One plain sentence on how long public listing and the private archive keep this source's stories. */
   retentionNote?: string;
+  /**
+   * Label-only mode (General Counsel, October 23, 2026): the source is collected and screened exactly like any other and its results go to the
+   * private teaching batch with the decision and reason codes, but nothing from it is ever public, whatever the decision, and a pick for it is
+   * refused. A new source starts here for at least 14 days. Only an absent value or exactly false means public. There is no automatic exit and no date that ends it:
+   * turning it off is a committed change that needs the General Counsel's look and Alex's exact "Merge it".
+   */
+  labelOnly?: boolean;
+  /** UTC date (YYYY-MM-DD) the source entered label-only mode. Record only; it never switches anything. */
+  labelOnlySince?: string;
   retentionDays: number;
   licenseOrTerms: string; policyUrl: string; checkedAt: string;
   permittedFields: string[]; attribution: string; exceptions: string; notes?: string;
@@ -59,6 +68,12 @@ export interface PublisherFeedPermission {
   license?: { name: string; url: string };
   blockedCredits?: string[];
 }
+/**
+ * True unless `labelOnly` is absent or exactly false. A value that is present but malformed (the string "true", 1, null) therefore still keeps
+ * the source private: a typo can hold a source back but can never make a label-only source public.
+ */
+export const isLabelOnly = (permission: { labelOnly?: unknown } | undefined | null): boolean =>
+  !!permission && permission.labelOnly !== undefined && permission.labelOnly !== false;
 export interface PublisherSource {
   id: string; displayName: string; domains: string[]; enabled: boolean;
   publisherFeed?: PublisherFeedPermission;
@@ -95,6 +110,8 @@ export interface PublisherItem {
 export interface SourceRun {
   status: 'ok' | 'failed' | 'disabled'; checkedAt: string; lastSuccessAt: string | null;
   parsed: number; listed: number; carried: number; excluded: Record<string, number>; code?: string;
+  /** Items from a label-only source: screened and sent to the private teaching batch, never public. Counted apart from `listed`. */
+  labelOnly?: number;
 }
 /** shown=false means the second item was hidden from the public list; shown=true is a proposal for maintainer review only. */
 export interface DuplicateProposal { kept: string; suppressed: string; similarity: number; basis: 'same_url' | 'headline_similarity'; shown: boolean }
@@ -145,6 +162,8 @@ export function projectPublisherFeed(snapshot: PublisherSnapshot | null, control
       const url = canonicalUrl(item.url);
       if (withdrawnMatch(control, { id: item.id, url: url ?? item.url })) { statuses[item.id] = { version: item.version, status: 'withdrawn' }; continue; }
       if (!source || !source.enabled || !permission?.enabled || !url || url !== item.url || !source.domains.includes(new URL(url).hostname)) continue;
+      // Label-only sources are never public, even if an older stored snapshot still holds a row from one.
+      if (isLabelOnly(permission)) continue;
       const author = typeof item.author === 'string' ? item.author.trim() : '';
       if (permission.requiresAuthor && (!author || author.length > 500 || !permission.license || !canonicalUrl(permission.license.url))) continue;
       if (permission.blockedCredits?.some(credit => author.toLowerCase().includes(credit.toLowerCase()))) continue;

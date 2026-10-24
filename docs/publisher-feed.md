@@ -295,6 +295,26 @@ Alex gave the go for a one-time pull under the General Counsel's conditions. Wha
 
 The reader opens on stories PositiviTV first collected in the last 7 days. A "Previous positive stories" button shows everything still inside the 30-day window. Opening a story marks it read in that browser only (`positivitv.read.v1` in local storage, capped and pruned after 120 days); its pin dims at once and stays on the globe (an earlier version removed read pins after the next daily update; that was changed because the globe then looked empty after a few days of testing). Read stories stay in the list, after unread ones, labelled "Read". The Privacy panel explains this and offers "Clear reading history". Nothing about reading is sent to a server, and each device keeps its own history. A screening-policy version change starts a fresh snapshot, so every story then counts as newly collected for 7 days; read state is kept because story IDs do not change.
 
+## Permanent stricter-only check (General Counsel condition, October 23, 2026; draft pending licensed attorney review)
+
+Every screening-policy change must be shown to be stricter only, and not just once. `scripts/check-stricter-only.mjs` runs the screening rules from two checkouts (the old policy and the new one) over every saved labelled story and asserts two things: no story is listed by the new policy unless the old policy listed it, and no story is pickable under the new policy unless it was pickable under the old one (pickable means held back only for the reasons a person's pick may override). It exits with code 1 if either fails.
+
+The labelled sets hold publisher text, so they never enter this repository. The script refuses to read from anywhere inside it, takes the folder as an argument, and prints counts only: stories checked, stories skipped for having no headline, loosened (must be 0), pick-loosened (must be 0), newly held back and newly given a reason by label, and picks lost. It never prints a headline, description, link, story code or reason code, and it has no network, file-writing or logging path. `tests/app/stricter-only-check.test.mjs` proves each of these with synthetic data.
+
+How it is run: a manually triggered workflow in the private teaching repository (not in this one, so no secret or private text sits here) checks out the public repository twice, at the old and the new reference, downloads the saved labelled sets from the private releases, and runs the script. It reads only; it needs no write permission. Because it executes the rules from the reference under test, it is dispatched only for references the Security Lead has already reviewed. The archive files for October 21 and 22 are the first sets; the October 16 set is not saved in the archive. October 16, 21 and 22 remain development data and never count toward approving a story type.
+
+## Label-only mode (General Counsel, October 23, 2026; draft pending licensed attorney review)
+
+A source in label-only mode is collected and screened exactly like any other, and every screened story goes to the private teaching batch with its decision and reason codes. Nothing from it is ever public, whatever the decision. A new source starts in this mode for at least 14 days, so Alex can learn how the rules treat it before it can reach the globe.
+
+How it works:
+
+- The switch is `labelOnly` in the source's `publisherFeed` record in `config/feeds.json`, with `labelOnlySince` (YYYY-MM-DD, a record only). Only an absent value or exactly `false` means public. Any other value, including a typo such as the string "true", keeps the source private (`isLabelOnly` in `src/lib/publisher-feed.ts`), so a mistake can hold a source back but can never make a label-only source public.
+- The snapshot builder sends the story to the teaching batch and then stops: a label-only story never enters the stored snapshot, previously stored items from the source are not carried, and a person's pick for it is never looked at. The public projection also drops every row from a label-only source, so an older stored snapshot cannot leak one.
+- The run report counts these stories on their own line (`labelOnly`), apart from `listed` and `notListed`, and does not add their reasons to the held-back counts. Counts only.
+- There is no automatic exit and no date that ends the mode. Leaving it is a committed change to the source's record that needs the General Counsel's look and Alex's exact "Merge it".
+- No source is label-only yet. `tests/app/label-only.test.mjs` covers the behaviour and checks that every label-only source in `config/feeds.json` records its start date.
+
 ## Picked by PositiviTV (person-approved list, policy 0.5.0)
 
 General Counsel ruling, October 21, 2026: a person may choose individual publisher-feed stories that the automatic rules held back only for a mild reason. Such a story is labelled "Picked by PositiviTV · From publisher feeds". It is never labelled "Reviewed", because nobody fact-checks it and its event date is not confirmed.
@@ -309,6 +329,12 @@ How it works:
 - The label explanation on the card reads: "A person at PositiviTV chose this story from a publisher feed. It isn't fact-checked, and its event date isn't confirmed." The About dialog and the Terms panel carry the General Counsel's wording.
 
 Deploy note: the policy version moved to 0.5.0, so the private snapshot path moved with it. Publisher cards disappear after the deploy until the next scheduled run (about 10:54 UTC) rebuilds the snapshot, unless the refresh is run by hand from the Vercel Cron Jobs page.
+
+### Picks log
+
+- 2026-10-23: PR #51 added 31 picks (57 entries) from the October 22 sorting, approved by Alex, reviewed by GC.
+- 2026-10-24: PR #55 added 7 picks (14 entries) from the October 23 sorting, approved by Alex, reviewed by GC.
+- 2026-10-24: Pick for the South Sudan giraffe story removed by policy 0.6.0 (CONFLICT hard ban). Not an exception. Kept only if Alex publishes it through the reviewed edition.
 
 ## Policy 0.6.0 (stricter only)
 

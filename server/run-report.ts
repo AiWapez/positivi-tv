@@ -10,7 +10,10 @@ const COLLECTION_WORDS = { ok: 'collected', failed: 'not reached', disabled: 'sw
 export interface SourceCounts {
   collection: 'collected' | 'not reached' | 'switched off';
   checkedAt: string; lastCollectedAt: string | null;
-  candidates: number; listed: number; carried: number; notListed: number;
+  candidates: number; listed: number; carried: number;
+  /** Items kept private for labelling only (label-only mode). Never mixed with `listed` or `notListed`. */
+  labelOnly: number;
+  notListed: number;
   /** How often each reason held a story back. One story can have several reasons, so these can add up to more than notListed. */
   heldBackReasons: Record<string, number>;
 }
@@ -38,12 +41,12 @@ export function buildRunReport(read: SnapshotRead, control: PublisherFeedControl
     if (!/^[a-z0-9-]{1,64}$/.test(id) || !run || typeof run !== 'object') continue;
     const reasons: Record<string, number> = {};
     for (const [code, n] of Object.entries(run.excluded ?? {})) if (/^[A-Z_]{1,64}$/.test(code)) reasons[code] = count(n);
-    const candidates = count(run.parsed), listed = count(run.listed);
+    const candidates = count(run.parsed), listed = count(run.listed), labelOnly = count(run.labelOnly);
     out[id] = {
       collection: COLLECTION_WORDS[run.status] ?? 'not reached',
       checkedAt: typeof run.checkedAt === 'string' ? run.checkedAt : '',
       lastCollectedAt: typeof run.lastSuccessAt === 'string' ? run.lastSuccessAt : null,
-      candidates, listed, carried: count(run.carried), notListed: Math.max(0, candidates - listed), heldBackReasons: reasons,
+      candidates, listed, carried: count(run.carried), labelOnly, notListed: Math.max(0, candidates - listed - labelOnly), heldBackReasons: reasons,
     };
   }
   // Only sources the last run itself recorded as switched off, so a publisher we never used is never named here.
