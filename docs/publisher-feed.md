@@ -317,3 +317,8 @@ How it works:
 - The label explanation on the card reads: "A person at PositiviTV chose this story from a publisher feed. It isn't fact-checked, and its event date isn't confirmed." The About dialog and the Terms panel carry the General Counsel's wording.
 
 Deploy note: the policy version moved to 0.5.0, so the private snapshot path moved with it. Publisher cards disappear after the deploy until the next scheduled run (about 10:54 UTC) rebuilds the snapshot, unless the refresh is run by hand from the Vercel Cron Jobs page.
+
+### Picks log
+
+- 2026-10-23: PR #51 added 31 picks (57 entries) from the October 22 sorting, approved by Alex, reviewed by GC.
+- 2026-10-24: PR #55 added 7 picks (14 entries) from the October 23 sorting, approved by Alex, reviewed by GC.
