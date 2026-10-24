@@ -67,16 +67,20 @@ test('only an absent value or exactly false is public; a malformed value stays p
   assert.equal(run(labelOnlySources('true'), { alpha: [alpha('a1', GOOD)] }).snapshot.items.length, 0);
 });
 
-test('the run report counts label-only items on their own line, never as listed or not listed', () => {
+test('the run report never names a label-only source: one neutral count, no per-source numbers', () => {
   const { snapshot } = run(labelOnlySources(), { alpha: [alpha('a1', GOOD), alpha('a2', BAD)], beta: [candidate('beta', 'b1', 'Rover sets record drive')] });
   const report = buildRunReport({ snapshot, status: 'ok' }, control(), labelOnlySources());
-  assert.equal(report.sources.alpha.labelOnly, 2);
-  assert.equal(report.sources.alpha.listed, 0);
-  assert.equal(report.sources.alpha.notListed, 0, 'label-only items are not counted as held back');
-  assert.deepEqual(report.sources.alpha.heldBackReasons, {});
-  assert.equal(report.sources.beta.labelOnly, 0);
+  assert.equal(report.sourcesInTesting, 1);
+  assert.equal('alpha' in report.sources, false, 'the source in testing is not named');
   assert.equal(report.sources.beta.listed, 1);
-  assert(!JSON.stringify(report).includes('wetland') && !JSON.stringify(report).includes('http'), 'counts only');
+  assert.equal('labelOnly' in report.sources.beta, false, 'no per-source label-only line');
+  assert(!report.paused.sources.includes('alpha'));
+  const text = JSON.stringify(report);
+  assert(!text.includes('alpha') && !text.includes('wetland') && !text.includes('http'), 'no name, no text, no link');
+  // Once the source leaves the mode it is named again, with its ordinary counts.
+  const left = buildRunReport({ snapshot: run(labelOnlySources(false), { alpha: [alpha('a1', GOOD)] }).snapshot, status: 'ok' }, control(), labelOnlySources(false));
+  assert.equal(left.sourcesInTesting, 0);
+  assert.equal(left.sources.alpha.listed, 1);
 });
 
 test('every source in the live config that is label-only records the date it entered the mode', async () => {
