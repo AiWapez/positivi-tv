@@ -6,7 +6,7 @@ import { buildFeed, validPublicStory } from './publication.ts';
 import type { ManifestEntry, Publication, PublishedStory } from './publication.ts';
 
 /** Version of the automatic screening rules. A snapshot made under another version is not served. */
-export const PUBLISHER_FEED_POLICY = 'publisher-feed-0.5.0';
+export const PUBLISHER_FEED_POLICY = 'publisher-feed-0.6.0';
 
 /**
  * The only reasons a person's pick may override (General Counsel ruling, October 21, 2026). Every other reason is a hard ban that
