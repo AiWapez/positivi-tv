@@ -1,4 +1,4 @@
-import { PUBLISHER_FEED_POLICY, validSnapshot } from '../src/lib/publisher-feed.ts';
+import { PUBLISHER_FEED_POLICY, isLabelOnly, validSnapshot } from '../src/lib/publisher-feed.ts';
 import type { PublisherFeedControl, PublisherSources, SnapshotRead } from '../src/lib/publisher-feed.ts';
 
 /** Wording approved by General Counsel (draft ruling of October 19, 2026). */
@@ -11,8 +11,6 @@ export interface SourceCounts {
   collection: 'collected' | 'not reached' | 'switched off';
   checkedAt: string; lastCollectedAt: string | null;
   candidates: number; listed: number; carried: number;
-  /** Items kept private for labelling only (label-only mode). Never mixed with `listed` or `notListed`. */
-  labelOnly: number;
   notListed: number;
   /** How often each reason held a story back. One story can have several reasons, so these can add up to more than notListed. */
   heldBackReasons: Record<string, number>;
@@ -22,6 +20,8 @@ export interface RunReport {
   lane: 'on' | 'switched off' | 'no run yet';
   generatedAt: string | null;
   sources: Record<string, SourceCounts>;
+  /** How many sources are in label-only testing right now. A number only: no names and no per-source counts (General Counsel ruling, October 24, 2026). */
+  sourcesInTesting: number;
   paused: { lane: boolean; sources: string[]; storyTypes: string[] };
 }
 
@@ -31,14 +31,17 @@ const count = (n: unknown) => (Number.isInteger(n) && (n as number) >= 0 ? (n as
  * Counts only. No headlines, descriptions, links, story ids, visitor data or IP addresses, and no error text
  * from the collector (which could name a host or path). Built from the stored snapshot the daily run already writes.
  */
-export function buildRunReport(read: SnapshotRead, control: PublisherFeedControl, _sources: PublisherSources): RunReport {
+export function buildRunReport(read: SnapshotRead, control: PublisherFeedControl, sources: PublisherSources): RunReport {
   const base = { note: RUN_REPORT_NOTE, policy: PUBLISHER_FEED_POLICY, paused: { lane: !control.enabled, sources: [] as string[], storyTypes: [] as string[] } };
   const snapshot = read.snapshot;
-  if (!control.enabled) return { ...base, lane: 'switched off', generatedAt: null, sources: {} };
-  if (!snapshot || !validSnapshot(snapshot) || snapshot.policy !== PUBLISHER_FEED_POLICY) return { ...base, lane: 'no run yet', generatedAt: null, sources: {} };
+  if (!control.enabled) return { ...base, lane: 'switched off', generatedAt: null, sources: {}, sourcesInTesting: 0 };
+  if (!snapshot || !validSnapshot(snapshot) || snapshot.policy !== PUBLISHER_FEED_POLICY) return { ...base, lane: 'no run yet', generatedAt: null, sources: {}, sourcesInTesting: 0 };
   const out: Record<string, SourceCounts> = {};
+  let inTesting = 0;
   for (const [id, run] of Object.entries(snapshot.sources)) {
     if (!/^[a-z0-9-]{1,64}$/.test(id) || !run || typeof run !== 'object') continue;
+    // A source in label-only mode is never named: it is counted once in `sourcesInTesting` and skipped. It is named after it leaves the mode.
+    if (isLabelOnly(sources[id]?.publisherFeed) || count(run.labelOnly) > 0) { inTesting++; continue; }
     const reasons: Record<string, number> = {};
     for (const [code, n] of Object.entries(run.excluded ?? {})) if (/^[A-Z_]{1,64}$/.test(code)) reasons[code] = count(n);
     const candidates = count(run.parsed), listed = count(run.listed), labelOnly = count(run.labelOnly);
@@ -46,10 +49,10 @@ export function buildRunReport(read: SnapshotRead, control: PublisherFeedControl
       collection: COLLECTION_WORDS[run.status] ?? 'not reached',
       checkedAt: typeof run.checkedAt === 'string' ? run.checkedAt : '',
       lastCollectedAt: typeof run.lastSuccessAt === 'string' ? run.lastSuccessAt : null,
-      candidates, listed, carried: count(run.carried), labelOnly, notListed: Math.max(0, candidates - listed - labelOnly), heldBackReasons: reasons,
+      candidates, listed, carried: count(run.carried), notListed: Math.max(0, candidates - listed - labelOnly), heldBackReasons: reasons,
     };
   }
   // Only sources the last run itself recorded as switched off, so a publisher we never used is never named here.
   const pausedSources = Object.entries(out).filter(([, c]) => c.collection === 'switched off').map(([id]) => id).sort();
-  return { ...base, lane: 'on', generatedAt: snapshot.generatedAt, sources: out, paused: { ...base.paused, sources: pausedSources } };
+  return { ...base, lane: 'on', generatedAt: snapshot.generatedAt, sources: out, sourcesInTesting: inTesting, paused: { ...base.paused, sources: pausedSources } };
 }

@@ -311,7 +311,7 @@ How it works:
 
 - The switch is `labelOnly` in the source's `publisherFeed` record in `config/feeds.json`, with `labelOnlySince` (YYYY-MM-DD, a record only). Only an absent value or exactly `false` means public. Any other value, including a typo such as the string "true", keeps the source private (`isLabelOnly` in `src/lib/publisher-feed.ts`), so a mistake can hold a source back but can never make a label-only source public.
 - The snapshot builder sends the story to the teaching batch and then stops: a label-only story never enters the stored snapshot, previously stored items from the source are not carried, and a person's pick for it is never looked at. The public projection also drops every row from a label-only source, so an older stored snapshot cannot leak one.
-- The run report counts these stories on their own line (`labelOnly`), apart from `listed` and `notListed`, and does not add their reasons to the held-back counts. Counts only.
+- The public run report does not name a source in label-only mode and gives no per-source numbers for it. It shows one neutral number, `sourcesInTesting`, and the source is named only after it leaves the mode (General Counsel ruling, October 24, 2026; draft pending licensed attorney review). The label-only stories are never added to `listed` or `notListed`, and their reasons are not added to the held-back counts.
 - There is no automatic exit and no date that ends the mode. Leaving it is a committed change to the source's record that needs the General Counsel's look and Alex's exact "Merge it".
 - No source is label-only yet. `tests/app/label-only.test.mjs` covers the behaviour and checks that every label-only source in `config/feeds.json` records its start date.
 
