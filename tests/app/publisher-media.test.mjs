@@ -77,6 +77,16 @@ test('subject photo selection differentiates animal stories while keeping the or
  for(const title of ['Elephant herd returns to Kenya park','Bison herds roam the prairie again','Sea cows return to Florida springs'])assert.notEqual(photoForStory({title,category:'Planet'}).id,'cattle',title);
  assert.equal(photoForStory({title:'Dairy cows graze restored pasture',category:'Planet'}).id,'cattle');
 });
+test('habitat photos (subjects-v2) are chosen by headline word and never sent to the older profiles',()=>{
+ for(const [title,id] of [['Artificial mangrove roots offer a stopgap for Thailand\u2019s eroding coastline','mangrove'],['Googly-eyed buoys and kites help keep seabirds out of fishing nets','seabird'],['Elephant herd returns to Kenya park','elephant'],['Belize looks to the deep sea to complete its 30% ocean protection pledge','reef-fish'],['Seagrass meadows may offer a more nutritious catch than reefs','reef-fish']]){
+  const story={title,category:'Planet'};assert.equal(photoForStory(story,true,true).id,id,title);assert.notEqual(photoForStory(story,true,false).id,id,title);assert.notEqual(photoForStory(story,false,false).id,id,title);
+ }
+ // The animal subjects of v1 and the place photos keep priority, and unrelated headlines keep the generic photos.
+ assert.equal(photoForStory({title:'Rescued leopard cats return to mangrove forest',category:'Planet'},true,true).id,'leopard-cat');
+ assert.equal(photoForStory({title:'Town opens community garden',category:'Planet'},true,true).id,'forest');
+ assert.equal(photoForStory({title:'New telescope maps nearby galaxies',category:'Science'},true,true).id,'space');
+ for(const id of ['mangrove','reef-fish','seabird','elephant']){const photo=STORY_PHOTOS.find(p=>p.id===id);assert(photo,id);assert.equal(validStoryImage({...photoFields(photo),imageAlt:photo.alt}),true,id);}
+});
 test('the subject-photo API profile changes only presentation, preserves the manifest, and reads no external feed',async()=>{
  const {createStoriesHandler}=await import('../../api/stories.ts');const ss=sources(),settings=control({locationResolver:'supported_feed'});
  const snap=buildSnapshot(null,[{sourceId:'alpha',ok:true,candidates:[candidate('alpha','herd','Volunteers protect livestock in Zimbabwe')]}],ss,settings,NOW);
@@ -84,6 +94,7 @@ test('the subject-photo API profile changes only presentation, preserves the man
  const run=async(url)=>{let status,data;const res={setHeader(){},status(n){status=n;return res},json(value){data=value}};await handler({method:'GET',url},res);assert.equal(status,200);return data};
  const base=await run('/api/stories'),rich=await run('/api/stories?photos=subjects-v1&t=whatever'),unknown=await run('/api/stories?photos=unknown');
  assert.equal(base.stories[0].imageContext,'forest');assert.equal(rich.stories[0].imageContext,'cattle');assert.equal(unknown.stories[0].imageContext,'forest');assert.equal(reads,3);
+ const habitat=await run('/api/stories?photos=subjects-v2');assert.equal(habitat.stories[0].imageContext,'cattle');assert.deepEqual(base.manifest,habitat.manifest);
  assert.deepEqual(base.manifest,rich.manifest);assert.equal(base.revision,rich.revision);assert.equal(base.stories[0].id,rich.stories[0].id);assert.equal(base.stories[0].version,rich.stories[0].version);
 });
 test('trafficked animals awaiting a return are not a completed rescue or reunion',()=>{
