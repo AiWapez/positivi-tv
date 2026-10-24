@@ -111,3 +111,5 @@ These are subject photos, with no claim to depict the reported places, animals o
 - `assets/stories/reef-fish.jpg`: Dr. Dwayne Meadows, NOAA/NMFS/OPR, [original file](https://commons.wikimedia.org/wiki/File:Chaetodon_vagabundus.jpg), public domain (work of a U.S. government employee).
 - `assets/stories/seabird.jpg`: JJ Harrison, [original file](https://commons.wikimedia.org/wiki/File:Puffinus_griseus_in_flight_-_SE_Tasmania.jpg), [CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0/).
 - `assets/stories/elephant.jpg`: Gorgo, [original file](https://commons.wikimedia.org/wiki/File:African_Bush_Elephants.jpg), public domain (released by the author).
+
+The cropped versions of the mangrove and shearwater photos are shared under CC BY-SA 3.0, the same license as the originals. They aren't covered by the project's MIT License.

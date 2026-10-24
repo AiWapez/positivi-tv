@@ -29,7 +29,8 @@ export function photoForStory(story: Pick<Story,'title'|'category'|'mapArea'>, s
     : subjectPhotos && /\b(?:livestock|cattle)\b|(?<!\bsea )\bcows?\b/i.test(story.title) ? 'cattle'
     : habitatPhotos && /\bmangroves?\b/i.test(story.title) ? 'mangrove'
     : habitatPhotos && /\b(?:seabirds?|albatross(?:es)?|shearwaters?|petrels?|puffins?)\b/i.test(story.title) ? 'seabird'
-    : habitatPhotos && /\belephants?\b/i.test(story.title) ? 'elephant'
+    // Species guard (General Counsel, October 24, 2026): the photo shows African savanna elephants, so a headline that names another kind gets the default art.
+    : habitatPhotos && /\belephants?\b/i.test(story.title) && !/\b(?:asian|asiatic|indian|sri[- ]lankan|sumatran|born(?:e)?an|borneo|pygmy|forest)\s+elephants?\b/i.test(story.title) ? 'elephant'
     : habitatPhotos && /\b(?:coral|reefs?|seagrass|marine|ocean|deep[- ]sea)\b/i.test(story.title) ? 'reef-fish'
     : /\b(?:Perseverance|rovers?|Mars)\b/i.test(story.title) ? 'rover' : /\b(?:Moon|lunar)\b/i.test(story.title) ? 'moon'
     : story.category === 'Science' ? 'space' : 'forest';

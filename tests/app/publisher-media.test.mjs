@@ -87,6 +87,13 @@ test('habitat photos (subjects-v2) are chosen by headline word and never sent to
  assert.equal(photoForStory({title:'New telescope maps nearby galaxies',category:'Science'},true,true).id,'space');
  for(const id of ['mangrove','reef-fish','seabird','elephant']){const photo=STORY_PHOTOS.find(p=>p.id===id);assert(photo,id);assert.equal(validStoryImage({...photoFields(photo),imageAlt:photo.alt}),true,id);}
 });
+test('species guard: the African elephant photo is never shown on a headline that names another kind of elephant',()=>{
+ for(const title of ['Asian elephants return to Thai forest','Rescued Asian elephant calf rejoins herd','Sumatran elephants gain new reserve','Sri Lankan elephants cross a safe new corridor','Indian elephant herd protected by villagers','Borneo pygmy elephants thrive in new habitat','Forest elephants recover in Gabon']){
+  const story={title,category:'Planet'};assert.notEqual(photoForStory(story,true,true).id,'elephant',title);assert.equal(photoForStory(story,true,true).id,'forest',title+' gets the default art');
+ }
+ for(const title of ['African elephants gain new protected corridor','Elephant herd returns to Kenya park','Elephants return to Gorongosa'])assert.equal(photoForStory({title,category:'Planet'},true,true).id,'elephant',title);
+ assert.equal(photoForStory({title:'Asian elephants return to Thai forest',category:'Science'},true,true).id,'space','a Science card keeps the Science art');
+});
 test('the subject-photo API profile changes only presentation, preserves the manifest, and reads no external feed',async()=>{
  const {createStoriesHandler}=await import('../../api/stories.ts');const ss=sources(),settings=control({locationResolver:'supported_feed'});
  const snap=buildSnapshot(null,[{sourceId:'alpha',ok:true,candidates:[candidate('alpha','herd','Volunteers protect livestock in Zimbabwe')]}],ss,settings,NOW);
