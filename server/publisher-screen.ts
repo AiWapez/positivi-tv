@@ -211,9 +211,13 @@ export function screenHeadline(input: ScreenInput): ScreenResult {
   // The negative side reads the hyphen-split copy; the recovery side never does, so this stays stricter only.
   if (hits(CONTEXT_NEGATIVE, title) && !RECOVERY.test(title)) reasons.push('NEGATIVE_WITHOUT_RECOVERY');
   if (/\b(?:face[sd]? (?:a )?long road (?:back|home)|await(?:s|ing)? (?:rescue|release|reunion))\b/i.test(title)) reasons.push('UNRESOLVED_OUTCOME');
-  if (hits(INTENT, title) || hits(MAY, title) || MONEY.test(title)) reasons.push('PLAN_OR_UNCERTAIN');
-  else if (hits(IN_PROGRESS, title)) reasons.push('IN_PROGRESS_NOT_OUTCOME');
-  else if (!COMPLETED.test(title)) reasons.push('NO_COMPLETED_OUTCOME');
+  // IN_PROGRESS_NOT_OUTCOME is a hard ban that a pick cannot lift, so it is tested on its own line and is always added when it matches.
+  // A headline with both an intent word and an in-progress word therefore carries both reasons. NO_COMPLETED_OUTCOME stays for when neither matches.
+  const planOrUncertain = hits(INTENT, title) || hits(MAY, title) || MONEY.test(title);
+  const inProgress = hits(IN_PROGRESS, title);
+  if (planOrUncertain) reasons.push('PLAN_OR_UNCERTAIN');
+  if (inProgress) reasons.push('IN_PROGRESS_NOT_OUTCOME');
+  if (!planOrUncertain && !inProgress && !COMPLETED.test(title)) reasons.push('NO_COMPLETED_OUTCOME');
   const { labels, category } = listingFields(input);
   return reasons.length ? { decision: 'exclude', reasons, labels: [], category: null } : { decision: 'list', reasons: [], labels, category };
 }

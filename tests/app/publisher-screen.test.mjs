@@ -2,6 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { screenHeadline } from '../../server/publisher-screen.ts';
 import { countryFromHeadline } from '../../server/publisher-location.ts';
+import { PICK_OVERRIDABLE_REASONS } from '../../src/lib/publisher-feed.ts';
 import { NOW } from './publisher-fixtures.mjs';
 const screen = (title, description = '', defaultCategory = 'auto') => screenHeadline({ title, description, defaultCategory, now: NOW });
 
@@ -43,6 +44,19 @@ test('plans, intentions and work in progress are not presented as outcomes', () 
     assert(r.reasons.some(x => ['PLAN_OR_UNCERTAIN', 'IN_PROGRESS_NOT_OUTCOME'].includes(x)), `${title}: ${r.reasons}`);
   }
   assert.equal(screen('Thoughts on community gardens').reasons.includes('NO_COMPLETED_OUTCOME'), true);
+});
+
+test('a headline with both an intent word and an in-progress word carries both reasons, so a pick cannot lift it', () => {
+  for (const title of ['City will open park as construction begins', 'Town plans new library while work is underway', 'Pilot project aims to plant a million trees']) {
+    const r = screen(title); assert.equal(r.decision, 'exclude', title);
+    assert(r.reasons.includes('PLAN_OR_UNCERTAIN'), `${title}: ${r.reasons}`);
+    assert(r.reasons.includes('IN_PROGRESS_NOT_OUTCOME'), `${title}: ${r.reasons}`);
+    assert.equal(r.reasons.includes('NO_COMPLETED_OUTCOME'), false, `${title}: ${r.reasons}`);
+    assert.equal(r.reasons.every(x => PICK_OVERRIDABLE_REASONS.includes(x)), false, `${title}: a pick could lift this`);
+  }
+  // Intent alone and in-progress alone keep their single reasons.
+  assert.deepEqual(screen('City will open park next year').reasons, ['PLAN_OR_UNCERTAIN']);
+  assert.deepEqual(screen('Construction begins on community solar farm').reasons, ['IN_PROGRESS_NOT_OUTCOME']);
 });
 
 test('research is listed only with a visible research label', () => {
