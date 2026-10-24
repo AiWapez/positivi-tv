@@ -5,7 +5,7 @@ import { locateFeedOutcome } from './feed-location.ts';
 import { combinePlaces, resolvePublisherPlace } from './publisher-place.ts';
 import type { PlaceTags } from './publisher-place.ts';
 import { canonicalUrl } from '../src/goodsignal/util.ts';
-import { PICK_OVERRIDABLE_REASONS, PUBLISHER_FEED_POLICY, pickFor } from '../src/lib/publisher-feed.ts';
+import { PICK_OVERRIDABLE_REASONS, PUBLISHER_FEED_POLICY, pickFor, isLabelOnly } from '../src/lib/publisher-feed.ts';
 import type { DuplicateProposal, PublisherFeedControl, PublisherItem, PublisherSnapshot, PublisherSources, SourceRun } from '../src/lib/publisher-feed.ts';
 
 /** The subset of a collector candidate (server/collect.mjs parseFeed) this lane uses. */
@@ -105,6 +105,9 @@ export function buildSnapshot(previous: PublisherSnapshot | null, results: Sourc
             // The raw description goes only to the private teaching batch, and only for a source whose terms record allows it.
             permission.teachingDescription === true ? (c.body ?? '') : '');
         } catch { /* ignored */ }
+        // Label-only mode: the story has now gone to the private teaching batch. It is counted on its own line and never enters the snapshot,
+        // so it cannot be listed whatever the decision, and a pick for it is never looked at.
+        if (isLabelOnly(permission)) { run.labelOnly = (run.labelOnly ?? 0) + 1; continue; }
         // A person's pick (policy 0.5.0, General Counsel ruling of October 21, 2026) can lift only the two mild reasons. Any other reason is
         // a hard ban and the story stays out. Everything checked above (link, date, window, author, credits, rights) has already passed.
         const picked = screen.decision === 'exclude' && !!pickFor(control, c.id) && screen.reasons.length > 0 && screen.reasons.every(r => PICK_OVERRIDABLE_REASONS.includes(r));
@@ -138,6 +141,7 @@ export function buildSnapshot(previous: PublisherSnapshot | null, results: Sourc
       }
     }
     for (const prior of usable?.items ?? []) {
+      if (isLabelOnly(permission)) continue;
       if (prior.sourceId !== sourceId || seen.has(prior.id) || !inWindow(prior.publishedAt) || !retained(prior.fetchedAt, permission.retentionDays)) continue;
       if (!source.domains.includes(new URL(prior.url).hostname)) continue;
       pool.push({ ...prior }); run.carried++;
