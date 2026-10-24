@@ -1,0 +1,7 @@
+{
+  "enabled": false,
+  "dailyCeiling": 0,
+  "perCopyPerMinute": 60,
+  "allowedOrigins": ["https://positivi-tv.vercel.app"],
+  "keyPrefix": "positivitv"
+}
