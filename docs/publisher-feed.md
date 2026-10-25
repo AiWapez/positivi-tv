@@ -184,7 +184,7 @@ No new article fetching, geocoding API or paid service is added. Feed descriptio
 
 ## Coverage and image amendment
 
-The current policy is `publisher-feed-0.5.0` (0.5.0 adds the person-approved "Picked by PositiviTV" list described below; 0.4.1 added rejection of unresolved trafficked-animal journeys; see coverage and photos), with a 30-day publication window and policy-scoped private snapshot paths. It supplements Mongabay RSS with bounded keyless metadata and real byline records. Public cards may use only the checked local illustration catalog. See [coverage and photos](coverage-and-photos.md) for the exact boundaries and attribution rules. Earlier no-image and fixed snapshot-path descriptions above describe the original candidate.
+The current policy is `publisher-feed-0.6.0` (0.6.0 closes thirteen gaps in the screening rules and only ever holds more stories back; see "Policy 0.6.0" below. 0.5.0 added the person-approved "Picked by PositiviTV" list described below; 0.4.1 added rejection of unresolved trafficked-animal journeys; see coverage and photos), with a 30-day publication window and policy-scoped private snapshot paths. It supplements Mongabay RSS with bounded keyless metadata and real byline records. Public cards may use only the checked local illustration catalog. See [coverage and photos](coverage-and-photos.md) for the exact boundaries and attribution rules. Earlier no-image and fixed snapshot-path descriptions above describe the original candidate.
 
 Stricter-only rule fix, October 19, 2026: several exclusion words matched only their singular form (for example "governor" but not "governors", and likewise mayors, councils, treaties, massacres, famines, pandemics, investigations and prime ministers). Their plural forms are now excluded too. This change can only exclude more stories, never list more, so the policy version stays `publisher-feed-0.4.1` and the stories already on the site are not dropped. Before the change, the 12 cards the site was showing were re-checked against the new rules by headline and all still pass; a carried card is not re-checked against its description until it appears in a feed again. A comparison over the 144 headlines of the October 16 sample found no decision that changed in either direction. Approved by General Counsel (draft ruling of October 19, 2026).
 
@@ -334,3 +334,26 @@ Deploy note: the policy version moved to 0.5.0, so the private snapshot path mov
 
 - 2026-10-23: PR #51 added 31 picks (57 entries) from the October 22 sorting, approved by Alex, reviewed by GC.
 - 2026-10-24: PR #55 added 7 picks (14 entries) from the October 23 sorting, approved by Alex, reviewed by GC.
+- 2026-10-24: Pick for the South Sudan giraffe story removed by policy 0.6.0 (CONFLICT hard ban). Not an exception. Kept only if Alex publishes it through the reviewed edition.
+
+## Policy 0.6.0 (stricter only)
+
+Written from the Algorithm Creator's handoff of October 23, 2026 and rebuilt in `server/publisher-screen.ts`. Every change only adds ways to hold a story back. No exclusion was removed or narrowed, and nothing became pickable that was not pickable before. A check over the 176 distinct stories from the October 21 and 22 batches found no story that moved from held back to listed and none that moved from listed to held back.
+
+What changed:
+
+1. More word forms in the harm list (killings, bombings, bombers, massacred, shooters, stabbings, murderers, rampage, execution, torture, abduction, starvation, slain, beheaded, lynched, casualties, wounded, mass graves, corpses).
+2. Every exclusion list also runs on a copy of the text with hyphens read as spaces, so "war-torn" is read as "war torn". The positive lists (recovery and completed-outcome words) never use that copy, which keeps the change stricter only.
+3. A headline-only list of armed groups and weapons, reported as `CONFLICT_OR_CRISIS`, plus "conflict-hit" and its variants, "was executed" and "executed by". The bare words "conflict", "executed", "arms", "bets", "bodies" and "escort" are left out on purpose.
+4. A new code `SENSITIVE_TOPIC` (headline and description lead): hate groups and extremism; child, domestic, sexual, elder and substance abuse and abusers; domestic and sexual violence and exploitation; slavery and sex trafficking; cults; landmines and unexploded ordnance; femicide and honour killings; FGM; child soldiers, child labour and brides; forced labour or marriage; surveillance, facial recognition, spyware, predictive policing, censorship, internet shutdowns, data breaches and hacking. A recovery word can no longer unlock these.
+5. A new code `VICE_OR_ADULT` (headline only): casinos, gambling, betting, sportsbooks, tobacco, cigarettes, vaping, nicotine, liquor, strip clubs, adult film and content, pornography, brothels, cannabis and marijuana.
+6. More old-event phrases with no year written ("a decade ago", "twenty years on", "last century", "centuries ago", "long ago") and more plan words (readies, "prepares to", poised, "on track", slated, scheduled, forthcoming, "in the works"). "a century" on its own does not count.
+7. More natural-hazard words (eruptions, volcanoes, landslides, mudslides, avalanches, sinkholes, blackouts, outages, power cuts). Like floods, a recovery word in the same headline still allows the story.
+8. A new code `SUSPICIOUS_CHARACTERS`, checked on the raw text first: a story is held back when the headline or description lead contains a format character (soft hyphen, zero-width characters, direction controls, byte-order mark), a variation selector, or when one headline word mixes Latin letters with Greek or Cyrillic letters. The text is not repaired. Emoji that use a variation selector or joiner are held back by this rule too.
+9. Mined minerals added to the extractive list (nickel, lithium, cobalt, copper, bauxite, uranium, iron ore, rare earths, smelters) and "deadly", "lethal", "venomous" and "poisonous" added to the negative words that need a recovery word in the same headline. "Gold" and "plants" are left alone on purpose, because of gold medals and planted trees.
+
+The three new codes are hard bans. They are not in `PICK_OVERRIDABLE_REASONS`, and `tests/app/picked-stories.test.mjs` proves a pick can never lift them. One of the 31 stories on the pick list now carries `CONFLICT_OR_CRISIS`, so its two entries were removed from `config/publisher-feed.json` in the same change (the list holds 30 distinct stories). Labels made under 0.5.0 or earlier stay development data. The private archive and teaching batch record the new policy string from the first run after this merges.
+
+Known limits: the word lists are public, so someone who controls a feed can still write a bad headline using words on no list. The character rule blocks the cheapest evasion tricks, and human picks and the remote switch remain the backstop. No accuracy figure is claimed.
+
+Deploy note: the policy version moved to 0.6.0, so the private snapshot path moved with it and publisher cards disappear after the deploy until the next scheduled run (about 10:54 UTC) rebuilds the snapshot, unless the refresh is run by hand from the Vercel Cron Jobs page.

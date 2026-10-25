@@ -2,6 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { screenHeadline } from '../../server/publisher-screen.ts';
 import { countryFromHeadline } from '../../server/publisher-location.ts';
+import { PICK_OVERRIDABLE_REASONS } from '../../src/lib/publisher-feed.ts';
 import { NOW } from './publisher-fixtures.mjs';
 const screen = (title, description = '', defaultCategory = 'auto') => screenHeadline({ title, description, defaultCategory, now: NOW });
 
@@ -43,6 +44,19 @@ test('plans, intentions and work in progress are not presented as outcomes', () 
     assert(r.reasons.some(x => ['PLAN_OR_UNCERTAIN', 'IN_PROGRESS_NOT_OUTCOME'].includes(x)), `${title}: ${r.reasons}`);
   }
   assert.equal(screen('Thoughts on community gardens').reasons.includes('NO_COMPLETED_OUTCOME'), true);
+});
+
+test('a headline with both an intent word and an in-progress word carries both reasons, so a pick cannot lift it', () => {
+  for (const title of ['City will open park as construction begins', 'Town plans new library while work is underway', 'Pilot project aims to plant a million trees']) {
+    const r = screen(title); assert.equal(r.decision, 'exclude', title);
+    assert(r.reasons.includes('PLAN_OR_UNCERTAIN'), `${title}: ${r.reasons}`);
+    assert(r.reasons.includes('IN_PROGRESS_NOT_OUTCOME'), `${title}: ${r.reasons}`);
+    assert.equal(r.reasons.includes('NO_COMPLETED_OUTCOME'), false, `${title}: ${r.reasons}`);
+    assert.equal(r.reasons.every(x => PICK_OVERRIDABLE_REASONS.includes(x)), false, `${title}: a pick could lift this`);
+  }
+  // Intent alone and in-progress alone keep their single reasons.
+  assert.deepEqual(screen('City will open park next year').reasons, ['PLAN_OR_UNCERTAIN']);
+  assert.deepEqual(screen('Construction begins on community solar farm').reasons, ['IN_PROGRESS_NOT_OUTCOME']);
 });
 
 test('research is listed only with a visible research label', () => {
@@ -174,4 +188,66 @@ test('plural fix does not exclude constructive headlines that use none of the li
     'Award-winning school opens community garden', 'Volunteers discover new dinosaur fossils in the desert']) {
     const r = screen(title); assert.equal(r.decision, 'list', `${title}: ${r.reasons}`);
   }
+});
+
+// Policy 0.6.0 (stricter only). Every headline below is an invented pattern, not a real story, so it is safe to keep in the public repository.
+const HELD_BACK_0_6_0 = [
+  'Town opens memorial after killings', 'Bombings end as town reopens market', 'Massacred village rebuilt by volunteers', 'Shooter captured after rampage ends',
+  'Prisoner was executed, now honoured with plaque', 'Tortured activist wins award', 'Abducted children return home', 'Starvation ends as new farm opens',
+  'Deadly virus-free zone opens', 'War-torn region opens first new school', 'Drought-stricken village finds water', 'Post-war city welcomes tourists',
+  'Conflict-hit farmers earn record harvest', 'Rebels capture provincial capital', 'Militia opens checkpoint on highway', 'Army captures border town',
+  'Soldiers return after offensive succeeds', 'Cartel lands new shipping route', 'Regime unveils national stadium', 'Missile test reaches new range',
+  'Drone maker delivers first armed units', 'Nuclear warhead plant reopens', 'Weapons maker lands record contract', 'Neo-Nazi group opens community center',
+  'White supremacist rally reaches record turnout', 'Casino opens on former farmland', 'Betting app launches in new states', 'Tobacco firm wins approval for new plant',
+  'Vape maker opens factory', 'Strip club reopens after renovation', 'Adult film studio wins award', 'Charity helps child abuse survivors rebuild',
+  'Shelter opens for women fleeing domestic violence', 'Rescued from sex slavery, women open bakery', 'Former cult members find new homes',
+  'Village built on landmine field reopens', 'A decade ago this reef was dead; today it thrives', 'Last century this forest was cleared; it has returned',
+  'Company readies first launch', 'Surveillance firm wins city contract', 'Facial recognition rollout reaches every station', 'Volcano eruption creates new island',
+  'Town celebrates as blackout ends',
+  'After a decade of growth, a country becomes the largest producer of processed nickel', 'Lithium smelter opens on the coast',
+  'Elastic fantastic: the deadly fluid of a carnivorous flower',
+];
+const STILL_LISTED_0_6_0 = [
+  'Village opens first library', 'Volunteers plant 10,000 trees along river', 'Award-winning rangers return rescued pangolins', 'Mars rover lands safely',
+  'Student team builds solar boat', 'Community garden opens in Lagos', 'New butterfly species discovered in Peru', 'Coral reef restored by local divers',
+  'Wolves return to Alpine valley', 'Library reopens after renovation', 'Kiwi return to Wellington for first time in a century',
+  'Rescued sea turtles released into ocean', 'Town celebrates reopening of its river beach', 'Researchers discover ancient forest under ice',
+  'Twin pandas born at sanctuary', 'Flood-ravaged town rebuilds bridge', 'Landslide village rebuilt in record time', 'Preparing rescued owls for life in the wild',
+  'Copperbelt choir wins national award', 'Gold medal team returns home',
+];
+
+test('0.6.0: each invented pattern the old rules listed is now held back', () => {
+  for (const title of HELD_BACK_0_6_0) { const r = screen(title); assert.equal(r.decision, 'exclude', `${title}: ${r.reasons}`); }
+});
+
+test('0.6.0: near misses and controls still list', () => {
+  for (const title of STILL_LISTED_0_6_0) { const r = screen(title); assert.equal(r.decision, 'list', `${title}: ${r.reasons}`); }
+});
+
+test('0.6.0: the bare words "conflict" and "executed" are not banned', () => {
+  for (const title of ['Rangers ease human-wildlife conflict with chili fences', 'NASA team executed flawless orbit maneuver']) {
+    const r = screen(title);
+    assert(!r.reasons.includes('CONFLICT_OR_CRISIS') && !r.reasons.includes('SENSITIVE_TOPIC') && !r.reasons.includes('VICE_OR_ADULT'), `${title}: ${r.reasons}`);
+  }
+});
+
+test('0.6.0: the new reasons are reported under their own codes', () => {
+  assert(screen('Neo-Nazi group opens community center').reasons.includes('SENSITIVE_TOPIC'));
+  assert(screen('Casino opens on former farmland').reasons.includes('VICE_OR_ADULT'));
+  assert(screen('Rebels capture provincial capital').reasons.includes('CONFLICT_OR_CRISIS'));
+  assert(screen('War-torn region opens first new school').reasons.includes('CONFLICT_OR_CRISIS'));
+  assert(screen('Village opens first library', 'The library was funded after an episode of domestic violence in the district.').reasons.includes('SENSITIVE_TOPIC'), 'the description lead is read');
+});
+
+test('0.6.0: invisible and lookalike characters hold a story back instead of hiding a banned word', () => {
+  const soft = 'Three people kil­led in market, town reopens it';
+  const zero = 'Village celebrates after w​ar ends';
+  const cyrillicA = 'Village opens first grаve garden';          // Cyrillic "а" inside a Latin word
+  const cyrillicE = 'Rescued owls rеturn to the wild';          // Cyrillic "е" inside a Latin word
+  for (const title of [soft, zero, cyrillicA, cyrillicE]) {
+    const r = screen(title); assert.equal(r.decision, 'exclude', title); assert(r.reasons.includes('SUSPICIOUS_CHARACTERS'), `${title}: ${r.reasons}`);
+  }
+  assert(screen('Village opens first library', 'A short description with a zero​width space.').reasons.includes('SUSPICIOUS_CHARACTERS'), 'the description lead is checked too');
+  assert.equal(screen('Village opens first library').reasons.includes('SUSPICIOUS_CHARACTERS'), false);
+  assert.equal(screen('Москва opens first library').reasons.includes('SUSPICIOUS_CHARACTERS'), false, 'a word fully in one script is not mixed');
 });
