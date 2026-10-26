@@ -261,7 +261,22 @@ Archive log (dates only, no content):
 
 ### Counts-only run report
 
-`GET /api/run-report` is a small public page of counts from the last automatic run, built from the snapshot the daily run already stores. It lets the daily result be checked at any hour without the one-hour runtime logs or an in-app approval. For each source it gives whether the feed was collected, not reached or switched off, the time of the check, the number of candidates, how many were listed, carried or not listed, and how often each reason code held a story back (one story can have several reasons). It also gives the screening policy version and anything paused. It never contains headlines, descriptions, links, story ids, collector error text, visitor data or IP addresses. Wording for publishers is neutral ("not listed", "held back", "not reached"), and the page carries this note: "Counts from PositiviTV's automatic story selection. Not listed doesn't mean a story is wrong; it means our rules didn't pick it." Approved by General Counsel (draft ruling of October 19, 2026); no Privacy Policy change is needed.
+`GET /api/run-report` is a small public page of counts from the last automatic run, built from the snapshot the daily run already stores. It lets the daily result be checked at any hour without the one-hour runtime logs or an in-app approval. For each source it gives whether the feed was collected, not reached or switched off, the time of the check, the number of candidates, how many were listed, carried or not listed, how many runs in a row were quiet or not reached (see below), and how often each reason code held a story back (one story can have several reasons). It also gives the screening policy version and anything paused. It never contains headlines, descriptions, links, story ids, collector error text, visitor data or IP addresses. Wording for publishers is neutral ("not listed", "held back", "not reached"), and the page carries this note: "Counts from PositiviTV's automatic story selection. Not listed doesn't mean a story is wrong; it means our rules didn't pick it." Approved by General Counsel (draft ruling of October 19, 2026); no Privacy Policy change is needed.
+
+### Quiet-source counts (Security Lead, October 26, 2026)
+
+Why: on October 26 the base Global Voices feed returned 0 candidates and still showed "collected", because the feed was live but every item was older than the 30-day window. Nothing alerted. The same silent pattern had cost an earlier project days (the Ernds email lesson), and NOAA has been "not reached" for days with no notice.
+
+What it is: two whole-number counts per source, kept in the stored snapshot and shown in the run report. `quietRuns` is how many runs in a row reached the feed and got no usable items. `unreachedRuns` is how many runs in a row could not reach the feed. Each goes back to 0 on the first run that does not match. A switched-off source holds both at 0.
+
+Rules:
+- Observation only. Neither count is read by any decision about whether a story is listed, carried or picked. `tests/app/quiet-runs.test.mjs` builds and projects two snapshots that differ only in these counts and checks the story lists are identical.
+- The previous count is read from the stored snapshot only as a whole number from 0 to 10,000. Anything else counts as 0. A count never grows past 10,000.
+- A policy-version change starts a fresh snapshot, which resets every count to 0 (the previous snapshot is ignored when its policy differs).
+- Label-only sources stay out of the public report and out of the log line, so their counts are never shown (#58). They are still kept privately in the snapshot.
+- When a source has either count at 2 or more, the daily run writes one counts-only line to the run log: `quiet source: <source id> quietRuns=<n> unreachedRuns=<n>`. No host, error text, headline or story id.
+- A run in which every source fails keeps the previous snapshot unchanged, so the counts do not move on such a run.
+- Someone has to see it: a weekly scheduled check reads `/api/run-report` only (no secret) and messages Alex only when a source shows `quietRuns` or `unreachedRuns` of 2 or more. It says nothing when all is well. The schedule needs Alex's approval; see the Builder Sessions log.
 
 ## Screening sample (temporary)
 

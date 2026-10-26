@@ -4,7 +4,8 @@ import { buildSnapshot } from './publisher-snapshot.ts';
 import type { FeedCandidate, ScreenedRecord, SourceResult } from './publisher-snapshot.ts';
 import { conflictError } from './publisher-store.ts';
 import type { PublisherStore } from './publisher-store.ts';
-import type { PublisherFeedControl, PublisherSources } from '../src/lib/publisher-feed.ts';
+import { isLabelOnly, storedStreak } from '../src/lib/publisher-feed.ts';
+import type { PublisherFeedControl, PublisherSnapshot, PublisherSources } from '../src/lib/publisher-feed.ts';
 
 export interface FeedConfig { id: string; url: string; allowedDomains: string[]; topic: string; fetchPolicyRef: string; lanes: string[]; maxBytes?: number; format?: 'wordpress'; supplementalUrl?: string; supplementalBylineUrl?: string }
 export interface RefreshDeps {
@@ -20,6 +21,21 @@ export interface RefreshDeps {
    * stored. It can never change the snapshot, the listings or the outcome of the run. Absent means off.
    */
   saveTeaching?: (records: ScreenedRecord[], now: string, descriptions: ReadonlyMap<string, string>) => Promise<unknown>;
+}
+
+/**
+ * One counts-only line for each source that came back empty, or could not be reached, two or more runs in a row (Security Lead, October 26, 2026).
+ * Label-only sources are never named. Read-only: it cannot change a decision.
+ */
+export function quietSourceLines(snapshot: PublisherSnapshot, sources: PublisherSources): string[] {
+  const lines: string[] = [];
+  for (const [id, run] of Object.entries(snapshot.sources)) {
+    if (!/^[a-z0-9-]{1,64}$/.test(id) || !run || typeof run !== 'object') continue;
+    if (isLabelOnly(sources[id]?.publisherFeed) || storedStreak(run.labelOnly) > 0) continue;
+    const quiet = storedStreak(run.quietRuns), unreached = storedStreak(run.unreachedRuns);
+    if (quiet >= 2 || unreached >= 2) lines.push(`quiet source: ${id} quietRuns=${quiet} unreachedRuns=${unreached}`);
+  }
+  return lines;
 }
 
 /** The most time the teaching batch may add to a run, so the scheduled job stays inside its time limit. */
@@ -139,6 +155,8 @@ export async function runPublisherRefresh(deps: RefreshDeps): Promise<RefreshOut
     }
     try { await store.writeCurrent(snapshot, previous?.etag ?? null); }
     catch (error) { if (conflictError(error)) return { code: 409, body: { error: 'Another run replaced the snapshot first; nothing was overwritten.' } }; throw error; }
+    try { const write = deps.log ?? ((line: string) => console.log(line)); for (const line of quietSourceLines(snapshot, sources)) write(line); }
+    catch { /* logging can never fail a collection run */ }
     // After the snapshot is safely stored. Bounded in time, and no failure here can change the run's result.
     if (deps.saveTeaching && sample.length) {
       try { await Promise.race([deps.saveTeaching(sample, now, descriptions).catch(() => undefined), new Promise(resolve => { const t = setTimeout(resolve, TEACHING_BUDGET_MS); (t as { unref?: () => void }).unref?.(); })]); }

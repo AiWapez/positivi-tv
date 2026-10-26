@@ -112,7 +112,15 @@ export interface SourceRun {
   parsed: number; listed: number; carried: number; excluded: Record<string, number>; code?: string;
   /** Items from a label-only source: screened and sent to the private teaching batch, never public. Counted apart from `listed`. */
   labelOnly?: number;
+  /** Runs in a row in which the feed was reached but gave no usable items (0 to 10,000). Observation only: it never changes what is listed, carried or picked. */
+  quietRuns?: number;
+  /** Runs in a row in which the feed could not be reached (0 to 10,000). Same rules as quietRuns. */
+  unreachedRuns?: number;
 }
+/** Largest value a run-in-a-row count can hold. */
+export const STREAK_LIMIT = 10000;
+/** A stored count is used only as a whole number from 0 to STREAK_LIMIT. Anything else counts as 0. */
+export const storedStreak = (value: unknown): number => (Number.isInteger(value) && (value as number) >= 0 && (value as number) <= STREAK_LIMIT ? (value as number) : 0);
 /** shown=false means the second item was hidden from the public list; shown=true is a proposal for maintainer review only. */
 export interface DuplicateProposal { kept: string; suppressed: string; similarity: number; basis: 'same_url' | 'headline_similarity'; shown: boolean }
 export interface PublisherSnapshot {
