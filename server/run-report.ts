@@ -1,4 +1,4 @@
-import { PUBLISHER_FEED_POLICY, isLabelOnly, validSnapshot } from '../src/lib/publisher-feed.ts';
+import { PUBLISHER_FEED_POLICY, isLabelOnly, storedStreak, validSnapshot } from '../src/lib/publisher-feed.ts';
 import type { PublisherFeedControl, PublisherSources, SnapshotRead } from '../src/lib/publisher-feed.ts';
 
 /** Wording approved by General Counsel (draft ruling of October 19, 2026). */
@@ -12,6 +12,8 @@ export interface SourceCounts {
   checkedAt: string; lastCollectedAt: string | null;
   candidates: number; listed: number; carried: number;
   notListed: number;
+  /** Runs in a row in which the feed was reached but gave nothing usable, and runs in a row in which it could not be reached. Plain counts from 0 to 10,000. */
+  quietRuns: number; unreachedRuns: number;
   /** How often each reason held a story back. One story can have several reasons, so these can add up to more than notListed. */
   heldBackReasons: Record<string, number>;
 }
@@ -49,7 +51,7 @@ export function buildRunReport(read: SnapshotRead, control: PublisherFeedControl
       collection: COLLECTION_WORDS[run.status] ?? 'not reached',
       checkedAt: typeof run.checkedAt === 'string' ? run.checkedAt : '',
       lastCollectedAt: typeof run.lastSuccessAt === 'string' ? run.lastSuccessAt : null,
-      candidates, listed, carried: count(run.carried), notListed: Math.max(0, candidates - listed - labelOnly), heldBackReasons: reasons,
+      candidates, listed, carried: count(run.carried), notListed: Math.max(0, candidates - listed - labelOnly), quietRuns: storedStreak(run.quietRuns), unreachedRuns: storedStreak(run.unreachedRuns), heldBackReasons: reasons,
     };
   }
   // Only sources the last run itself recorded as switched off, so a publisher we never used is never named here.

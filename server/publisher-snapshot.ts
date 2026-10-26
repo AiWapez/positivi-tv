@@ -5,7 +5,7 @@ import { locateFeedOutcome } from './feed-location.ts';
 import { combinePlaces, resolvePublisherPlace } from './publisher-place.ts';
 import type { PlaceTags } from './publisher-place.ts';
 import { canonicalUrl } from '../src/goodsignal/util.ts';
-import { PICK_OVERRIDABLE_REASONS, PUBLISHER_FEED_POLICY, pickFor, isLabelOnly } from '../src/lib/publisher-feed.ts';
+import { PICK_OVERRIDABLE_REASONS, PUBLISHER_FEED_POLICY, STREAK_LIMIT, pickFor, isLabelOnly, storedStreak } from '../src/lib/publisher-feed.ts';
 import type { DuplicateProposal, PublisherFeedControl, PublisherItem, PublisherSnapshot, PublisherSources, SourceRun } from '../src/lib/publisher-feed.ts';
 
 /** The subset of a collector candidate (server/collect.mjs parseFeed) this lane uses. */
@@ -75,7 +75,7 @@ export function buildSnapshot(previous: PublisherSnapshot | null, results: Sourc
     const result = results.find(r => r.sourceId === sourceId);
     const lastSuccess = usable?.sources?.[sourceId]?.lastSuccessAt ?? null;
     if (!source || !source.enabled || !permission?.enabled) {
-      if (source) runs[sourceId] = { status: 'disabled', checkedAt: now, lastSuccessAt: lastSuccess, parsed: 0, listed: 0, carried: 0, excluded: {} };
+      if (source) runs[sourceId] = { status: 'disabled', checkedAt: now, lastSuccessAt: lastSuccess, parsed: 0, listed: 0, carried: 0, excluded: {}, quietRuns: 0, unreachedRuns: 0 };
       continue;
     }
     if (!result) continue;
@@ -146,6 +146,10 @@ export function buildSnapshot(previous: PublisherSnapshot | null, results: Sourc
       if (!source.domains.includes(new URL(prior.url).hostname)) continue;
       pool.push({ ...prior }); run.carried++;
     }
+    // Observation only (Security Lead, October 26, 2026): these two counts are never read by any listing, carrying or pick decision.
+    const priorRun = usable?.sources?.[sourceId];
+    run.quietRuns = result.ok && run.parsed === 0 ? Math.min(storedStreak(priorRun?.quietRuns) + 1, STREAK_LIMIT) : 0;
+    run.unreachedRuns = !result.ok ? Math.min(storedStreak(priorRun?.unreachedRuns) + 1, STREAK_LIMIT) : 0;
     runs[sourceId] = run;
   }
   // Exact URL and headline-similarity proposals. Earliest publication is kept as the likely original.
