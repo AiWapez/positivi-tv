@@ -25,7 +25,7 @@ The approved design includes desktop sidebar browsing, a purpose-built mobile la
 
 ## GoodSignal
 
-GoodSignal checks constructive outcome type, evidence spans, separate event/publication/origin dates, source permission, retention, and human review. It composes a shared edition while avoiding duplicate events. Every story in the reviewed edition requires human approval; no AI model can authorize publication. A separate, explicitly labelled publisher-feed lane lists headlines automatically under its own policy; it never claims review. See [the publisher-feed contract](docs/publisher-feed.md). The engine's math is inspectable, and the tests are regression cases, not measured fact-checking accuracy.
+GoodSignal checks constructive outcome type, evidence spans, separate event/publication/origin dates, source permission, retention, and human review. It composes a shared edition while avoiding duplicate events. Every story in the reviewed edition requires human approval; no AI model can authorize publication. A separate, explicitly labelled publisher-feed lane lists headlines automatically under its own policy; it never claims review. See [the publisher-feed contract](docs/publisher-feed.md) and [how we measure the rules](docs/evaluation-protocol.md). The engine's math is inspectable, and the tests are regression cases, not measured fact-checking accuracy.
 
 The first integration uses a maintainer-operated private editorial workspace and a versioned public edition in Git. There is no public editor endpoint. See [the editor guide](docs/editor-workflow.md), [integration boundaries](docs/goodsignal-integration.md), and [the algorithm specification](docs/goodsignal-spec.md).
 
