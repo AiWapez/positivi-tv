@@ -1,0 +1,7 @@
+# Changes to these paths need review from the repository owner.
+/CLAUDE.md @AiWapez
+/.github/ @AiWapez
+/package.json @AiWapez
+/package-lock.json @AiWapez
+/vercel.json @AiWapez
+/config/ @AiWapez
