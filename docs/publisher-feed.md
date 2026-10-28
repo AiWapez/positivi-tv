@@ -273,6 +273,7 @@ Rules:
 - Observation only. Neither count is read by any decision about whether a story is listed, carried or picked. `tests/app/quiet-runs.test.mjs` builds and projects two snapshots that differ only in these counts and checks the story lists are identical.
 - The previous count is read from the stored snapshot only as a whole number from 0 to 10,000. Anything else counts as 0. A count never grows past 10,000.
 - A policy-version change starts a fresh snapshot, which resets every count to 0 (the previous snapshot is ignored when its policy differs).
+- Merge timing for a policy change: before each policy-change merge, tell Alex how many stories (picked ones included) will drop until the feeds show them again. A policy change also resets `quietRuns` and `unreachedRuns`, so a quiet or unreached source starts counting again from 0 after the merge.
 - Label-only sources stay out of the public report and out of the log line, so their counts are never shown (#58). They are still kept privately in the snapshot.
 - When a source has either count at 2 or more, the daily run writes one counts-only line to the run log: `quiet source: <source id> quietRuns=<n> unreachedRuns=<n>`. No host, error text, headline or story id.
 - A run in which every source fails keeps the previous snapshot unchanged, so the counts do not move on such a run.

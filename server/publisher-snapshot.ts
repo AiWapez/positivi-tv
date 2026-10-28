@@ -147,6 +147,8 @@ export function buildSnapshot(previous: PublisherSnapshot | null, results: Sourc
       pool.push({ ...prior }); run.carried++;
     }
     // Observation only (Security Lead, October 26, 2026): these two counts are never read by any listing, carrying or pick decision.
+    // run.parsed already means "usable inside the 30-day window": collect.mjs parseFeed drops older items before this point, so parsed === 0 on a reachable feed is a quiet run.
+    // If the collector ever stops dropping out-of-window items, this rule must be revisited (Security Lead, October 27, 2026).
     const priorRun = usable?.sources?.[sourceId];
     run.quietRuns = result.ok && run.parsed === 0 ? Math.min(storedStreak(priorRun?.quietRuns) + 1, STREAK_LIMIT) : 0;
     run.unreachedRuns = !result.ok ? Math.min(storedStreak(priorRun?.unreachedRuns) + 1, STREAK_LIMIT) : 0;
